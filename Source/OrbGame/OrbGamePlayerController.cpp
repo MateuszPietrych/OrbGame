@@ -95,7 +95,7 @@ void AOrbGamePlayerController::AddOrb()
 {
 	if (OrbGameCharacter)
 	{
-		OrbGameCharacter->GetOrbManager()->AddBall();
+		OrbGameCharacter->GetOrbManager()->AddOrb();
 	}
 }
 

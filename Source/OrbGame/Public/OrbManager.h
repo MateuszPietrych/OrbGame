@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Structures.h"
+#include "OrbTransferer.h"
 #include "OrbManager.generated.h"
 
 
@@ -30,7 +31,7 @@ public:
 	class AOrb* CreateOrb();
 
 	UFUNCTION(BlueprintCallable)
-	void AddBall();
+	void AddOrb();
 
 	UFUNCTION(BlueprintCallable)
 	void RevertSpeedChanges();
@@ -45,10 +46,16 @@ public:
 	float CalculateNewRotationSpeed(int OrbIndex, int AmountOfOrbsBefore, int AmountOfOrbsAfter, int IndexOfRemovedOrb = -1);
 
 	UFUNCTION(BlueprintCallable)
-	void FixOrbsPosition(bool IsAddingOrb, int IndexOfRemovedOrb);
+	float NewCalculateNewRotationSpeed(int OrbIndex, int AmountOfOrbsBefore, int AmountOfOrbsAfter, int IndexOfRemovedOrb);
+
+	UFUNCTION(BlueprintCallable)
+	void FixOrbsPosition(bool IsAddingOrb, int IndexOfRemovedOrb, AOrb* RemovedOrb);
 
 	UFUNCTION(BlueprintCallable)
 	void FixOrbsOnLevelPosition(FOrbLevelData& OrbLevelData,bool IsAddingOrb, int IndexOfRemovedOrb);
+
+	UFUNCTION(BlueprintCallable)
+	void TransferOrbToAnotherLevel();
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = CustomBaseOrb)
 	TSubclassOf<class AOrb> OrbClass;
@@ -72,11 +79,15 @@ private:
 
 	FTimerHandle RevertSpeedTimerHandle;
 	FTimerHandle PrepareOrbToUseTimerHandle;
+	FTimerHandle TransferTimerHandle;
 
 	AOrb* OrbToUse = nullptr;
 	FVector FinishPoint;
 	FVector OldLocation;
 	float TimeInRepPosition = 0.0f;
+	float TimeInTransfer = 0.0f;
+	
+	TArray<FTransferOrbData> TransferOrbsData;
 	
 };
 

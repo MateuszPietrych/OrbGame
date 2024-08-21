@@ -74,3 +74,10 @@ float AOrb::GetCurrentOrbRotationDeviation()
 	return GetActorRotation().Yaw;
 }
 
+float AOrb::GetCurrentOrbRotationDeviation0to360()
+{
+	float Rotation = GetActorRotation().Yaw;
+	Rotation = Rotation < 0? 360.0f + Rotation : Rotation;
+	return Rotation;
+}
+

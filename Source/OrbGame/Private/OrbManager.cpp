@@ -7,6 +7,7 @@
 #include "GameFramework/Actor.h"
 #include "Engine/World.h"
 #include "TimerManager.h"
+#include "OrbTransferer.h"
 
 
 
@@ -50,8 +51,8 @@ AOrb* UOrbManager::CreateOrb()
 }
 
 
-void UOrbManager::AddBall(){
-	UE_LOG(LogTemp, Warning, TEXT("AddBall"));
+void UOrbManager::AddOrb(){
+	UE_LOG(LogTemp, Warning, TEXT("AddOrb"));
 
 	for(FOrbLevelData& OrbLevelData : OrbLevelsData)
 	{
@@ -59,27 +60,18 @@ void UOrbManager::AddBall(){
 		{
 			float AmountOfOrbsBefore = OrbLevelData.Orbs.Num();
 			float AmountOfOrbsAfter = AmountOfOrbsBefore + 1;
-			float BaseRotationDeviation;
-		
-			if(OrbLevelData.Orbs.Num() > 0)
-			{
-				BaseRotationDeviation = OrbLevelData.Orbs[0]->GetCurrentOrbRotationDeviation();
-			}
-
-			for(int i = 0; i < OrbLevelData.Orbs.Num(); i++)
-			{
-				AOrb* Orb = OrbLevelData.Orbs[i];
-				Orb->SetRotationSpeed( CalculateNewRotationSpeed(i, AmountOfOrbsBefore, AmountOfOrbsAfter) );
-			}
+			
+			FixOrbsOnLevelPosition(OrbLevelData, true, -1);
 			
 			AOrb* Orb = CreateOrb();
 			OrbLevelData.Orbs.Add(Orb);
 			Orb->SetOrbPosition(OrbLevelData.XOffset, OrbLevelData.ZOffset);
 			Orb->SetRotationSpeed(BaseSpeed);
 
-			UE_LOG(LogTemp, Warning, TEXT("Orb %d %f"), OrbLevelData.Orbs.Num() - 1, BaseSpeed);
-			if(BaseRotationDeviation)
+			// UE_LOG(LogTemp, Warning, TEXT("Orb %d %f"), OrbLevelData.Orbs.Num() - 1, BaseSpeed);
+			if(OrbLevelData.Orbs.Num() > 0)
 			{
+				float BaseRotationDeviation = OrbLevelData.Orbs[0]->GetCurrentOrbRotationDeviation();
 				GetWorld()->GetTimerManager().SetTimer(RevertSpeedTimerHandle, this, &UOrbManager::RevertSpeedChanges, RepositionTime, false);
 				Orb->SetOrbRotation((360.0f / AmountOfOrbsAfter) * AmountOfOrbsBefore + BaseRotationDeviation);
 			}else
@@ -118,35 +110,93 @@ float UOrbManager::CalculateNewRotationSpeed(int OrbIndex, int AmountOfOrbsBefor
 	return NewSpeed;
 }
 
-void UOrbManager::FixOrbsPosition(bool IsAddingOrb, int IndexOfRemovedOrb)
+float UOrbManager::NewCalculateNewRotationSpeed(int OrbIndex, int AmountOfOrbsBefore, int AmountOfOrbsAfter, int IndexOfRemovedOrb)
 {
-	for(FOrbLevelData& OrbLevelData : OrbLevelsData)
-	{
-		if(OrbLevelData.Orbs.Num() < OrbLevelData.NumberOfOrbs)
-		{
-			FixOrbsOnLevelPosition(OrbLevelData, IsAddingOrb, IndexOfRemovedOrb);
 
-			GetWorld()->GetTimerManager().SetTimer(RevertSpeedTimerHandle, this, &UOrbManager::RevertSpeedChanges, RepositionTime, false);
-			return;
-		}
-	}
+	float OldAngle = (360.0f / AmountOfOrbsBefore) * OrbIndex;
+	float Angle = (360.0f / AmountOfOrbsAfter) * IndexOfRemovedOrb;
+	float Distance = OldAngle - Angle;
+	float NewSpeed = BaseSpeed - (Distance / RepositionTime);
+
+	UE_LOG(LogTemp, Warning, TEXT("OldAngle: %f  Angle: %f  Distance: %f  NewSpeed: %f"), OldAngle, Angle, Distance, NewSpeed);
+	return NewSpeed;
 }
 
-void UOrbManager::FixOrbsOnLevelPosition(FOrbLevelData& OrbLevelData, bool IsAddingOrb, int IndexOfRemovedOrb)
+
+void UOrbManager::FixOrbsPosition(bool IsAddingOrb, int IndexOfRemovedOrb, AOrb* RemovedOrb)
+{
+	bool isFirst = true;
+	int i = 0;
+
+	for(FOrbLevelData& OrbLevelData : OrbLevelsData)
+	{
+		if(isFirst && OrbLevelData.Orbs.Num() < OrbLevelData.NumberOfOrbs && OrbLevelsData[1].Orbs.Num() == 0)
+		{
+			FixOrbsOnLevelPosition(OrbLevelData, IsAddingOrb, IndexOfRemovedOrb);
+		}else if(!isFirst && OrbLevelData.Orbs.Num() > 0)
+		{
+			float RotationOfRemovedOrb = RemovedOrb->GetCurrentOrbRotationDeviation0to360();
+
+			float RotationDistance = 360.0f;
+			AOrb* OrbToDown = nullptr; 
+
+			UE_LOG(LogTemp, Warning, TEXT("RotationOfRemovedOrb %f"), RotationOfRemovedOrb);
+			// get the closest orb to OrbToUse rotation
+			for(AOrb* Orb: OrbLevelData.Orbs)
+			{
+				float OrbRotation = Orb->GetCurrentOrbRotationDeviation0to360();
+				UE_LOG(LogTemp, Warning, TEXT("OrbRotation %f"), OrbRotation);
+				if(FMath::Abs(OrbRotation - RotationOfRemovedOrb) < RotationDistance) 
+				{
+					RotationDistance = FMath::Abs(OrbRotation - RotationOfRemovedOrb);
+					OrbToDown = Orb;
+				}
+			}
+
+			int OrbIndex = OrbLevelData.Orbs.Find(OrbToDown); 
+			OrbLevelData.Orbs.RemoveAt(OrbIndex);
+			OrbLevelsData[i-1].Orbs.Insert(OrbToDown, IndexOfRemovedOrb);
+
+			UE_LOG(LogTemp, Warning, TEXT("FixOrbsPosition i: %d  i-1: %d  "), OrbIndex, IndexOfRemovedOrb);
+			
+			// set the new rotation speed
+			float NewSpeed = BaseSpeed +  (RemovedOrb->GetCurrentOrbRotationDeviation()-OrbToDown->GetCurrentOrbRotationDeviation()) / RepositionTime;
+			OrbToDown->SetRotationSpeed(NewSpeed);
+
+
+			bool IsLast = i == OrbLevelsData.Num() - 1;
+			if(IsLast || !IsLast && (OrbLevelsData[i+1].Orbs.Num() <= 0))
+			{
+				FixOrbsOnLevelPosition(OrbLevelData, false, OrbIndex);
+			}
+
+			// set new timer with height change
+			TransferOrbsData.Add(FTransferOrbData{i, i-1, OrbIndex, OrbToDown});
+
+
+			RemovedOrb = OrbToDown;
+			IndexOfRemovedOrb = OrbIndex;
+		}
+
+		if(isFirst)
+		{
+			isFirst = false;
+		}
+		i++;
+	}
+	GetWorld()->GetTimerManager().SetTimer(TransferTimerHandle, this, &UOrbManager::TransferOrbToAnotherLevel, 0.01f, true);
+	GetWorld()->GetTimerManager().SetTimer(RevertSpeedTimerHandle, this, &UOrbManager::RevertSpeedChanges, RepositionTime, false);
+}
+
+void UOrbManager::FixOrbsOnLevelPosition(FOrbLevelData& OrbLevelData, bool IsAddingOrb, int IndexOfRemovedOrb = -1)
 {
 	float AmountOfOrbsBefore = IsAddingOrb? OrbLevelData.Orbs.Num() : OrbLevelData.Orbs.Num() + 1;
 	float AmountOfOrbsAfter = IsAddingOrb? AmountOfOrbsBefore + 1 : AmountOfOrbsBefore - 1;
-	float BaseRotationDeviation;
-
-	if(OrbLevelData.Orbs.Num() > 0)
-	{
-		BaseRotationDeviation = OrbLevelData.Orbs[0]->GetCurrentOrbRotationDeviation();
-	}
 
 	for(int i = 0; i < OrbLevelData.Orbs.Num(); i++)
 	{
 		AOrb* Orb = OrbLevelData.Orbs[i];
-		UE_LOG(LogTemp, Warning, TEXT("Orb B: %f  A: %f"), AmountOfOrbsBefore, AmountOfOrbsAfter);
+		// UE_LOG(LogTemp, Warning, TEXT("Orb B: %f  A: %f"), AmountOfOrbsBefore, AmountOfOrbsAfter);
 		Orb->SetRotationSpeed( CalculateNewRotationSpeed(i, AmountOfOrbsBefore, AmountOfOrbsAfter, IndexOfRemovedOrb) );
 	}
 }
@@ -157,7 +207,7 @@ void UOrbManager::RevertSpeedChanges()
 	{
 		for(int i = 0; i < OrbLevelData.Orbs.Num(); i++)
 		{
-			UE_LOG(LogTemp, Warning, TEXT("Orb Revert speed %d"), i)
+			// UE_LOG(LogTemp, Warning, TEXT("Orb Revert speed %d"), i)
 			AOrb* Orb = OrbLevelData.Orbs[i];
 			Orb->SetRotationSpeed(BaseSpeed);
 		}
@@ -190,13 +240,19 @@ void UOrbManager::PrepareOrbToUse(FVector DirectionPoint, FVector NewFinishPoint
 		OrbToUse = HittedOrb;
 		FinishPoint = NewFinishPoint;
 		OldLocation = OrbToUse->GetActorLocation();
+		
 		OrbToUse->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
 		OrbToUse->K2_AttachToComponent(this,TEXT(""), EAttachmentRule::KeepRelative, EAttachmentRule::KeepRelative, EAttachmentRule::KeepWorld, true);
 
 		int IndexOfRemovedOrb = OrbLevelsData[0].Orbs.Find(OrbToUse);
+		if(IndexOfRemovedOrb == -1)
+		{	
+			UE_LOG(LogTemp, Error, TEXT("Not Found Orb"));
+			return;
+		}
 		OrbLevelsData[0].Orbs.RemoveAt(IndexOfRemovedOrb);
 
-		FixOrbsPosition(false, IndexOfRemovedOrb);
+		FixOrbsPosition(false, IndexOfRemovedOrb, OrbToUse);
 		GetWorld()->GetTimerManager().SetTimer(PrepareOrbToUseTimerHandle, this, &UOrbManager::ChangeOrbPosition, 0.01f, true);
 	}else{
 		UE_LOG(LogTemp, Warning, TEXT("Not HittedOrb"));
@@ -225,6 +281,35 @@ void UOrbManager::ChangeOrbPosition()
 	{
 		TimerManager.ClearTimer(PrepareOrbToUseTimerHandle);
 		TimeInRepPosition = 0.0f;
+		OrbToUse->Destroy();
 	}
 	
+}
+
+void UOrbManager::TransferOrbToAnotherLevel()
+{ 
+	TimeInTransfer += 0.01f;
+	FTimerManager& TimerManager = GetWorld()->GetTimerManager();
+
+	if(!TimerManager.IsTimerActive(TransferTimerHandle))
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Timer Not Active"));
+		return;
+	}
+
+	float Alpha = FMath::Min(TimeInTransfer/PrepareToUseTime, 1.0f);
+
+	for(FTransferOrbData TransferOrbData: TransferOrbsData)
+	{	
+		TransferOrbData.Orb->SetRadiusLength(FMath::Lerp(OrbLevelsData[TransferOrbData.FromLevel].XOffset, OrbLevelsData[TransferOrbData.ToLevel].XOffset, Alpha));
+		TransferOrbData.Orb->SetHeight(FMath::Lerp(OrbLevelsData[TransferOrbData.FromLevel].ZOffset, OrbLevelsData[TransferOrbData.ToLevel].ZOffset, Alpha));
+		// UE_LOG(LogTemp, Warning, TEXT("TransferOrbToAnotherLevel %f"), Alpha);
+	}
+
+	if(Alpha >= 1)
+	{
+		TimerManager.ClearTimer(TransferTimerHandle);
+		TimeInTransfer = 0.0f;
+		TransferOrbsData.Empty();
+	}
 }

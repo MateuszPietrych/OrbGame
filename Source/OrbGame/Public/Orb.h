@@ -41,6 +41,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 	float GetCurrentOrbRotationDeviation();
 
+	UFUNCTION(BlueprintCallable)
+	float GetCurrentOrbRotationDeviation0to360();
+
 private:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Components, meta = (AllowPrivateAccess = "true"))
