@@ -51,6 +51,9 @@ public:
 	void ActivateEffect();
 
 	UFUNCTION(BlueprintCallable)
+	void ActivateLongUsageEffect();
+
+	UFUNCTION(BlueprintCallable)
 	void BeginSphereProjectileOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
 	UFUNCTION(BlueprintCallable)
@@ -67,6 +70,12 @@ private:
 	class UStaticMeshComponent* OrbMesh;	
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Components, meta = (AllowPrivateAccess = "true"))
+	class UNiagaraComponent * BaseNiagaraComponent;	
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Components, meta = (AllowPrivateAccess = "true"))
+	class UNiagaraComponent * LongUseNiagaraComponent;	
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Components, meta = (AllowPrivateAccess = "true"))
 	class URotatingMovementComponent* RotatingMovement;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Components, meta = (AllowPrivateAccess = "true"))
@@ -77,4 +86,13 @@ private:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = OrbData, meta = (AllowPrivateAccess = "true"))
 	float BaseProjectileSphereRadius = 100.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = OrbData, meta = (AllowPrivateAccess = "true"))
+	class UNiagaraSystem* BaseNiagaraSystemClass;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = OrbData, meta = (AllowPrivateAccess = "true"))
+	class UNiagaraSystem* ActivationNiagaraSystemClass;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = OrbData, meta = (AllowPrivateAccess = "true"))
+	class UNiagaraSystem* LongUsageNiagaraSystemClass;
 };

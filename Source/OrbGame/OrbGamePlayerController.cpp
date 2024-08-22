@@ -34,6 +34,8 @@ void AOrbGamePlayerController::BeginPlay()
 	// Call the base class  
 	Super::BeginPlay();
 	OrbGameCharacter = Cast<AOrbGameCharacter>(GetPawn());
+
+	OrbGameCharacter->GetOrbManager()->OnFinishOrbPreparationEvent.AddUObject(this, &AOrbGamePlayerController::OnFinishOrbPreparationEvent);
 }
 
 void AOrbGamePlayerController::SetupInputComponent()
@@ -71,6 +73,7 @@ void AOrbGamePlayerController::SetupInputComponent()
 	{
 		UE_LOG(LogTemplateCharacter, Error, TEXT("'%s' Failed to find an Enhanced Input Component! This template is built to use the Enhanced Input system. If you intend to use the legacy system, then you will need to update this C++ file."), *GetNameSafe(this));
 	}
+
 }
 
 
@@ -106,6 +109,7 @@ void AOrbGamePlayerController::FireOrb()
 {
 	if (OrbGameCharacter)
 	{
+
 		FVector Direction = FVector(1.0f, 0.0f, 0.0f);
 		Direction = CachedRotation.RotateVector(Direction);
 		OrbGameCharacter->GetOrbManager()->FireOrb(Direction);
@@ -143,6 +147,10 @@ void AOrbGamePlayerController::OnSetDestinationTriggered()
 
 	
 	UOrbManager* PlayerOrbManager = OrbGameCharacter->GetOrbManager();
+	if(PlayerOrbManager->IsOrbPrepared() && !PlayerOrbManager->IsFirstLevelPrepared())
+	{
+		PlayerOrbManager->PrepareFirstLevelToUse();
+	}
 
 	if(PlayerOrbManager->IsOrbPrepared() && FollowOrb == nullptr)
 	{
@@ -161,7 +169,13 @@ void AOrbGamePlayerController::OnSetDestinationTriggered()
 			float ScaleValue = 1.0f * RayMultiplier * PlayerOrbManager->GetR();
 			UE_LOG(LogTemp, Warning, TEXT("ScaleValue: %f"), ScaleValue);
 			Niagara->SetRelativeScale3D(FVector(ScaleValue, ScaleValue, ScaleValue));
+
+			FRotator NewRotation = UKismetMathLibrary::FindLookAtRotation(Niagara->GetComponentToWorld().GetLocation(),FollowOrb->GetOrbWorldLocation());
+			Niagara->SetWorldRotation(NewRotation);
 			Niagara->ActivateSystem();
+
+			FollowOrb->ActivateLongUsageEffect();
+
 		}
 	}else if(FollowOrb)
 	{
@@ -170,7 +184,9 @@ void AOrbGamePlayerController::OnSetDestinationTriggered()
 		FVector Direction = HittedOrbPointFixed - PlayerLocation;
 
 		FRotator NewRotation = UKismetMathLibrary::FindLookAtRotation(PlayerLocation, HittedOrbPointFixed);
-		OrbGameCharacter->SetActorRotation(NewRotation);
+		OrbGameCharacter->SetActorRotation(NewRotation);	
+		FollowOrb->SetOrbRotation(NewRotation.Yaw);
+
 		UE_LOG(LogTemp, Warning, TEXT("Time: %f OrbLocation: %f %f %f"), FollowTime, HittedOrbPointFixed.X, HittedOrbPointFixed.Y, HittedOrbPointFixed.Z);
 	}
 	
@@ -263,3 +279,7 @@ void AOrbGamePlayerController::Tick(float DeltaTime)
 
 }
 
+void AOrbGamePlayerController::OnFinishOrbPreparationEvent(class AOrb* Orb)
+{
+	OrbGameCharacter->AttachToSpellSocket(Orb);
+}

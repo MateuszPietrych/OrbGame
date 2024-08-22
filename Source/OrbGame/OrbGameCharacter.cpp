@@ -82,11 +82,9 @@ AOrbGameCharacter::AOrbGameCharacter()
 	// Create a niagara component...
 	NiagaraComponent = CreateDefaultSubobject<UNiagaraComponent>(TEXT("NiagaraComponent"));
 	NiagaraComponent->SetupAttachment(RootComponent);
-	NiagaraComponent->SetRelativeLocation(FVector(50.0f, 0.0f, 0.0f));
 	NiagaraComponent->SetAutoActivate(false);
-	NiagaraComponent->SetIntParameter("Length", 10);
-	NiagaraComponent->SetIntParameter("RayLifeTime", 5);
-	NiagaraComponent->SetNiagaraVariableInt("Lenght", 10);
+	// FAttachmentTransformRules AttachmentRules = FAttachmentTransformRules{EAttachmentRule::SnapToTarget, EAttachmentRule::KeepWorld, EAttachmentRule::KeepWorld, true};
+	// NiagaraComponent->AttachToComponent(GetMesh(), AttachmentRules, SpellSocketName);
 
 	// Activate ticking in order to update the cursor every frame.
 	PrimaryActorTick.bCanEverTick = true;
@@ -120,6 +118,14 @@ float AOrbGameCharacter::GetFeetZLocation()
 UNiagaraComponent* AOrbGameCharacter::GetNiagaraComponent()
 {
 	return NiagaraComponent;
+}
+
+void AOrbGameCharacter::AttachToSpellSocket(AActor* ActorToAttach)
+{
+	FAttachmentTransformRules AttachmentRules = FAttachmentTransformRules{EAttachmentRule::SnapToTarget, EAttachmentRule::KeepWorld, EAttachmentRule::KeepWorld, true};
+	NiagaraComponent->AttachToComponent(GetMesh(), AttachmentRules, SpellSocketName);
+
+	ActorToAttach->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, SpellSocketName);
 }
 
 

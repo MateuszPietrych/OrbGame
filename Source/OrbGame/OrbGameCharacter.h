@@ -31,6 +31,8 @@ public:
 
 	float GetFeetZLocation();
 
+	void AttachToSpellSocket(AActor* ActorToAttach);
+
 
 private:
 	/** Top down camera */
@@ -58,9 +60,13 @@ private:
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Components, meta = (AllowPrivateAccess = "true"))
 	class UNiagaraComponent * NiagaraComponent;	
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Components, meta = (AllowPrivateAccess = "true"))
+	FName SpellSocketName = "SpellSocket";
 
 	UPROPERTY(VisibleAnywhere,BlueprintReadWrite, Category = Components, meta = (AllowPrivateAccess = "true"))
 	TSubclassOf<class UNiagaraSystem > NiagaraSystemClass;
+
 
 };
 

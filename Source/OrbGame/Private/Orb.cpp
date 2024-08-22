@@ -8,6 +8,10 @@
 #include "Components/SceneComponent.h"
 #include "Components/SphereComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "NiagaraComponent.h"
+#include "NiagaraSystem.h"
+#include "NiagaraTypes.h"
+#include "NiagaraVariant.h"
 
 // Sets default values
 AOrb::AOrb()
@@ -29,13 +33,22 @@ AOrb::AOrb()
 
 	ProjectileMovement = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectileMovementComponent"));
 	ProjectileMovement->InitialSpeed = 0.0f;
+
+	BaseNiagaraComponent = CreateDefaultSubobject<UNiagaraComponent>(TEXT("NiagaraComponent"));
+	BaseNiagaraComponent->SetupAttachment(OrbMesh);
+	BaseNiagaraComponent->SetAutoActivate(false);
+
+	LongUseNiagaraComponent = CreateDefaultSubobject<UNiagaraComponent>(TEXT("LongUseNiagaraComponent"));
+	LongUseNiagaraComponent->SetupAttachment(OrbMesh);
+	LongUseNiagaraComponent->SetAutoActivate(false);
 }
 
 // Called when the game starts or when spawned
 void AOrb::BeginPlay()
 {
 	Super::BeginPlay();
-	
+	BaseNiagaraComponent->SetAsset(BaseNiagaraSystemClass);
+	BaseNiagaraComponent->ActivateSystem();
 }
 
 // Called every frame
@@ -66,7 +79,18 @@ void AOrb::SetOrbPosition(float RadiusLength, float Height)
 
 void AOrb::SetOrbRotation(float Rotation)
 {
-	BaseSceneComponent->SetRelativeRotation(FRotator(0.0f, Rotation, 0.0f));
+	FRotator FixedRotation = FRotator(0.0f, Rotation, 0.0f);
+	BaseSceneComponent->SetRelativeRotation(FixedRotation);
+	LongUseNiagaraComponent->SetRelativeRotation(FixedRotation);
+	// FNiagaraTypeDefinition FloatDef = FNiagaraTypeDefinition::GetFloatDef();
+	// const FNiagaraVariableBase InKey = FNiagaraVariableBase{ FloatDef, TEXT("WindSpeed")};
+	// const FNiagaraVariant Variant = FNiagaraVariant{FVector(0.0f, Rotation, 0.0f)};
+	FVector WindSpeed = FixedRotation.Vector();
+	WindSpeed.Normalize();
+	WindSpeed *= 100.0f;
+
+	LongUseNiagaraComponent->SetVariableVec3(FName("Wind Speed"), WindSpeed);
+	UE_LOG(LogTemp, Warning, TEXT("Rotation: %f"), Rotation);
 }
 
 void AOrb::SetRotationSpeed(float Speed)
@@ -89,6 +113,8 @@ float AOrb::GetCurrentOrbRotationDeviation0to360()
 
 void AOrb::FireOrbAsProjectile(FVector Direction)
 {
+	DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
+	// DetachRootComponentFromParent(true);
 	RotatingSphere->IgnoreActorWhenMoving(UGameplayStatics::GetPlayerPawn(GetWorld(),0), true);
 	RotatingSphere->IgnoreActorWhenMoving(this, true);
 	RotatingSphere->SetCollisionProfileName(TEXT("OverlapAllDynamic"));
@@ -111,15 +137,29 @@ void AOrb::BeginSphereProjectileOverlap(UPrimitiveComponent* OverlappedComp, AAc
 	UE_LOG(LogTemp, Warning, TEXT("Orb Overlapped with %s"), *OtherActor->GetName());
 
 	ActivateEffect();
-	Destroy();
+	SetLifeSpan(1.0f);
+	ProjectileMovement->Velocity = FVector::ZeroVector;
 }
 
 void AOrb::ActivateEffect()
 {
+	BaseNiagaraComponent->SetAsset(ActivationNiagaraSystemClass);
+	BaseNiagaraComponent->ActivateSystem();
+	
 	UE_LOG(LogTemp, Warning, TEXT("Activating Orb Effect"));
+}
+
+void AOrb::ActivateLongUsageEffect()
+{
+	LongUseNiagaraComponent->SetAsset(LongUsageNiagaraSystemClass);
+	LongUseNiagaraComponent->ActivateSystem();
+	
+	UE_LOG(LogTemp, Warning, TEXT("Activating Orb Long Usage Effect"));
 }
 
 FVector AOrb::GetOrbWorldLocation()
 {
 	return OrbMesh->GetComponentLocation();
 }
+
+

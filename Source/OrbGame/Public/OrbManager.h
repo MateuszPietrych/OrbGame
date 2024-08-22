@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Structures.h"
 #include "OrbTransferer.h"
+#include "Delegates/DelegateCombinations.h"
 #include "OrbManager.generated.h"
 
 
@@ -19,9 +20,18 @@ public:
 	// Sets default values for this component's properties
 	UOrbManager();
 
+	//TODO - maybe it shloud be get function
+	DECLARE_EVENT_OneParam(UOrbManager, FinishOrbPreparation, class AOrb*)
+    FinishOrbPreparation OnFinishOrbPreparationEvent;
+
+	DECLARE_EVENT_OneParam(UOrbManager, FinishFirstLevelPreparation, class AOrb*)
+    FinishFirstLevelPreparation OnFinishFirstLevelPreparationEvent;
+
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
+
+
 
 public:	
 	// Called every frame
@@ -58,6 +68,12 @@ public:
 	void TransferOrbToAnotherLevel();
 
 	UFUNCTION(BlueprintCallable)
+	void ChangeFirstLevelPosition();
+
+	UFUNCTION(BlueprintCallable)
+	void PrepareFirstLevelToUse();
+
+	UFUNCTION(BlueprintCallable)
 	void FireOrb(FVector Direction);
 
 	UFUNCTION(BlueprintCallable)
@@ -69,8 +85,12 @@ public:
 	UFUNCTION(BlueprintCallable)
 	float GetR();
 
+	UFUNCTION(BlueprintCallable)
+	bool IsFirstLevelPrepared();
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = CustomBaseOrb)
 	TSubclassOf<class AOrb> OrbClass;
+
 
 
 private:
@@ -82,6 +102,15 @@ private:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = OrbLevelData, meta = (AllowPrivateAccess = "true"))
 	float PrepareToUseTime = 2.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = FirstLevelPreparation, meta = (AllowPrivateAccess = "true"))
+	float PrepareToUseFirstLevelTime = 0.5f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = FirstLevelPreparation, meta = (AllowPrivateAccess = "true"))
+	float PreparingXOffset = 150.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = FirstLevelPreparation, meta = (AllowPrivateAccess = "true"))
+	float PreparingZOffset = 100.0f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = OrbLevelData, meta = (AllowPrivateAccess = "true"))
 	float BaseSpeed = 90.0f;
@@ -104,10 +133,14 @@ private:
 	bool OrbToUseIsPrepared = false;
 	FVector FinishPoint;
 	FVector OldLocation;
-	float TimeInRepPosition = 0.0f;
+	float TimeInReposition = 0.0f;
 	float TimeInTransfer = 0.0f;
+	bool isPreparingFirstLevel = false;
+	bool isFirstLevelPrepared = false;
 	
 	TArray<FTransferOrbData> TransferOrbsData;
+
+
 	
 };
 

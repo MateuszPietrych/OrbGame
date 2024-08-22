@@ -50,7 +50,6 @@ AOrb* UOrbManager::CreateOrb()
 	return Orb;
 }
 
-
 void UOrbManager::AddOrb(){
 	UE_LOG(LogTemp, Warning, TEXT("AddOrb"));
 
@@ -199,7 +198,6 @@ void UOrbManager::RevertSpeedChanges()
 
 AOrb* UOrbManager::CatchOrbFromFirstLevel(FVector DirectionPoint, FVector NewFinishPoint)
 {
-	
 	if(OrbLevelsData.Num() == 0 || GetWorld()->GetTimerManager().IsTimerActive(PrepareOrbToUseTimerHandle))
 	{
 		return nullptr;
@@ -261,13 +259,13 @@ void UOrbManager::PrepareOrbToUse(AOrb* HittedOrb, FVector NewFinishPoint)
 
 void UOrbManager::ChangeOrbPosition()
 {
-	TimeInRepPosition += 0.01f;
+	TimeInReposition += 0.01f;
 	FTimerManager& TimerManager = GetWorld()->GetTimerManager();
 	if(!TimerManager.IsTimerActive(PrepareOrbToUseTimerHandle))
 	{
 		return;
 	}
-	float Alpha = FMath::Min(TimeInRepPosition/PrepareToUseTime, 1.0f);
+	float Alpha = FMath::Min(TimeInReposition/PrepareToUseTime, 1.0f);
 	OrbToUse->SetRadiusLength(FMath::Lerp(OrbLevelsData[0].XOffset, 0.0f, Alpha));
 	OrbToUse->SetHeight(FMath::Lerp(OrbLevelsData[0].ZOffset, 0.0f, Alpha));
 	OrbToUse->SetRotationSpeed(FMath::Lerp(BaseSpeed, 0.0f, Alpha));
@@ -278,8 +276,9 @@ void UOrbManager::ChangeOrbPosition()
 	if(Alpha >= 1)
 	{
 		TimerManager.ClearTimer(PrepareOrbToUseTimerHandle);
-		TimeInRepPosition = 0.0f;
+		TimeInReposition = 0.0f;
 		OrbToUseIsPrepared = true;
+		OnFinishOrbPreparationEvent.Broadcast(OrbToUse);
 	}
 	
 }
@@ -312,6 +311,51 @@ void UOrbManager::TransferOrbToAnotherLevel()
 	}
 }
 
+void UOrbManager::PrepareFirstLevelToUse()
+{
+	if(OrbLevelsData.Num() == 0 || GetWorld()->GetTimerManager().IsTimerActive(PrepareOrbToUseTimerHandle))
+	{
+		return;
+	}
+
+	isPreparingFirstLevel = true;
+	GetWorld()->GetTimerManager().SetTimer(PrepareOrbToUseTimerHandle, this, &UOrbManager::ChangeFirstLevelPosition, 0.01f, true);
+}
+
+void UOrbManager::ChangeFirstLevelPosition()
+{
+	TimeInReposition += 0.01f;
+	FTimerManager& TimerManager = GetWorld()->GetTimerManager();
+
+	if(!TimerManager.IsTimerActive(PrepareOrbToUseTimerHandle))
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Timer Not Active"));
+		return;
+	}
+
+	float Alpha = FMath::Min(TimeInReposition/PrepareToUseFirstLevelTime, 1.0f);
+
+	float OldZOffset = isPreparingFirstLevel? OrbLevelsData[0].ZOffset : PreparingZOffset;
+	float OldXOffset = isPreparingFirstLevel? OrbLevelsData[0].XOffset : PreparingXOffset;
+
+	float NewZOffset = isPreparingFirstLevel? PreparingZOffset : OrbLevelsData[0].ZOffset;
+	float NewXOffset = isPreparingFirstLevel? PreparingXOffset : OrbLevelsData[0].XOffset;
+
+	for(AOrb* Orb: OrbLevelsData[0].Orbs)
+	{	
+		Orb->SetRadiusLength(FMath::Lerp(OldXOffset, NewXOffset, Alpha));
+		Orb->SetHeight(FMath::Lerp(OldZOffset, NewZOffset, Alpha));
+	}
+
+	if(Alpha >= 1)
+	{
+		TimerManager.ClearTimer(PrepareOrbToUseTimerHandle);
+		TimeInReposition = 0.0f;
+		isFirstLevelPrepared = true;
+		isPreparingFirstLevel = false;
+	}
+}
+
 
 void UOrbManager::FireOrb(FVector Direction)
 {
@@ -322,7 +366,6 @@ void UOrbManager::FireOrb(FVector Direction)
 		OrbToUseIsPrepared = false;
 	}
 }
-
 
 void UOrbManager::SetNewZOffset(float Z)
 {
@@ -337,4 +380,9 @@ bool UOrbManager::IsOrbPrepared()
 float UOrbManager::GetR()
 {
 	return !OrbLevelsData.IsEmpty()? OrbLevelsData[0].XOffset: 0.0f; 
+}
+
+bool UOrbManager::IsFirstLevelPrepared()
+{
+	return isFirstLevelPrepared;
 }
