@@ -19,6 +19,9 @@
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "InputActionValue.h"
+#include "NiagaraComponent.h"
+#include "NiagaraSystem.h"
+
 
 AOrbGameCharacter::AOrbGameCharacter()
 {
@@ -76,6 +79,14 @@ AOrbGameCharacter::AOrbGameCharacter()
 	OrbManager->SetupAttachment(OrbsCenterPoint);
 	ArrowDirectionMesh->SetRelativeLocation(FVector(50.0f, 0.0f, 0.0f));
 
+	// Create a niagara component...
+	NiagaraComponent = CreateDefaultSubobject<UNiagaraComponent>(TEXT("NiagaraComponent"));
+	NiagaraComponent->SetupAttachment(RootComponent);
+	NiagaraComponent->SetRelativeLocation(FVector(50.0f, 0.0f, 0.0f));
+	NiagaraComponent->SetAutoActivate(false);
+	NiagaraComponent->SetIntParameter("Length", 10);
+	NiagaraComponent->SetIntParameter("RayLifeTime", 5);
+	NiagaraComponent->SetNiagaraVariableInt("Lenght", 10);
 
 	// Activate ticking in order to update the cursor every frame.
 	PrimaryActorTick.bCanEverTick = true;
@@ -104,6 +115,11 @@ void AOrbGameCharacter::SetArrowDirection(FRotator Direction)
 float AOrbGameCharacter::GetFeetZLocation()
 {
 	return GetActorLocation().Z - 90.0f;
+}
+
+UNiagaraComponent* AOrbGameCharacter::GetNiagaraComponent()
+{
+	return NiagaraComponent;
 }
 
 

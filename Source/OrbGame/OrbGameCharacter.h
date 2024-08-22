@@ -17,6 +17,8 @@ public:
 
 	class UOrbManager* GetOrbManager();
 
+	class UNiagaraComponent* GetNiagaraComponent();
+
 	// Called every frame.
 	virtual void Tick(float DeltaSeconds) override;
 
@@ -53,6 +55,12 @@ private:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Components, meta = (AllowPrivateAccess = "true"))
 	class UStaticMeshComponent* ArrowDirectionMesh;	
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Components, meta = (AllowPrivateAccess = "true"))
+	class UNiagaraComponent * NiagaraComponent;	
+
+	UPROPERTY(VisibleAnywhere,BlueprintReadWrite, Category = Components, meta = (AllowPrivateAccess = "true"))
+	TSubclassOf<class UNiagaraSystem > NiagaraSystemClass;
 
 };
 

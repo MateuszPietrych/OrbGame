@@ -4,8 +4,10 @@
 #include "Orb.h"
 #include "Components/StaticMeshComponent.h"
 #include "GameFramework/RotatingMovementComponent.h"
+#include "GameFramework/ProjectileMovementComponent.h"
 #include "Components/SceneComponent.h"
 #include "Components/SphereComponent.h"
+#include "Kismet/GameplayStatics.h"
 
 // Sets default values
 AOrb::AOrb()
@@ -24,6 +26,9 @@ AOrb::AOrb()
 
 	RotatingMovement = CreateDefaultSubobject<URotatingMovementComponent>(TEXT("RotatingMovementComponent"));
 	RotatingMovement->RotationRate = FRotator(0.0f, 0.0f, 180.0f);
+
+	ProjectileMovement = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectileMovementComponent"));
+	ProjectileMovement->InitialSpeed = 0.0f;
 }
 
 // Called when the game starts or when spawned
@@ -78,6 +83,43 @@ float AOrb::GetCurrentOrbRotationDeviation0to360()
 {
 	float Rotation = GetActorRotation().Yaw;
 	Rotation = Rotation < 0? 360.0f + Rotation : Rotation;
+
 	return Rotation;
 }
 
+void AOrb::FireOrbAsProjectile(FVector Direction)
+{
+	RotatingSphere->IgnoreActorWhenMoving(UGameplayStatics::GetPlayerPawn(GetWorld(),0), true);
+	RotatingSphere->IgnoreActorWhenMoving(this, true);
+	RotatingSphere->SetCollisionProfileName(TEXT("OverlapAllDynamic"));
+	RotatingSphere->SetGenerateOverlapEvents(true);
+	RotatingSphere->OnComponentBeginOverlap.AddDynamic(this, &AOrb::BeginSphereProjectileOverlap);
+	RotatingSphere->SetSphereRadius(BaseProjectileSphereRadius);
+	
+	Direction = FVector(Direction.X, Direction.Y, 0.0f);
+	ProjectileMovement->Velocity = Direction * BaseProjectileSpeed;
+
+	UE_LOG(LogTemp, Warning, TEXT("Firing Orb as Projectile"));
+	if(GetOwner())
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Name: %s"), *GetOwner()->GetName());
+	}
+}
+
+void AOrb::BeginSphereProjectileOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	UE_LOG(LogTemp, Warning, TEXT("Orb Overlapped with %s"), *OtherActor->GetName());
+
+	ActivateEffect();
+	Destroy();
+}
+
+void AOrb::ActivateEffect()
+{
+	UE_LOG(LogTemp, Warning, TEXT("Activating Orb Effect"));
+}
+
+FVector AOrb::GetOrbWorldLocation()
+{
+	return OrbMesh->GetComponentLocation();
+}

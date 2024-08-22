@@ -12,9 +12,12 @@
 #include "EnhancedInputSubsystems.h"
 #include "Engine/LocalPlayer.h"
 #include "OrbManager.h"
+#include "Orb.h"
 #include "OrbGameCharacter.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "DrawDebugHelpers.h"
+#include "NiagaraComponent.h"
+#include "NiagaraSystem.h"
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 
@@ -48,10 +51,10 @@ void AOrbGamePlayerController::SetupInputComponent()
 	if (UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(InputComponent))
 	{
 		// // Setup mouse input events
-		// EnhancedInputComponent->BindAction(SetDestinationClickAction, ETriggerEvent::Started,   this, &AOrbGamePlayerController::OnInputStarted);
+		EnhancedInputComponent->BindAction(SetDestinationClickAction, ETriggerEvent::Started,   this, &AOrbGamePlayerController::OnInputStarted);
 		EnhancedInputComponent->BindAction(SetDestinationClickAction, ETriggerEvent::Triggered, this, &AOrbGamePlayerController::OnSetDestinationTriggered);
-		// EnhancedInputComponent->BindAction(SetDestinationClickAction, ETriggerEvent::Completed, this, &AOrbGamePlayerController::OnSetDestinationReleased);
-		// EnhancedInputComponent->BindAction(SetDestinationClickAction, ETriggerEvent::Canceled,  this, &AOrbGamePlayerController::OnSetDestinationReleased);
+		EnhancedInputComponent->BindAction(SetDestinationClickAction, ETriggerEvent::Completed, this, &AOrbGamePlayerController::OnSetDestinationReleased);
+		EnhancedInputComponent->BindAction(SetDestinationClickAction, ETriggerEvent::Canceled,  this, &AOrbGamePlayerController::OnSetDestinationReleased);
 
 		// // Setup touch input events
 		// EnhancedInputComponent->BindAction(SetDestinationTouchAction, ETriggerEvent::Started, this, &AOrbGamePlayerController::OnInputStarted);
@@ -62,7 +65,7 @@ void AOrbGamePlayerController::SetupInputComponent()
 		// Moving
 		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &AOrbGamePlayerController::Move);
 		EnhancedInputComponent->BindAction(AddOrbAction, ETriggerEvent::Triggered, this, &AOrbGamePlayerController::AddOrb);
-
+		EnhancedInputComponent->BindAction(FireOrbAction, ETriggerEvent::Triggered, this, &AOrbGamePlayerController::FireOrb);
 	}
 	else
 	{
@@ -99,17 +102,77 @@ void AOrbGamePlayerController::AddOrb()
 	}
 }
 
+void AOrbGamePlayerController::FireOrb()
+{
+	if (OrbGameCharacter)
+	{
+		FVector Direction = FVector(1.0f, 0.0f, 0.0f);
+		Direction = CachedRotation.RotateVector(Direction);
+		OrbGameCharacter->GetOrbManager()->FireOrb(Direction);
+		UE_LOG(LogTemp, Warning, TEXT("FireOrb CONTORLER!"));
+	}
+}
+
 
 void AOrbGamePlayerController::OnInputStarted()
 {
 	StopMovement();
+	if(!OrbGameCharacter->GetOrbManager()->IsOrbPrepared())
+	{
+		UOrbManager* PlayerOrbManager = OrbGameCharacter->GetOrbManager();
+		// TODO - change second parameter to the actual destination
+		FVector SpawnSpellPoint = GetPawn()->GetActorLocation() + GetPawn()->GetActorForwardVector() * 100.0f;
+		AOrb* HittedOrb = PlayerOrbManager->CatchOrbFromFirstLevel(CachedDestination, SpawnSpellPoint);
+		if(HittedOrb)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("HittedOrb"));
+			PlayerOrbManager->PrepareOrbToUse(HittedOrb, SpawnSpellPoint);
+		}
+		else
+		{
+			UE_LOG(LogTemp, Warning, TEXT("No HittedOrb"));
+		}
+	}
 }
 
 // Triggered every frame when the input is held down
 void AOrbGamePlayerController::OnSetDestinationTriggered()
 {
 	// // We flag that the input is being pressed
-	// FollowTime += GetWorld()->GetDeltaSeconds();
+	FollowTime += GetWorld()->GetDeltaSeconds();
+
+	
+	UOrbManager* PlayerOrbManager = OrbGameCharacter->GetOrbManager();
+
+	if(PlayerOrbManager->IsOrbPrepared() && FollowOrb == nullptr)
+	{
+		FVector SpawnSpellPoint = GetPawn()->GetActorLocation() + GetPawn()->GetActorForwardVector() * 100.0f;
+		AOrb* HittedOrb = PlayerOrbManager->CatchOrbFromFirstLevel(CachedDestination, SpawnSpellPoint);
+		if(HittedOrb)
+		{
+			FVector PlayerLocation = OrbGameCharacter->GetActorLocation();
+			FVector HittedOrbPointFixed = HittedOrb->GetOrbWorldLocation();
+			FVector Direction = HittedOrbPointFixed - PlayerLocation;
+
+			OrbGameCharacter->SetActorRotation(Direction.Rotation());
+			FollowOrb = HittedOrb;
+
+			UNiagaraComponent* Niagara = OrbGameCharacter->GetNiagaraComponent();
+			float ScaleValue = 1.0f * RayMultiplier * PlayerOrbManager->GetR();
+			UE_LOG(LogTemp, Warning, TEXT("ScaleValue: %f"), ScaleValue);
+			Niagara->SetRelativeScale3D(FVector(ScaleValue, ScaleValue, ScaleValue));
+			Niagara->ActivateSystem();
+		}
+	}else if(FollowOrb)
+	{
+		FVector PlayerLocation = OrbGameCharacter->GetActorLocation();
+		FVector HittedOrbPointFixed = FollowOrb->GetOrbWorldLocation();
+		FVector Direction = HittedOrbPointFixed - PlayerLocation;
+
+		FRotator NewRotation = UKismetMathLibrary::FindLookAtRotation(PlayerLocation, HittedOrbPointFixed);
+		OrbGameCharacter->SetActorRotation(NewRotation);
+		UE_LOG(LogTemp, Warning, TEXT("Time: %f OrbLocation: %f %f %f"), FollowTime, HittedOrbPointFixed.X, HittedOrbPointFixed.Y, HittedOrbPointFixed.Z);
+	}
 	
 	// // We look for the location in the world where the player has pressed the input
 	// FHitResult Hit;
@@ -128,24 +191,20 @@ void AOrbGamePlayerController::OnSetDestinationTriggered()
 	// {
 	// 	CachedDestination = Hit.Location;
 	// }
-
-	// TODO - change second parameter to the actual destination
-	FVector SpawnSpellPoint = GetPawn()->GetActorLocation() + GetPawn()->GetActorForwardVector() * 100.0f;
-	OrbGameCharacter->GetOrbManager()->PrepareOrbToUse(CachedDestination, SpawnSpellPoint);
-
 }
 
 void AOrbGamePlayerController::OnSetDestinationReleased()
 {
-	// If it was a short press
-	if (FollowTime <= ShortPressThreshold)
-	{
-		// We move there and spawn some particles
-		UAIBlueprintHelperLibrary::SimpleMoveToLocation(this, CachedDestination);
-		UNiagaraFunctionLibrary::SpawnSystemAtLocation(this, FXCursor, CachedDestination, FRotator::ZeroRotator, FVector(1.f, 1.f, 1.f), true, true, ENCPoolMethod::None, true);
-	}
+	// // If it was a short press
+	// if (FollowTime <= ShortPressThreshold)
+	// {
+	// 	// We move there and spawn some particles
+	// 	UAIBlueprintHelperLibrary::SimpleMoveToLocation(this, CachedDestination);
+	// 	UNiagaraFunctionLibrary::SpawnSystemAtLocation(this, FXCursor, CachedDestination, FRotator::ZeroRotator, FVector(1.f, 1.f, 1.f), true, true, ENCPoolMethod::None, true);
+	// }
 
 	FollowTime = 0.f;
+	FollowOrb = nullptr;
 }
 
 // Triggered every frame when the input is held down
@@ -195,9 +254,12 @@ void AOrbGamePlayerController::Tick(float DeltaTime)
 		}
 	}
 
-	FRotator NewRotation = UKismetMathLibrary::FindLookAtRotation(GetPawn()->GetActorLocation(),CachedDestination);
-	OrbGameCharacter->SetArrowDirection(NewRotation);
+	if(!FollowOrb)
+	{
+		FRotator NewRotation = UKismetMathLibrary::FindLookAtRotation(GetPawn()->GetActorLocation(),CachedDestination);
+		OrbGameCharacter->SetArrowDirection(NewRotation);
+		CachedRotation = NewRotation;
+	}
 
-	
 }
 

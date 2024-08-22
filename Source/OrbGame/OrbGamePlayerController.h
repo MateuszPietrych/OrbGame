@@ -50,6 +50,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* AddOrbAction;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UInputAction* FireOrbAction;
+
 protected:
 	/** True if the controlled character should navigate to the mouse cursor. */
 	uint32 bMoveToMouseCursor : 1;
@@ -70,12 +73,18 @@ protected:
 	void OnTouchTriggered();
 	void OnTouchReleased();
 	void Move(const FInputActionValue& Value);
+	void FireOrb();
 
 private:
 	FVector CachedDestination;
+	FRotator CachedRotation;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Ray, meta = (AllowPrivateAccess = "true"))
+	float RayMultiplier = 1.0f;
 
 	bool bIsTouch; // Is it a touch device
 	float FollowTime; // For how long it has been pressed
+	class AOrb* FollowOrb;
 
 	/** The character that we are controlling */
 	class AOrbGameCharacter* OrbGameCharacter;

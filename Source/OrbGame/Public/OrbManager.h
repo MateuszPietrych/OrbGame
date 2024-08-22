@@ -37,16 +37,16 @@ public:
 	void RevertSpeedChanges();
 
 	UFUNCTION(BlueprintCallable)
-	void PrepareOrbToUse(FVector Direction, FVector NewFinishPoint);
+	AOrb* CatchOrbFromFirstLevel(FVector DirectionPoint, FVector NewFinishPoint);
+
+	UFUNCTION(BlueprintCallable)
+	void PrepareOrbToUse(AOrb* HittedOrb, FVector NewFinishPoint);
 
 	UFUNCTION(BlueprintCallable)
 	void ChangeOrbPosition();
 
 	UFUNCTION(BlueprintCallable)
 	float CalculateNewRotationSpeed(int OrbIndex, int AmountOfOrbsBefore, int AmountOfOrbsAfter, int IndexOfRemovedOrb = -1);
-
-	UFUNCTION(BlueprintCallable)
-	float NewCalculateNewRotationSpeed(int OrbIndex, int AmountOfOrbsBefore, int AmountOfOrbsAfter, int IndexOfRemovedOrb);
 
 	UFUNCTION(BlueprintCallable)
 	void FixOrbsPosition(bool IsAddingOrb, int IndexOfRemovedOrb, AOrb* RemovedOrb);
@@ -56,6 +56,18 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void TransferOrbToAnotherLevel();
+
+	UFUNCTION(BlueprintCallable)
+	void FireOrb(FVector Direction);
+
+	UFUNCTION(BlueprintCallable)
+	void SetNewZOffset(float Z);
+
+	UFUNCTION(BlueprintCallable)
+	bool IsOrbPrepared();
+
+	UFUNCTION(BlueprintCallable)
+	float GetR();
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = CustomBaseOrb)
 	TSubclassOf<class AOrb> OrbClass;
@@ -74,14 +86,22 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = OrbLevelData, meta = (AllowPrivateAccess = "true"))
 	float BaseSpeed = 90.0f;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = OrbLevelData, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = CatchOrb, meta = (AllowPrivateAccess = "true"))
 	float DecationOrbSphereRadius = 100.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = CatchOrb, meta = (AllowPrivateAccess = "true"))
+	bool ShowDebugLine = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = CatchOrb, meta = (AllowPrivateAccess = "true"))
+	float DistanceFromComponentToStartOfRay = 100.0f;
+
 
 	FTimerHandle RevertSpeedTimerHandle;
 	FTimerHandle PrepareOrbToUseTimerHandle;
 	FTimerHandle TransferTimerHandle;
 
 	AOrb* OrbToUse = nullptr;
+	bool OrbToUseIsPrepared = false;
 	FVector FinishPoint;
 	FVector OldLocation;
 	float TimeInRepPosition = 0.0f;

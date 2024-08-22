@@ -110,19 +110,6 @@ float UOrbManager::CalculateNewRotationSpeed(int OrbIndex, int AmountOfOrbsBefor
 	return NewSpeed;
 }
 
-float UOrbManager::NewCalculateNewRotationSpeed(int OrbIndex, int AmountOfOrbsBefore, int AmountOfOrbsAfter, int IndexOfRemovedOrb)
-{
-
-	float OldAngle = (360.0f / AmountOfOrbsBefore) * OrbIndex;
-	float Angle = (360.0f / AmountOfOrbsAfter) * IndexOfRemovedOrb;
-	float Distance = OldAngle - Angle;
-	float NewSpeed = BaseSpeed - (Distance / RepositionTime);
-
-	UE_LOG(LogTemp, Warning, TEXT("OldAngle: %f  Angle: %f  Distance: %f  NewSpeed: %f"), OldAngle, Angle, Distance, NewSpeed);
-	return NewSpeed;
-}
-
-
 void UOrbManager::FixOrbsPosition(bool IsAddingOrb, int IndexOfRemovedOrb, AOrb* RemovedOrb)
 {
 	bool isFirst = true;
@@ -133,47 +120,44 @@ void UOrbManager::FixOrbsPosition(bool IsAddingOrb, int IndexOfRemovedOrb, AOrb*
 		if(isFirst && OrbLevelData.Orbs.Num() < OrbLevelData.NumberOfOrbs && OrbLevelsData[1].Orbs.Num() == 0)
 		{
 			FixOrbsOnLevelPosition(OrbLevelData, IsAddingOrb, IndexOfRemovedOrb);
-		}else if(!isFirst && OrbLevelData.Orbs.Num() > 0)
+		}
+		else if(!isFirst && OrbLevelData.Orbs.Num() > 0)
 		{
 			float RotationOfRemovedOrb = RemovedOrb->GetCurrentOrbRotationDeviation0to360();
-
 			float RotationDistance = 360.0f;
 			AOrb* OrbToDown = nullptr; 
 
-			UE_LOG(LogTemp, Warning, TEXT("RotationOfRemovedOrb %f"), RotationOfRemovedOrb);
-			// get the closest orb to OrbToUse rotation
+			// find the closest orb to the removed orb
 			for(AOrb* Orb: OrbLevelData.Orbs)
 			{
 				float OrbRotation = Orb->GetCurrentOrbRotationDeviation0to360();
-				UE_LOG(LogTemp, Warning, TEXT("OrbRotation %f"), OrbRotation);
-				if(FMath::Abs(OrbRotation - RotationOfRemovedOrb) < RotationDistance) 
+				float CandidateDistance = FMath::Abs(OrbRotation - RotationOfRemovedOrb);
+				if(CandidateDistance < RotationDistance) 
 				{
-					RotationDistance = FMath::Abs(OrbRotation - RotationOfRemovedOrb);
+					RotationDistance = CandidateDistance;
 					OrbToDown = Orb;
 				}
 			}
 
+			// change the level of the orb
 			int OrbIndex = OrbLevelData.Orbs.Find(OrbToDown); 
 			OrbLevelData.Orbs.RemoveAt(OrbIndex);
 			OrbLevelsData[i-1].Orbs.Insert(OrbToDown, IndexOfRemovedOrb);
-
-			UE_LOG(LogTemp, Warning, TEXT("FixOrbsPosition i: %d  i-1: %d  "), OrbIndex, IndexOfRemovedOrb);
 			
 			// set the new rotation speed
 			float NewSpeed = BaseSpeed +  (RemovedOrb->GetCurrentOrbRotationDeviation()-OrbToDown->GetCurrentOrbRotationDeviation()) / RepositionTime;
 			OrbToDown->SetRotationSpeed(NewSpeed);
 
 
+			// fix the orbs position on level and prapre orb to transfer
 			bool IsLast = i == OrbLevelsData.Num() - 1;
 			if(IsLast || !IsLast && (OrbLevelsData[i+1].Orbs.Num() <= 0))
 			{
 				FixOrbsOnLevelPosition(OrbLevelData, false, OrbIndex);
 			}
-
-			// set new timer with height change
 			TransferOrbsData.Add(FTransferOrbData{i, i-1, OrbIndex, OrbToDown});
 
-
+			// set new removed orb
 			RemovedOrb = OrbToDown;
 			IndexOfRemovedOrb = OrbIndex;
 		}
@@ -196,7 +180,6 @@ void UOrbManager::FixOrbsOnLevelPosition(FOrbLevelData& OrbLevelData, bool IsAdd
 	for(int i = 0; i < OrbLevelData.Orbs.Num(); i++)
 	{
 		AOrb* Orb = OrbLevelData.Orbs[i];
-		// UE_LOG(LogTemp, Warning, TEXT("Orb B: %f  A: %f"), AmountOfOrbsBefore, AmountOfOrbsAfter);
 		Orb->SetRotationSpeed( CalculateNewRotationSpeed(i, AmountOfOrbsBefore, AmountOfOrbsAfter, IndexOfRemovedOrb) );
 	}
 }
@@ -207,7 +190,6 @@ void UOrbManager::RevertSpeedChanges()
 	{
 		for(int i = 0; i < OrbLevelData.Orbs.Num(); i++)
 		{
-			// UE_LOG(LogTemp, Warning, TEXT("Orb Revert speed %d"), i)
 			AOrb* Orb = OrbLevelData.Orbs[i];
 			Orb->SetRotationSpeed(BaseSpeed);
 		}
@@ -215,25 +197,41 @@ void UOrbManager::RevertSpeedChanges()
 	GetWorld()->GetTimerManager().ClearTimer(RevertSpeedTimerHandle);
 }
 
-void UOrbManager::PrepareOrbToUse(FVector DirectionPoint, FVector NewFinishPoint)
+AOrb* UOrbManager::CatchOrbFromFirstLevel(FVector DirectionPoint, FVector NewFinishPoint)
 {
+	
 	if(OrbLevelsData.Num() == 0 || GetWorld()->GetTimerManager().IsTimerActive(PrepareOrbToUseTimerHandle))
 	{
-		return;
+		return nullptr;
 	}
 
 	FVector ComponentLocation = K2_GetComponentToWorld().GetLocation();
 	FVector DirectionPointFixed = FVector(DirectionPoint.X, DirectionPoint.Y,  ComponentLocation.Z + OrbLevelsData[0].ZOffset);
 	FVector Direction = DirectionPointFixed - ComponentLocation;
+	Direction.Normalize();
 
 
 	FHitResult Hit;
 	FCollisionQueryParams Params = FCollisionQueryParams(FName(TEXT("OrbTrace")), false, GetOwner());
-	GetWorld()->SweepSingleByChannel(Hit, ComponentLocation, ComponentLocation + Direction*1500.0f, FQuat::Identity, ECollisionChannel::ECC_Visibility, FCollisionShape::MakeSphere(DecationOrbSphereRadius),Params);
-	// DrawDebugLine(GetWorld(), ComponentLocation, ComponentLocation  + Direction*1500.0f, FColor::Red, true, 1.0f, 2.0f, 100.0f);
-	UE_LOG(LogTemp, Warning, TEXT("PrepareOrbToUse %s"), *Hit.GetActor()->GetName());
+	GetWorld()->SweepSingleByChannel(Hit, ComponentLocation + Direction*DistanceFromComponentToStartOfRay, ComponentLocation + Direction*1500.0f, FQuat::Identity, ECollisionChannel::ECC_Visibility, FCollisionShape::MakeSphere(DecationOrbSphereRadius),Params);
+	
+	if(ShowDebugLine)
+		DrawDebugLine(GetWorld(), ComponentLocation + Direction*DistanceFromComponentToStartOfRay, ComponentLocation + Direction*1500.0f, FColor::Red, true, 1.0f, 2.0f, 100.0f);
 
 	AOrb* HittedOrb = Cast<AOrb>(Hit.GetActor());
+
+	if(!HittedOrb)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Not HittedOrb"));
+	}
+
+	return HittedOrb;
+}
+
+
+
+void UOrbManager::PrepareOrbToUse(AOrb* HittedOrb, FVector NewFinishPoint)
+{
 	if(HittedOrb)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("HittedOrb"));
@@ -255,7 +253,7 @@ void UOrbManager::PrepareOrbToUse(FVector DirectionPoint, FVector NewFinishPoint
 		FixOrbsPosition(false, IndexOfRemovedOrb, OrbToUse);
 		GetWorld()->GetTimerManager().SetTimer(PrepareOrbToUseTimerHandle, this, &UOrbManager::ChangeOrbPosition, 0.01f, true);
 	}else{
-		UE_LOG(LogTemp, Warning, TEXT("Not HittedOrb"));
+		UE_LOG(LogTemp, Warning, TEXT("Orb Not Prepared"));
 	}
 
 	
@@ -281,7 +279,7 @@ void UOrbManager::ChangeOrbPosition()
 	{
 		TimerManager.ClearTimer(PrepareOrbToUseTimerHandle);
 		TimeInRepPosition = 0.0f;
-		OrbToUse->Destroy();
+		OrbToUseIsPrepared = true;
 	}
 	
 }
@@ -312,4 +310,31 @@ void UOrbManager::TransferOrbToAnotherLevel()
 		TimeInTransfer = 0.0f;
 		TransferOrbsData.Empty();
 	}
+}
+
+
+void UOrbManager::FireOrb(FVector Direction)
+{
+	if(OrbToUse)
+	{
+		OrbToUse->FireOrbAsProjectile(Direction);
+		OrbToUse = nullptr;
+		OrbToUseIsPrepared = false;
+	}
+}
+
+
+void UOrbManager::SetNewZOffset(float Z)
+{
+	SetRelativeLocation(FVector(0.0f, 0.0f, Z));
+}
+
+bool UOrbManager::IsOrbPrepared()
+{
+	return OrbToUseIsPrepared;
+}
+
+float UOrbManager::GetR()
+{
+	return !OrbLevelsData.IsEmpty()? OrbLevelsData[0].XOffset: 0.0f; 
 }

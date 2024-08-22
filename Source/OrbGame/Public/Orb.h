@@ -44,6 +44,17 @@ public:
 	UFUNCTION(BlueprintCallable)
 	float GetCurrentOrbRotationDeviation0to360();
 
+	UFUNCTION(BlueprintCallable)
+	void FireOrbAsProjectile(FVector Direction);
+
+	UFUNCTION(BlueprintCallable)
+	void ActivateEffect();
+
+	UFUNCTION(BlueprintCallable)
+	void BeginSphereProjectileOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
+	UFUNCTION(BlueprintCallable)
+	FVector GetOrbWorldLocation();
 private:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Components, meta = (AllowPrivateAccess = "true"))
@@ -57,4 +68,13 @@ private:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Components, meta = (AllowPrivateAccess = "true"))
 	class URotatingMovementComponent* RotatingMovement;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Components, meta = (AllowPrivateAccess = "true"))
+	class UProjectileMovementComponent* ProjectileMovement;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = OrbData, meta = (AllowPrivateAccess = "true"))
+	float BaseProjectileSpeed = 1000.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = OrbData, meta = (AllowPrivateAccess = "true"))
+	float BaseProjectileSphereRadius = 100.0f;
 };

@@ -38,3 +38,17 @@ struct FTransferOrbData
 
 	class AOrb* Orb;
 };
+
+USTRUCT(BlueprintType)
+struct FBasicOrbData
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Transfer Orb Data")
+	int Level;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Transfer Orb Data")
+	int OrbIndex;
+
+	class AOrb* Orb;
+};
