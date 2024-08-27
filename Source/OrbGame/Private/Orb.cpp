@@ -82,15 +82,13 @@ void AOrb::SetOrbRotation(float Rotation)
 	FRotator FixedRotation = FRotator(0.0f, Rotation, 0.0f);
 	BaseSceneComponent->SetRelativeRotation(FixedRotation);
 	LongUseNiagaraComponent->SetRelativeRotation(FixedRotation);
-	// FNiagaraTypeDefinition FloatDef = FNiagaraTypeDefinition::GetFloatDef();
-	// const FNiagaraVariableBase InKey = FNiagaraVariableBase{ FloatDef, TEXT("WindSpeed")};
-	// const FNiagaraVariant Variant = FNiagaraVariant{FVector(0.0f, Rotation, 0.0f)};
+
+	//TODO - kick it out to subclass
 	FVector WindSpeed = FixedRotation.Vector();
 	WindSpeed.Normalize();
 	WindSpeed *= 100.0f;
 
 	LongUseNiagaraComponent->SetVariableVec3(FName("Wind Speed"), WindSpeed);
-	UE_LOG(LogTemp, Warning, TEXT("Rotation: %f"), Rotation);
 }
 
 void AOrb::SetRotationSpeed(float Speed)
@@ -134,8 +132,12 @@ void AOrb::FireOrbAsProjectile(FVector Direction)
 
 void AOrb::BeginSphereProjectileOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	UE_LOG(LogTemp, Warning, TEXT("Orb Overlapped with %s"), *OtherActor->GetName());
+	// UE_LOG(LogTemp, Warning, TEXT("Orb Overlapped with %s"), *OtherActor->GetName());
 
+	if(OtherActor->ActorHasTag("Player"))
+		return;
+
+	UE_LOG(LogTemp, Warning, TEXT("Orb Overlapped with %s"), *OtherActor->GetName());
 	ActivateEffect();
 	SetLifeSpan(1.0f);
 	ProjectileMovement->Velocity = FVector::ZeroVector;
@@ -157,9 +159,31 @@ void AOrb::ActivateLongUsageEffect()
 	UE_LOG(LogTemp, Warning, TEXT("Activating Orb Long Usage Effect"));
 }
 
+void AOrb::DeactivateLongUsageEffect()
+{
+	LongUseNiagaraComponent->SetAsset(LongUsageNiagaraSystemClass);
+	LongUseNiagaraComponent->DeactivateImmediate();
+	
+	UE_LOG(LogTemp, Warning, TEXT("Activating Orb Long Usage Effect"));
+}
+
 FVector AOrb::GetOrbWorldLocation()
 {
 	return OrbMesh->GetComponentLocation();
+}
+
+void AOrb::HideOrb()
+{
+	SetActorHiddenInGame(true);
+	BaseNiagaraComponent->DeactivateImmediate();
+	LongUseNiagaraComponent->DeactivateImmediate();
+	OrbMesh->SetVisibility(false);
+}
+
+void AOrb::PrepareToDestroy(float TimeToDestroy)
+{
+	HideOrb();
+	SetLifeSpan(TimeToDestroy);	
 }
 
 

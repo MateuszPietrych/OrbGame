@@ -213,7 +213,7 @@ AOrb* UOrbManager::CatchOrbFromFirstLevel(FVector DirectionPoint, FVector NewFin
 	FCollisionQueryParams Params = FCollisionQueryParams(FName(TEXT("OrbTrace")), false, GetOwner());
 	GetWorld()->SweepSingleByChannel(Hit, ComponentLocation + Direction*DistanceFromComponentToStartOfRay, ComponentLocation + Direction*1500.0f, FQuat::Identity, ECollisionChannel::ECC_Visibility, FCollisionShape::MakeSphere(DecationOrbSphereRadius),Params);
 	
-	if(ShowDebugLine)
+	if(bShowDebugLine)
 		DrawDebugLine(GetWorld(), ComponentLocation + Direction*DistanceFromComponentToStartOfRay, ComponentLocation + Direction*1500.0f, FColor::Red, true, 1.0f, 2.0f, 100.0f);
 
 	AOrb* HittedOrb = Cast<AOrb>(Hit.GetActor());
@@ -253,8 +253,6 @@ void UOrbManager::PrepareOrbToUse(AOrb* HittedOrb, FVector NewFinishPoint)
 	}else{
 		UE_LOG(LogTemp, Warning, TEXT("Orb Not Prepared"));
 	}
-
-	
 }
 
 void UOrbManager::ChangeOrbPosition()
@@ -277,7 +275,7 @@ void UOrbManager::ChangeOrbPosition()
 	{
 		TimerManager.ClearTimer(PrepareOrbToUseTimerHandle);
 		TimeInReposition = 0.0f;
-		OrbToUseIsPrepared = true;
+		bOrbToUseIsPrepared = true;
 		OnFinishOrbPreparationEvent.Broadcast(OrbToUse);
 	}
 	
@@ -318,7 +316,23 @@ void UOrbManager::PrepareFirstLevelToUse()
 		return;
 	}
 
-	isPreparingFirstLevel = true;
+	bIsPreparingFirstLevel = true;
+	GetWorld()->GetTimerManager().SetTimer(PrepareOrbToUseTimerHandle, this, &UOrbManager::ChangeFirstLevelPosition, 0.01f, true);
+}
+
+bool UOrbManager::IsFirstLevelPreparing()
+{
+	return bIsPreparingFirstLevel;
+}
+
+void UOrbManager::UnprepareFirstLevel()
+{
+	if(OrbLevelsData.Num() == 0 || GetWorld()->GetTimerManager().IsTimerActive(PrepareOrbToUseTimerHandle))
+	{
+		return;
+	}
+
+	bIsPreparingFirstLevel = false;
 	GetWorld()->GetTimerManager().SetTimer(PrepareOrbToUseTimerHandle, this, &UOrbManager::ChangeFirstLevelPosition, 0.01f, true);
 }
 
@@ -335,14 +349,28 @@ void UOrbManager::ChangeFirstLevelPosition()
 
 	float Alpha = FMath::Min(TimeInReposition/PrepareToUseFirstLevelTime, 1.0f);
 
-	float OldZOffset = isPreparingFirstLevel? OrbLevelsData[0].ZOffset : PreparingZOffset;
-	float OldXOffset = isPreparingFirstLevel? OrbLevelsData[0].XOffset : PreparingXOffset;
+	float OldZOffset = bIsPreparingFirstLevel? OrbLevelsData[0].ZOffset : PreparingZOffset;
+	float OldXOffset = bIsPreparingFirstLevel? OrbLevelsData[0].XOffset : PreparingXOffset;
 
-	float NewZOffset = isPreparingFirstLevel? PreparingZOffset : OrbLevelsData[0].ZOffset;
-	float NewXOffset = isPreparingFirstLevel? PreparingXOffset : OrbLevelsData[0].XOffset;
+	float NewZOffset = bIsPreparingFirstLevel? PreparingZOffset : OrbLevelsData[0].ZOffset;
+	float NewXOffset = bIsPreparingFirstLevel? PreparingXOffset : OrbLevelsData[0].XOffset;
+
+	AOrb* OrbToExlude = nullptr;
+	for(FTransferOrbData TransferOrbData: TransferOrbsData)
+	{	
+		if(TransferOrbData.ToLevel == 0)
+		{
+			OrbToExlude = TransferOrbData.Orb;
+			break;
+		}
+	}
 
 	for(AOrb* Orb: OrbLevelsData[0].Orbs)
 	{	
+		if(Orb == OrbToExlude)
+		{
+			continue;
+		}
 		Orb->SetRadiusLength(FMath::Lerp(OldXOffset, NewXOffset, Alpha));
 		Orb->SetHeight(FMath::Lerp(OldZOffset, NewZOffset, Alpha));
 	}
@@ -351,8 +379,8 @@ void UOrbManager::ChangeFirstLevelPosition()
 	{
 		TimerManager.ClearTimer(PrepareOrbToUseTimerHandle);
 		TimeInReposition = 0.0f;
-		isFirstLevelPrepared = true;
-		isPreparingFirstLevel = false;
+		bIsFirstLevelPrepared = true;
+		bIsPreparingFirstLevel = false;
 	}
 }
 
@@ -363,7 +391,7 @@ void UOrbManager::FireOrb(FVector Direction)
 	{
 		OrbToUse->FireOrbAsProjectile(Direction);
 		OrbToUse = nullptr;
-		OrbToUseIsPrepared = false;
+		bOrbToUseIsPrepared = false;
 	}
 }
 
@@ -374,15 +402,60 @@ void UOrbManager::SetNewZOffset(float Z)
 
 bool UOrbManager::IsOrbPrepared()
 {
-	return OrbToUseIsPrepared;
+	return bOrbToUseIsPrepared;
 }
 
 float UOrbManager::GetR()
 {
-	return !OrbLevelsData.IsEmpty()? OrbLevelsData[0].XOffset: 0.0f; 
+	return PreparingXOffset; 
 }
 
 bool UOrbManager::IsFirstLevelPrepared()
 {
-	return isFirstLevelPrepared;
+	return bIsFirstLevelPrepared;
+}
+
+float UOrbManager::GetRepositionTime()
+{
+	return RepositionTime;
+}
+
+float UOrbManager::GetPrepareToUseTime()
+{
+	return PrepareToUseTime;
+}
+
+float UOrbManager::GetLongUseTime()
+{
+	return LongUseTime;
+}
+
+void UOrbManager::SetFinishPoint(FVector NewFinishPoint)
+{
+	FinishPoint = NewFinishPoint;
+}
+
+void UOrbManager::RemoveOrbFromLevel(AOrb* Orb)
+{
+	for(FOrbLevelData& OrbLevelData : OrbLevelsData)
+	{
+		int Index = OrbLevelData.Orbs.Find(Orb);
+		if(Index != -1)
+		{
+			Orb->PrepareToDestroy(PrepareToUseTime*2);
+			OrbLevelData.Orbs.RemoveAt(Index);
+			FixOrbsPosition(false, Index, Orb);
+			return;
+		}
+	}
+}
+
+void UOrbManager::RemovePreparedOrb()
+{
+	if(OrbToUse)
+	{
+		OrbToUse->PrepareToDestroy(PrepareToUseTime*2);
+		OrbToUse = nullptr;
+		bOrbToUseIsPrepared = false;
+	}	
 }

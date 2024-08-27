@@ -74,6 +74,12 @@ public:
 	void PrepareFirstLevelToUse();
 
 	UFUNCTION(BlueprintCallable)
+	bool IsFirstLevelPreparing();
+
+	UFUNCTION(BlueprintCallable)
+	void UnprepareFirstLevel();
+
+	UFUNCTION(BlueprintCallable)
 	void FireOrb(FVector Direction);
 
 	UFUNCTION(BlueprintCallable)
@@ -87,6 +93,25 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	bool IsFirstLevelPrepared();
+
+	UFUNCTION(BlueprintCallable)
+	float GetRepositionTime();
+
+	UFUNCTION(BlueprintCallable)
+	float GetPrepareToUseTime();
+
+	UFUNCTION(BlueprintCallable)
+	float GetLongUseTime();
+
+	UFUNCTION(BlueprintCallable)
+	void RemoveOrbFromLevel(AOrb* Orb);
+
+	UFUNCTION(BlueprintCallable)
+	void RemovePreparedOrb();
+
+
+	UFUNCTION(BlueprintCallable)
+	void SetFinishPoint(FVector NewFinishPoint);
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = CustomBaseOrb)
 	TSubclassOf<class AOrb> OrbClass;
@@ -115,11 +140,14 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = OrbLevelData, meta = (AllowPrivateAccess = "true"))
 	float BaseSpeed = 90.0f;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = OrbLevelData, meta = (AllowPrivateAccess = "true"))
+	float LongUseTime = 4.0f;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = CatchOrb, meta = (AllowPrivateAccess = "true"))
 	float DecationOrbSphereRadius = 100.0f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = CatchOrb, meta = (AllowPrivateAccess = "true"))
-	bool ShowDebugLine = false;
+	bool bShowDebugLine = false;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = CatchOrb, meta = (AllowPrivateAccess = "true"))
 	float DistanceFromComponentToStartOfRay = 100.0f;
@@ -130,13 +158,13 @@ private:
 	FTimerHandle TransferTimerHandle;
 
 	AOrb* OrbToUse = nullptr;
-	bool OrbToUseIsPrepared = false;
+	bool bOrbToUseIsPrepared = false;
 	FVector FinishPoint;
 	FVector OldLocation;
 	float TimeInReposition = 0.0f;
 	float TimeInTransfer = 0.0f;
-	bool isPreparingFirstLevel = false;
-	bool isFirstLevelPrepared = false;
+	bool bIsPreparingFirstLevel = false;
+	bool bIsFirstLevelPrepared = false;
 	
 	TArray<FTransferOrbData> TransferOrbsData;
 

@@ -15,6 +15,8 @@ class AOrbGameCharacter : public ACharacter
 public:
 	AOrbGameCharacter();
 
+	virtual void BeginPlay() override;
+
 	class UOrbManager* GetOrbManager();
 
 	class UNiagaraComponent* GetNiagaraComponent();
@@ -32,6 +34,11 @@ public:
 	float GetFeetZLocation();
 
 	void AttachToSpellSocket(AActor* ActorToAttach);
+
+	FVector GetLocationOfSpellSocket(bool bWorldSpace = true);
+
+	void SetupNiagaraRay(class AOrb* FollowOrb);
+
 
 
 private:
@@ -66,6 +73,12 @@ private:
 
 	UPROPERTY(VisibleAnywhere,BlueprintReadWrite, Category = Components, meta = (AllowPrivateAccess = "true"))
 	TSubclassOf<class UNiagaraSystem > NiagaraSystemClass;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Ray, meta = (AllowPrivateAccess = "true"))
+	float RayLengthMultiplier = 1.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Ray, meta = (AllowPrivateAccess = "true"))
+	float RayScaleMultiplier = 1.0f;
 
 
 };

@@ -6,6 +6,7 @@
 #include "Components/DecalComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "OrbManager.h"
+#include "Orb.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/PlayerController.h"
@@ -13,6 +14,7 @@
 #include "Materials/Material.h"
 #include "Engine/World.h"
 #include "Components/SphereComponent.h"
+#include "Kismet/KismetMathLibrary.h"
 
 #include "Engine/LocalPlayer.h"
 #include "GameFramework/Controller.h"
@@ -21,6 +23,7 @@
 #include "InputActionValue.h"
 #include "NiagaraComponent.h"
 #include "NiagaraSystem.h"
+
 
 
 AOrbGameCharacter::AOrbGameCharacter()
@@ -89,6 +92,14 @@ AOrbGameCharacter::AOrbGameCharacter()
 	// Activate ticking in order to update the cursor every frame.
 	PrimaryActorTick.bCanEverTick = true;
 	PrimaryActorTick.bStartWithTickEnabled = true;
+
+	
+}
+
+void AOrbGameCharacter::BeginPlay()
+{
+	Super::BeginPlay();
+	Tags.Add("Player");
 }
  
 void AOrbGameCharacter::Tick(float DeltaSeconds)
@@ -127,6 +138,34 @@ void AOrbGameCharacter::AttachToSpellSocket(AActor* ActorToAttach)
 
 	ActorToAttach->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, SpellSocketName);
 }
+
+FVector AOrbGameCharacter::GetLocationOfSpellSocket(bool bWorldSpace)
+{
+	if(bWorldSpace)
+	{
+		return GetMesh()->GetSocketLocation(SpellSocketName);
+	}
+	else
+	{
+		FVector Location = GetMesh()->GetSocketLocation(SpellSocketName);
+		return GetMesh()->GetComponentTransform().InverseTransformPosition(Location);
+	}
+}
+
+void AOrbGameCharacter::SetupNiagaraRay(AOrb* FollowOrb)
+{
+
+	float Length = 1.0f * RayLengthMultiplier * OrbManager->GetR();
+	float Scale = 1.0f * RayScaleMultiplier;
+	NiagaraComponent->SetVariableFloat(FName("Lenght"), Length);
+	NiagaraComponent->SetVariableFloat(FName("Scale"), Scale);
+
+	FRotator NewNiagaraRotation = UKismetMathLibrary::FindLookAtRotation(NiagaraComponent->GetComponentToWorld().GetLocation(),FollowOrb->GetOrbWorldLocation());
+	NiagaraComponent->SetWorldRotation(NewNiagaraRotation);
+	NiagaraComponent->ActivateSystem();
+}
+
+
 
 
 // void AOrbGameCharacter::MoveToLocation(FVector StartLocation, FVector EndLocation, float Duration)

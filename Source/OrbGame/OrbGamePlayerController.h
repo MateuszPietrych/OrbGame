@@ -83,12 +83,10 @@ private:
 	FVector CachedDestination;
 	FRotator CachedRotation;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Ray, meta = (AllowPrivateAccess = "true"))
-	float RayMultiplier = 1.0f;
-
 	bool bIsTouch; // Is it a touch device
 	float FollowTime; // For how long it has been pressed
 	class AOrb* FollowOrb;
+	bool bCanUseLongEffect = true;
 
 	/** The character that we are controlling */
 	class AOrbGameCharacter* OrbGameCharacter;
