@@ -316,6 +316,7 @@ void UOrbManager::PrepareFirstLevelToUse()
 		return;
 	}
 
+	UE_LOG(LogTemp, Warning, TEXT("PrepareFirstLevelToUse"));
 	bIsPreparingFirstLevel = true;
 	GetWorld()->GetTimerManager().SetTimer(PrepareOrbToUseTimerHandle, this, &UOrbManager::ChangeFirstLevelPosition, 0.01f, true);
 }
@@ -379,7 +380,7 @@ void UOrbManager::ChangeFirstLevelPosition()
 	{
 		TimerManager.ClearTimer(PrepareOrbToUseTimerHandle);
 		TimeInReposition = 0.0f;
-		bIsFirstLevelPrepared = true;
+		bIsFirstLevelPrepared = !bIsFirstLevelPrepared;
 		bIsPreparingFirstLevel = false;
 	}
 }

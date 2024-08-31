@@ -80,13 +80,13 @@ void AOrb::SetOrbPosition(float RadiusLength, float Height)
 void AOrb::SetOrbRotation(float Rotation)
 {
 	FRotator FixedRotation = FRotator(0.0f, Rotation, 0.0f);
-	BaseSceneComponent->SetRelativeRotation(FixedRotation);
+	BaseSceneComponent->SetRelativeRotation(FixedRotation); 
 	LongUseNiagaraComponent->SetRelativeRotation(FixedRotation);
 
 	//TODO - kick it out to subclass
 	FVector WindSpeed = FixedRotation.Vector();
 	WindSpeed.Normalize();
-	WindSpeed *= 100.0f;
+	WindSpeed *= 200.0f;
 
 	LongUseNiagaraComponent->SetVariableVec3(FName("Wind Speed"), WindSpeed);
 }
@@ -148,6 +148,7 @@ void AOrb::ActivateEffect()
 	BaseNiagaraComponent->SetAsset(ActivationNiagaraSystemClass);
 	BaseNiagaraComponent->ActivateSystem();
 	
+
 	UE_LOG(LogTemp, Warning, TEXT("Activating Orb Effect"));
 }
 
@@ -186,4 +187,9 @@ void AOrb::PrepareToDestroy(float TimeToDestroy)
 	SetLifeSpan(TimeToDestroy);	
 }
 
+TArray<AActor*> AOrb::GetAllHittedInLongLastingEffect()
+{
+	TArray<AActor*> HittedActors;
+	return HittedActors;
+}
 

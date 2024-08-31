@@ -1,6 +1,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Enums.h"
 #include "Structures.generated.h"
 
 
@@ -51,4 +52,19 @@ struct FBasicOrbData
 	int OrbIndex;
 
 	class AOrb* Orb;
+};
+
+
+
+
+USTRUCT(BlueprintType)
+struct FOrbEffectData
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Orb Effect Data")
+	TMap<OrbEffectsFloatParams, float> FloatParams;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Orb Effect Data")
+	TMap<OrbEffectsVectorParams, FVector> VectorParams;
 };

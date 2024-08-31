@@ -4,6 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "Enums.h"
+#include "Structures.h"
 #include "Orb.generated.h"
 
 UCLASS()
@@ -48,13 +50,16 @@ public:
 	void FireOrbAsProjectile(FVector Direction);
 
 	UFUNCTION(BlueprintCallable)
-	void ActivateEffect();
+	virtual void ActivateEffect();
 
 	UFUNCTION(BlueprintCallable)
-	void ActivateLongUsageEffect();
+	virtual void ActivateLongUsageEffect();
 
 	UFUNCTION(BlueprintCallable)
 	void DeactivateLongUsageEffect();
+
+	UFUNCTION(BlueprintCallable)
+	TArray<AActor*> GetAllHittedInLongLastingEffect(); 
 
 	UFUNCTION(BlueprintCallable)
 	void HideOrb();
@@ -67,8 +72,8 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	FVector GetOrbWorldLocation();
-private:
 
+protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Components, meta = (AllowPrivateAccess = "true"))
 	class USceneComponent* BaseSceneComponent;	
 
@@ -104,4 +109,8 @@ private:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = OrbData, meta = (AllowPrivateAccess = "true"))
 	class UNiagaraSystem* LongUsageNiagaraSystemClass;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = OrbData, meta = (AllowPrivateAccess = "true"))
+	TArray<FOrbEffectData> OrbEffectsData;
+
 };

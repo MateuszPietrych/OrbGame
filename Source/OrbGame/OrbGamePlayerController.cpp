@@ -146,8 +146,7 @@ void AOrbGamePlayerController::OnSetDestinationTriggered()
 	FollowTime += GetWorld()->GetDeltaSeconds();
 
 	//TODO - temporary solution with bool
-	if(bCanUseLongEffect)
-	{
+	if(bCanUseLongEffect){
 		UOrbManager* PlayerOrbManager = OrbGameCharacter->GetOrbManager();
 		if(PlayerOrbManager->IsOrbPrepared() && !PlayerOrbManager->IsFirstLevelPrepared())
 		{
@@ -192,6 +191,8 @@ void AOrbGamePlayerController::OnSetDestinationTriggered()
 				FollowOrb = nullptr;
 			}
 		}
+	}else{
+		bCanUseLongEffect = true;
 	}
 }
 

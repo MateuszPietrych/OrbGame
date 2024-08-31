@@ -1,10 +1,10 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Health.h"
+#include "HealthComponent.h"
 
 // Sets default values for this component's properties
-UHealth::UHealth()
+UHealthComponent::UHealthComponent()
 {
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them.
@@ -15,7 +15,7 @@ UHealth::UHealth()
 
 
 // Called when the game starts
-void UHealth::BeginPlay()
+void UHealthComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
@@ -25,7 +25,7 @@ void UHealth::BeginPlay()
 
 
 // Called every frame
-void UHealth::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
+void UHealthComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
@@ -33,32 +33,32 @@ void UHealth::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponen
 }
 
 
-void UHealth::SetHealth(float NewHealth)
+void UHealthComponent::SetHealth(float NewHealth)
 {
 	Health = NewHealth;
 }
 
-float UHealth::GetHealth()
+float UHealthComponent::GetHealth()
 {
 	return Health;
 }
 
-void UHealth::SetMaxHealth(float NewMaxHealth)
+void UHealthComponent::SetMaxHealth(float NewMaxHealth)
 {
 	MaxHealth = NewMaxHealth;
 }
 
-float UHealth::GetMaxHealth()
+float UHealthComponent::GetMaxHealth()
 {
 	return MaxHealth;
 }
 
-void UHealth::SetStartHealth(float NewStartHealth)
+void UHealthComponent::SetStartHealth(float NewStartHealth)
 {
 	StartHealth = NewStartHealth;
 }
 
-bool UHealth::IsDead()
+bool UHealthComponent::IsDead()
 {
 	return Health <= 0;
 }
