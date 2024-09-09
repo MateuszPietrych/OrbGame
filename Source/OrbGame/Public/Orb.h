@@ -73,6 +73,8 @@ public:
 	UFUNCTION(BlueprintCallable)
 	FVector GetOrbWorldLocation();
 
+	void SetBaseParamsForOrbEffect();
+
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Components, meta = (AllowPrivateAccess = "true"))
 	class USceneComponent* BaseSceneComponent;	

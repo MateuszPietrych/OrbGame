@@ -42,7 +42,8 @@ AOrb* UOrbManager::CreateOrb()
 {
 	FVector Location = K2_GetComponentToWorld().GetLocation();
 	FRotator Rotation = K2_GetComponentToWorld().GetRotation().Rotator();
-	FActorSpawnParameters SpawnInfo;
+	FActorSpawnParameters SpawnInfo = FActorSpawnParameters();
+	SpawnInfo.Owner = GetOwner();
 
 	AOrb* Orb = GetWorld()->SpawnActor<AOrb>(OrbClass, Location, Rotation, SpawnInfo);
 	Orb->K2_AttachToComponent(this,TEXT(""), EAttachmentRule::SnapToTarget, EAttachmentRule::SnapToTarget, EAttachmentRule::KeepWorld, true);

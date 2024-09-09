@@ -3,6 +3,7 @@
 
 #include "FireOrb.h"
 #include "LineEffect.h"
+#include "GameFramework/ProjectileMovementComponent.h"
 
 
 AFireOrb::AFireOrb()
@@ -15,20 +16,12 @@ void AFireOrb::ActivateEffect()
     Super::ActivateEffect();
 
     UE_LOG(LogTemp, Warning, TEXT("FireOrb::ActivateEffect"));
-    UE_LOG(LogTemp, Warning, TEXT("OrbEffectsData.Num() = %d"), OrbEffectsData.Num());
     if(OrbEffectsData.Num() == 0)
     {
         return;
     }
 
-    FVector Direction = GetActorForwardVector(); 
-    FVector StartLocation = GetActorLocation();
-
-    for(FOrbEffectData& OrbEffectData : OrbEffectsData)
-    {
-        OrbEffectData.VectorParams.Add(OrbEffectsVectorParams::START_LOCATION, StartLocation);
-        OrbEffectData.VectorParams.Add(OrbEffectsVectorParams::DIRECTION, Direction);
-    }
+    SetBaseParamsForOrbEffect();
      
     if(LineEffect == nullptr)
     {

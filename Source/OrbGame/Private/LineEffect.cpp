@@ -34,7 +34,7 @@ void ULineEffect::ApplyEffect(FOrbEffectData OrbEffectData)
 
     FVector EndLocation = StartLocation + Direction * Range;
     UE_LOG(LogTemp, Warning, TEXT("LineEffect::ApplyEffect"));
-    DrawDebugLine(GetWorld(), StartLocation, EndLocation, FColor::Red, false, 1, 0, 100.0f);
+    DrawDebugLine(GetWorld(), StartLocation, EndLocation, FColor::Red, false, 20, 0, 100.0f);
 }
 
 AActor* ULineEffect::GetActorsEffected()

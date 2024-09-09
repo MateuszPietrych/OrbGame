@@ -193,3 +193,17 @@ TArray<AActor*> AOrb::GetAllHittedInLongLastingEffect()
 	return HittedActors;
 }
 
+
+void AOrb::SetBaseParamsForOrbEffect()
+{
+	FVector Direction = ProjectileMovement->Velocity;
+    Direction.Normalize();
+    FVector StartLocation = GetActorLocation();
+
+    for(FOrbEffectData& OrbEffectData : OrbEffectsData)
+    {
+        OrbEffectData.VectorParams.Add(OrbEffectsVectorParams::START_LOCATION, StartLocation);
+        OrbEffectData.VectorParams.Add(OrbEffectsVectorParams::DIRECTION, Direction);
+    }
+}
+
