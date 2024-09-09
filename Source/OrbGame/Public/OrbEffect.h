@@ -7,6 +7,8 @@
 #include "Structures.h"
 #include "OrbEffect.generated.h"
 
+
+//UINTERFACE(MinimalAPI, Blueprintable)
 UINTERFACE(MinimalAPI, Blueprintable)
 class UOrbEffect: public UInterface
 {

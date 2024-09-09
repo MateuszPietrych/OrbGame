@@ -14,17 +14,30 @@ ULineEffect::ULineEffect()
 {
 }
 
-ULineEffect::~ULineEffect()
-{
-}
+// ULineEffect::~ULineEffect()
+// {
+// }
 
 void ULineEffect::ApplyEffect(FOrbEffectData OrbEffectData)
 {
+
+    if(!OrbEffectData.VectorParams.Contains(OrbEffectsVectorParams::START_LOCATION) || 
+        !OrbEffectData.VectorParams.Contains(OrbEffectsVectorParams::DIRECTION) || 
+        !OrbEffectData.FloatParams.Contains(OrbEffectsFloatParams::RANGE))
+    {
+        return;
+    }
+
     FVector StartLocation = OrbEffectData.VectorParams[OrbEffectsVectorParams::START_LOCATION];
     FVector Direction = OrbEffectData.VectorParams[OrbEffectsVectorParams::DIRECTION];
     float Range = OrbEffectData.FloatParams[OrbEffectsFloatParams::RANGE];
 
     FVector EndLocation = StartLocation + Direction * Range;
+    UE_LOG(LogTemp, Warning, TEXT("LineEffect::ApplyEffect"));
+    DrawDebugLine(GetWorld(), StartLocation, EndLocation, FColor::Red, false, 1, 0, 100.0f);
+}
 
-    DrawDebugLine(GetWorld(), StartLocation, EndLocation, FColor::Red, false, 1, 0, 1);
+AActor* ULineEffect::GetActorsEffected()
+{
+    return nullptr;
 }

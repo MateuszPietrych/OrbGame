@@ -14,6 +14,12 @@ class ORBGAME_API AFireOrb : public AOrb
 {
 	GENERATED_BODY()
 
+	AFireOrb();
+
 	virtual void ActivateEffect() override;
+
+
+	private:
+		class ULineEffect* LineEffect;
 	
 };

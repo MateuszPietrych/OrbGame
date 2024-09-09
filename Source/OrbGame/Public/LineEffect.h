@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "OrbEffect.h"
+#include "LineEffect.generated.h"
 
 
 
@@ -11,12 +12,19 @@
  * 
  */
 // UCLASS(Blueprintable, Category="MyGame")
+UCLASS()
 class ORBGAME_API ULineEffect: public UObject, public IOrbEffect
 {
-public:
-	ULineEffect();
-	~ULineEffect();
 
-	virtual void ApplyEffect(FOrbEffectData OrbEffectData) override;
+	GENERATED_BODY()
+
+public:
+
+	ULineEffect();
+
+	// virtual
+	void ApplyEffect(FOrbEffectData OrbEffectData) override;
+
+	AActor* GetActorsEffected() override;
 
 };
