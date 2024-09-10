@@ -39,4 +39,13 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Components, meta = (AllowPrivateAccess = "true"))
 	class UHealthComponent* HealthComponent;
 
+	// UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Components, meta = (AllowPrivateAccess = "true"))
+	// class UWidgetComponent * HpWidgetComponent;
+
+	// UPROPERTY(EditAnywhere, Category = "Setup")
+	// TSubclassOf<class UUserWidget> HpWidgetClass;
+
+	// UPROPERTY(VisibleInstanceOnly, Category = "Runtime")
+	// class UUserWidget* HpWidget;
+
 };

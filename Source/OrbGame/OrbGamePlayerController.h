@@ -78,6 +78,7 @@ protected:
 	void OnTouchReleased();
 	void Move(const FInputActionValue& Value);
 	void FireOrb();
+	void StopLongUseEffect();
 
 private:
 	FVector CachedDestination;

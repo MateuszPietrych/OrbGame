@@ -5,6 +5,8 @@
 #include "HealthComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/StaticMeshComponent.h"
+#include "Components/WidgetComponent.h"
+#include "HpWidget.h"
 
 // Sets default values
 AEnemy::AEnemy()
@@ -19,6 +21,10 @@ AEnemy::AEnemy()
 	BodyMesh->SetupAttachment(CapsuleComponent);
 
 	HealthComponent = CreateDefaultSubobject<UHealthComponent>(TEXT("HealthComponent"));
+
+	// HpWidgetComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("HpWidgetComponent"));
+	// HpWidgetComponent->SetupAttachment(RootComponent);
+	
 }
 
 // Called when the game starts or when spawned
@@ -26,6 +32,20 @@ void AEnemy::BeginPlay()
 {
 	Super::BeginPlay();
 	
+	// if(IsValid(HpWidgetClass))
+    // {
+    //     HpWidget = CreateWidget<UHpWidget>(GetWorld(), HpWidgetClass);
+    //     if (HpWidget)
+    //     {
+    //         HpWidget->AddToViewport();
+    //     }else{
+    //         UE_LOG(LogTemp, Error, TEXT("Widget is not valid"));
+    //     }
+    // }
+    // else
+    // {
+    //     UE_LOG(LogTemp, Error, TEXT("GameWidgetClass is not valid"));
+    // }
 }
 
 // Called every frame

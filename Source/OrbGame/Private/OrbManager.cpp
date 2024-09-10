@@ -68,7 +68,6 @@ void UOrbManager::AddOrb(){
 			Orb->SetOrbPosition(OrbLevelData.XOffset, OrbLevelData.ZOffset);
 			Orb->SetRotationSpeed(BaseSpeed);
 
-			// UE_LOG(LogTemp, Warning, TEXT("Orb %d %f"), OrbLevelData.Orbs.Num() - 1, BaseSpeed);
 			if(OrbLevelData.Orbs.Num() > 0)
 			{
 				float BaseRotationDeviation = OrbLevelData.Orbs[0]->GetCurrentOrbRotationDeviation();
@@ -210,6 +209,28 @@ AOrb* UOrbManager::CatchOrbFromFirstLevel(FVector DirectionPoint, FVector NewFin
 	Direction.Normalize();
 
 
+	float MinimumDotProduct = -1.0f;
+	AOrb* HittedOrb = nullptr;
+
+	for(AOrb* Orb: OrbLevelsData[0].Orbs)
+	{
+		FVector OrbDirection = Orb->GetOrbWorldLocation() - ComponentLocation;
+		OrbDirection.Normalize();
+		float DotProduct = FVector::DotProduct(OrbDirection, Direction);
+		if(DotProduct >= MinimumDotProduct)
+		{
+			MinimumDotProduct = DotProduct;
+			HittedOrb = Orb;
+		}
+	}
+
+	if(!HittedOrb)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Not HittedOrb"));
+	}
+ 	/* 
+	TRACE TO FIND THE CLOSEST ORB
+
 	FHitResult Hit;
 	FCollisionQueryParams Params = FCollisionQueryParams(FName(TEXT("OrbTrace")), false, GetOwner());
 	GetWorld()->SweepSingleByChannel(Hit, ComponentLocation + Direction*DistanceFromComponentToStartOfRay, ComponentLocation + Direction*1500.0f, FQuat::Identity, ECollisionChannel::ECC_Visibility, FCollisionShape::MakeSphere(DecationOrbSphereRadius),Params);
@@ -223,6 +244,7 @@ AOrb* UOrbManager::CatchOrbFromFirstLevel(FVector DirectionPoint, FVector NewFin
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Not HittedOrb"));
 	}
+	*/
 
 	return HittedOrb;
 }

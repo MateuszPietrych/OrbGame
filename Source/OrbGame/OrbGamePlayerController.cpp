@@ -111,7 +111,7 @@ void AOrbGamePlayerController::AddOrb()
 
 void AOrbGamePlayerController::FireOrb()
 {
-	if (OrbGameCharacter)
+	if (OrbGameCharacter && OrbGameCharacter->GetOrbManager()->IsOrbPrepared())
 	{
 		FVector Direction = FVector(1.0f, 0.0f, 0.0f);
 		Direction = CachedRotation.RotateVector(Direction);
@@ -181,14 +181,7 @@ void AOrbGamePlayerController::OnSetDestinationTriggered()
 
 			if(FollowTime >= PlayerOrbManager->GetPrepareToUseTime() + PlayerOrbManager->GetLongUseTime())
 			{
-				PlayerOrbManager->UnprepareFirstLevel();
-				PlayerOrbManager->RemoveOrbFromLevel(FollowOrb);
-				PlayerOrbManager->RemovePreparedOrb();
-				bCanUseLongEffect = false;
-				OrbGameCharacter->GetNiagaraComponent()->DeactivateImmediate();
-
-				FollowTime = 0.f;
-				FollowOrb = nullptr;
+				StopLongUseEffect();
 			}
 		}
 	}else{
@@ -205,9 +198,10 @@ void AOrbGamePlayerController::OnSetDestinationReleased()
 	// 	UAIBlueprintHelperLibrary::SimpleMoveToLocation(this, CachedDestination);
 	// 	UNiagaraFunctionLibrary::SpawnSystemAtLocation(this, FXCursor, CachedDestination, FRotator::ZeroRotator, FVector(1.f, 1.f, 1.f), true, true, ENCPoolMethod::None, true);
 	// }
-
-	FollowTime = 0.f;
-	FollowOrb = nullptr;
+	if(FollowOrb && FollowOrb->GetIsLongUseActive())
+	{
+		StopLongUseEffect();
+	}
 }
 
 // Triggered every frame when the input is held down
@@ -269,4 +263,21 @@ void AOrbGamePlayerController::Tick(float DeltaTime)
 void AOrbGamePlayerController::OnFinishOrbPreparationEvent(class AOrb* Orb)
 {
 	OrbGameCharacter->AttachToSpellSocket(Orb);
+}
+
+void AOrbGamePlayerController::StopLongUseEffect()
+{
+	if(FollowOrb)
+	{
+		UOrbManager* PlayerOrbManager = OrbGameCharacter->GetOrbManager();
+
+		PlayerOrbManager->UnprepareFirstLevel();
+		PlayerOrbManager->RemoveOrbFromLevel(FollowOrb);
+		PlayerOrbManager->RemovePreparedOrb();
+		bCanUseLongEffect = false;
+		OrbGameCharacter->GetNiagaraComponent()->DeactivateImmediate();
+
+		FollowTime = 0.f;
+		FollowOrb = nullptr;
+	}
 }

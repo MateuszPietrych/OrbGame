@@ -78,6 +78,8 @@ public:
 
 	void SetBaseParamsForOrbEffect();
 
+	bool GetIsLongUseActive() const { return bIsLongUseActive; }
+
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Components, meta = (AllowPrivateAccess = "true"))
 	class USceneComponent* BaseSceneComponent;	
