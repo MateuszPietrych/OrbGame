@@ -25,6 +25,6 @@ public:
 	// virtual
 	void ApplyEffect(FOrbEffectData OrbEffectData) override;
 
-	AActor* GetActorsEffected() override;
+	TArray<AActor*> GetActorsAffected(FOrbEffectData OrbEffectData) override;
 
 };

@@ -16,7 +16,13 @@ class ORBGAME_API AFireOrb : public AOrb
 
 	AFireOrb();
 
-	virtual void ActivateEffect() override;
+	// virtual void ActivateEffect() override;
+
+	virtual void ActivateLongUsageEffect() override;
+
+	virtual void LongUseTickEffect() override;
+
+	
 
 
 	private:

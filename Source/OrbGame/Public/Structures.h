@@ -67,4 +67,7 @@ struct FOrbEffectData
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Orb Effect Data")
 	TMap<OrbEffectsVectorParams, FVector> VectorParams;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Orb Effect Data")
+	TMap<OrbEffectsBoolParams, bool> BoolParams;
 };

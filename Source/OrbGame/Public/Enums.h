@@ -26,3 +26,8 @@ enum class OrbEffectsVectorParams : uint8 {
     START_LOCATION = 0 	UMETA(DisplayName = "START_LOCATION"),
 	DIRECTION = 1 	UMETA(DisplayName = "DIRECTION"),
 };
+
+UENUM(BlueprintType)
+enum class OrbEffectsBoolParams : uint8 {
+	USE_DEBUG = 0 	UMETA(DisplayName = "USE_DEBUG"),
+};

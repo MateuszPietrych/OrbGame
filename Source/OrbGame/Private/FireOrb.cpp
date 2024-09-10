@@ -4,6 +4,7 @@
 #include "FireOrb.h"
 #include "LineEffect.h"
 #include "GameFramework/ProjectileMovementComponent.h"
+#include "Kismet/GameplayStatics.h"
 
 
 AFireOrb::AFireOrb()
@@ -11,23 +12,32 @@ AFireOrb::AFireOrb()
     LineEffect = CreateDefaultSubobject<ULineEffect>(TEXT("ULineEffect"));
 }
 
-void AFireOrb::ActivateEffect()
+void AFireOrb::ActivateLongUsageEffect()
 {
-    Super::ActivateEffect();
+    Super::ActivateLongUsageEffect();
+}
 
-    UE_LOG(LogTemp, Warning, TEXT("FireOrb::ActivateEffect"));
+void AFireOrb::LongUseTickEffect()
+{
+    Super::LongUseTickEffect();
+
     if(OrbEffectsData.Num() == 0)
     {
         return;
     }
-
     SetBaseParamsForOrbEffect();
-     
+
     if(LineEffect == nullptr)
     {
         UE_LOG(LogTemp, Warning, TEXT("LineEffect is null"));
         return;
     }
-    LineEffect->ApplyEffect(OrbEffectsData[0]);
-    
+
+    TArray<AActor*> AffectedActors = LineEffect->GetActorsAffected(OrbEffectsData[0]);
+    for(AActor* HitActor : AffectedActors)
+    {
+        if(HitActor == nullptr)
+            continue;
+        UGameplayStatics::ApplyDamage(HitActor, OrbEffectsData[0].FloatParams[OrbEffectsFloatParams::DAMAGE], nullptr, nullptr, nullptr);
+    }
 }

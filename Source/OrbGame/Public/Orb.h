@@ -56,6 +56,9 @@ public:
 	virtual void ActivateLongUsageEffect();
 
 	UFUNCTION(BlueprintCallable)
+	virtual void LongUseTickEffect();
+
+	UFUNCTION(BlueprintCallable)
 	void DeactivateLongUsageEffect();
 
 	UFUNCTION(BlueprintCallable)
@@ -114,5 +117,11 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = OrbData, meta = (AllowPrivateAccess = "true"))
 	TArray<FOrbEffectData> OrbEffectsData;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = OrbData, meta = (AllowPrivateAccess = "true"))
+	float LongUseTickRate = 0.01f;
+
+	FTimerHandle LongUseTickTimerHandle;
+	bool bIsLongUseActive = false;
 
 };

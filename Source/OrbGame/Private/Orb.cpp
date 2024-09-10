@@ -156,16 +156,31 @@ void AOrb::ActivateLongUsageEffect()
 {
 	LongUseNiagaraComponent->SetAsset(LongUsageNiagaraSystemClass);
 	LongUseNiagaraComponent->ActivateSystem();
+	bIsLongUseActive = true;
 	
+	GetWorld()->GetTimerManager().SetTimer(LongUseTickTimerHandle, this, &AOrb::LongUseTickEffect, LongUseTickRate, true);
 	UE_LOG(LogTemp, Warning, TEXT("Activating Orb Long Usage Effect"));
+}
+
+void AOrb::LongUseTickEffect()
+{
+	
 }
 
 void AOrb::DeactivateLongUsageEffect()
 {
-	LongUseNiagaraComponent->SetAsset(LongUsageNiagaraSystemClass);
 	LongUseNiagaraComponent->DeactivateImmediate();
 	
-	UE_LOG(LogTemp, Warning, TEXT("Activating Orb Long Usage Effect"));
+	bIsLongUseActive = false;
+	FTimerManager& TimerManager = GetWorld()->GetTimerManager();
+	TimerManager.ClearTimer(LongUseTickTimerHandle);
+
+	// if(TimerManager.IsTimerActive(LongUseTickTimerHandle))
+	// {
+		
+	// 	UE_LOG(LogTemp, Warning, TEXT("Deactivating LongUseTickTimerHandle"));
+	// }
+	UE_LOG(LogTemp, Warning, TEXT("AOrb:: Deactivating Orb Long Usage Effect"));
 }
 
 FVector AOrb::GetOrbWorldLocation()
@@ -183,6 +198,7 @@ void AOrb::HideOrb()
 
 void AOrb::PrepareToDestroy(float TimeToDestroy)
 {
+	DeactivateLongUsageEffect();
 	HideOrb();
 	SetLifeSpan(TimeToDestroy);	
 }
@@ -196,9 +212,10 @@ TArray<AActor*> AOrb::GetAllHittedInLongLastingEffect()
 
 void AOrb::SetBaseParamsForOrbEffect()
 {
-	FVector Direction = ProjectileMovement->Velocity;
+	// FVector Direction = ProjectileMovement->Velocity;
+	FVector Direction = GetActorForwardVector();
     Direction.Normalize();
-    FVector StartLocation = GetActorLocation();
+    FVector StartLocation = GetOrbWorldLocation();
 
     for(FOrbEffectData& OrbEffectData : OrbEffectsData)
     {

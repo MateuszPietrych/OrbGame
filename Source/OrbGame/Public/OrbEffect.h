@@ -22,5 +22,5 @@ class ORBGAME_API IOrbEffect
 public:
 	virtual void ApplyEffect(FOrbEffectData OrbEffectData) = 0;
 
-	virtual AActor* GetActorsEffected() = 0;
+	virtual TArray<AActor*> GetActorsAffected(FOrbEffectData OrbEffectData) = 0;
 };
