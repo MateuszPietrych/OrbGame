@@ -47,7 +47,7 @@ public:
 	float GetCurrentOrbRotationDeviation0to360();
 
 	UFUNCTION(BlueprintCallable)
-	void FireOrbAsProjectile(FVector Direction);
+	virtual void SimpleOrbUse(FOrbUseContext OrbUseContext);
 
 	UFUNCTION(BlueprintCallable)
 	virtual void ActivateEffect();

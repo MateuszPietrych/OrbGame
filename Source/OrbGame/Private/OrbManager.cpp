@@ -409,11 +409,14 @@ void UOrbManager::ChangeFirstLevelPosition()
 }
 
 
-void UOrbManager::FireOrb(FVector Direction)
+void UOrbManager::SimpleOrbUse(FVector Direction)
 {
 	if(OrbToUse)
 	{
-		OrbToUse->FireOrbAsProjectile(Direction);
+		FOrbUseContext OrbUseContext = FOrbUseContext();
+		OrbUseContext.Direction = Direction;
+
+		OrbToUse->SimpleOrbUse(OrbUseContext);
 		OrbToUse = nullptr;
 		bOrbToUseIsPrepared = false;
 	}

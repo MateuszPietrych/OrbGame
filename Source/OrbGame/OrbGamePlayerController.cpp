@@ -18,6 +18,7 @@
 #include "DrawDebugHelpers.h"
 #include "NiagaraComponent.h"
 #include "NiagaraSystem.h"
+#include "GameFramework/PawnMovementComponent.h"
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 
@@ -69,7 +70,7 @@ void AOrbGamePlayerController::SetupInputComponent()
 		// Moving
 		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &AOrbGamePlayerController::Move);
 		EnhancedInputComponent->BindAction(AddOrbAction, ETriggerEvent::Triggered, this, &AOrbGamePlayerController::AddOrb);
-		EnhancedInputComponent->BindAction(FireOrbAction, ETriggerEvent::Triggered, this, &AOrbGamePlayerController::FireOrb);
+		EnhancedInputComponent->BindAction(FireOrbAction, ETriggerEvent::Triggered, this, &AOrbGamePlayerController::SimpleOrbUse);
 	}
 	else
 	{
@@ -109,13 +110,13 @@ void AOrbGamePlayerController::AddOrb()
 	}
 }
 
-void AOrbGamePlayerController::FireOrb()
+void AOrbGamePlayerController::SimpleOrbUse()
 {
-	if (OrbGameCharacter && OrbGameCharacter->GetOrbManager()->IsOrbPrepared())
+	if (OrbGameCharacter && OrbGameCharacter->GetOrbManager()->IsOrbPrepared() && !bLongEffectInUse)
 	{
 		FVector Direction = FVector(1.0f, 0.0f, 0.0f);
 		Direction = CachedRotation.RotateVector(Direction);
-		OrbGameCharacter->GetOrbManager()->FireOrb(Direction);
+		OrbGameCharacter->GetOrbManager()->SimpleOrbUse(Direction);
 	}
 }
 
@@ -123,9 +124,9 @@ void AOrbGamePlayerController::FireOrb()
 void AOrbGamePlayerController::OnInputStarted()
 {
 	StopMovement();
-	if(!OrbGameCharacter->GetOrbManager()->IsOrbPrepared())
+	UOrbManager* PlayerOrbManager = OrbGameCharacter->GetOrbManager();
+	if(!PlayerOrbManager->IsOrbPrepared())
 	{
-		UOrbManager* PlayerOrbManager = OrbGameCharacter->GetOrbManager();
 		FVector SpawnSpellPoint = OrbGameCharacter->GetLocationOfSpellSocket();
 		AOrb* HittedOrb = PlayerOrbManager->CatchOrbFromFirstLevel(CachedDestination, SpawnSpellPoint);
 
@@ -153,8 +154,10 @@ void AOrbGamePlayerController::OnSetDestinationTriggered()
 			PlayerOrbManager->PrepareFirstLevelToUse();
 		}
 
-		if(PlayerOrbManager->IsOrbPrepared() && PlayerOrbManager->IsFirstLevelPrepared()  && FollowOrb == nullptr)
+		if(PlayerOrbManager->IsOrbPrepared() && PlayerOrbManager->IsFirstLevelPrepared() && FollowOrb == nullptr)
 		{
+			GetPawn()->GetMovementComponent()->Deactivate();
+
 			FVector SpawnSpellPoint = OrbGameCharacter->GetLocationOfSpellSocket();
 			AOrb* HittedOrb = PlayerOrbManager->CatchOrbFromFirstLevel(CachedDestination, SpawnSpellPoint);
 
@@ -170,9 +173,14 @@ void AOrbGamePlayerController::OnSetDestinationTriggered()
 				OrbGameCharacter->SetupNiagaraRay(FollowOrb);
 
 				FollowOrb->ActivateLongUsageEffect();
+				bLongEffectInUse = true;
 			}
 		}else if(FollowOrb)
 		{
+			//TODO : no need to update it every frame, problem is that something from movement I think is occuring after code with setup and it 
+			// causes that the ray is weird direction or it is something else I don't know
+			OrbGameCharacter->SetNiagaraRayRotation(FollowOrb);
+
 			FVector PlayerLocation = OrbGameCharacter->GetActorLocation();
 			FVector FollowOrbLocation = FollowOrb->GetOrbWorldLocation();
 			FRotator NewRotation = UKismetMathLibrary::FindLookAtRotation(PlayerLocation, FollowOrbLocation);
@@ -267,6 +275,8 @@ void AOrbGamePlayerController::OnFinishOrbPreparationEvent(class AOrb* Orb)
 
 void AOrbGamePlayerController::StopLongUseEffect()
 {
+	GetPawn()->GetMovementComponent()->Activate();
+	bLongEffectInUse = false;
 	if(FollowOrb)
 	{
 		UOrbManager* PlayerOrbManager = OrbGameCharacter->GetOrbManager();

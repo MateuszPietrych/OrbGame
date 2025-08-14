@@ -154,15 +154,19 @@ FVector AOrbGameCharacter::GetLocationOfSpellSocket(bool bWorldSpace)
 
 void AOrbGameCharacter::SetupNiagaraRay(AOrb* FollowOrb)
 {
-
 	float Length = 1.0f * RayLengthMultiplier * OrbManager->GetR();
 	float Scale = 1.0f * RayScaleMultiplier;
 	NiagaraComponent->SetVariableFloat(FName("Lenght"), Length);
 	NiagaraComponent->SetVariableFloat(FName("Scale"), Scale);
+	SetNiagaraRayRotation(FollowOrb);
 
+	NiagaraComponent->ActivateSystem();
+}
+
+void AOrbGameCharacter::SetNiagaraRayRotation(AOrb* FollowOrb)
+{
 	FRotator NewNiagaraRotation = UKismetMathLibrary::FindLookAtRotation(NiagaraComponent->GetComponentToWorld().GetLocation(),FollowOrb->GetOrbWorldLocation());
 	NiagaraComponent->SetWorldRotation(NewNiagaraRotation);
-	NiagaraComponent->ActivateSystem();
 }
 
 

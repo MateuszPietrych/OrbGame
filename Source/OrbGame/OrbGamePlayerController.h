@@ -77,7 +77,7 @@ protected:
 	void OnTouchTriggered();
 	void OnTouchReleased();
 	void Move(const FInputActionValue& Value);
-	void FireOrb();
+	void SimpleOrbUse();
 	void StopLongUseEffect();
 
 private:
@@ -88,6 +88,7 @@ private:
 	float FollowTime; // For how long it has been pressed
 	class AOrb* FollowOrb;
 	bool bCanUseLongEffect = true;
+	bool bLongEffectInUse = false;
 
 	/** The character that we are controlling */
 	class AOrbGameCharacter* OrbGameCharacter;

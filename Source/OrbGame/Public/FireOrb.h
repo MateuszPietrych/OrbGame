@@ -3,14 +3,14 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Orb.h"
+#include "ProjectileOrb.h"
 #include "FireOrb.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class ORBGAME_API AFireOrb : public AOrb
+class ORBGAME_API AFireOrb : public AProjectileOrb
 {
 	GENERATED_BODY()
 
@@ -22,10 +22,13 @@ class ORBGAME_API AFireOrb : public AOrb
 
 	virtual void LongUseTickEffect() override;
 
-	
-
 
 	private:
-		class ULineEffect* LineEffect;
-	
+
+	UPROPERTY(EditAnywhere, Category = "Effects")
+	TSubclassOf<class ULineOrbEffect> LineOrbEffect;
+
+	UPROPERTY()
+	ULineOrbEffect* LineEffectInstance;
+
 };

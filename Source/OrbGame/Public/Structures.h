@@ -55,8 +55,6 @@ struct FBasicOrbData
 };
 
 
-
-
 USTRUCT(BlueprintType)
 struct FOrbEffectData
 {
@@ -71,3 +69,15 @@ struct FOrbEffectData
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Orb Effect Data")
 	TMap<OrbEffectsBoolParams, bool> BoolParams;
 };
+
+
+USTRUCT(BlueprintType)
+struct FOrbUseContext
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Orb Transform Context")
+	FVector Direction;
+
+};
+

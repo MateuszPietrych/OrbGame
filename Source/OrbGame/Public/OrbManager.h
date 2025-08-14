@@ -80,7 +80,7 @@ public:
 	void UnprepareFirstLevel();
 
 	UFUNCTION(BlueprintCallable)
-	void FireOrb(FVector Direction);
+	void SimpleOrbUse(FVector Direction);
 
 	UFUNCTION(BlueprintCallable)
 	void SetNewZOffset(float Z);
@@ -167,9 +167,6 @@ private:
 	bool bIsFirstLevelPrepared = false;
 	
 	TArray<FTransferOrbData> TransferOrbsData;
-
-
-	
 };
 
 

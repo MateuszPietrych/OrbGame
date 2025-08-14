@@ -3,13 +3,14 @@
 
 #include "FireOrb.h"
 #include "LineEffect.h"
+#include "LineOrbEffect.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
 
 
 AFireOrb::AFireOrb()
 {
-    LineEffect = CreateDefaultSubobject<ULineEffect>(TEXT("ULineEffect"));
+    LineEffectInstance = CreateDefaultSubobject<ULineOrbEffect>(TEXT("LineEffectInstance"));
 }
 
 void AFireOrb::ActivateLongUsageEffect()
@@ -18,7 +19,7 @@ void AFireOrb::ActivateLongUsageEffect()
 }
 
 void AFireOrb::LongUseTickEffect()
-{
+{   
     Super::LongUseTickEffect();
 
     if(OrbEffectsData.Num() == 0)
@@ -27,17 +28,25 @@ void AFireOrb::LongUseTickEffect()
     }
     SetBaseParamsForOrbEffect();
 
-    if(LineEffect == nullptr)
+    FVector Direction = GetActorForwardVector();
+    Direction.Normalize();
+    FVector StartLocation = GetOrbWorldLocation();
+
+	LineEffectInstance->SetStartLocation(StartLocation);
+	LineEffectInstance->SetDirection(Direction);
+
+    if(LineOrbEffect == nullptr)
     {
         UE_LOG(LogTemp, Warning, TEXT("LineEffect is null"));
         return;
     }
 
-    TArray<AActor*> AffectedActors = LineEffect->GetActorsAffected(OrbEffectsData[0]);
+    TArray<AActor*> AffectedActors = LineEffectInstance->GetActorsAffected(OrbEffectsData[0]);
     for(AActor* HitActor : AffectedActors)
     {
         if(HitActor == nullptr)
             continue;
-        UGameplayStatics::ApplyDamage(HitActor, OrbEffectsData[0].FloatParams[OrbEffectsFloatParams::DAMAGE], nullptr, nullptr, nullptr);
+        UGameplayStatics::ApplyDamage(HitActor, LineEffectInstance->Damage, nullptr, nullptr, nullptr);
+        UE_LOG(LogTemp, Warning, TEXT("Applying damage to %s"), *HitActor->GetName());
     }
 }

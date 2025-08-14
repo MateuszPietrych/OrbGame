@@ -109,25 +109,11 @@ float AOrb::GetCurrentOrbRotationDeviation0to360()
 	return Rotation;
 }
 
-void AOrb::FireOrbAsProjectile(FVector Direction)
+void AOrb::SimpleOrbUse(FOrbUseContext OrbUseContext)
 {
 	DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
-	// DetachRootComponentFromParent(true);
 	RotatingSphere->IgnoreActorWhenMoving(UGameplayStatics::GetPlayerPawn(GetWorld(),0), true);
 	RotatingSphere->IgnoreActorWhenMoving(this, true);
-	RotatingSphere->SetCollisionProfileName(TEXT("OverlapAllDynamic"));
-	RotatingSphere->SetGenerateOverlapEvents(true);
-	RotatingSphere->OnComponentBeginOverlap.AddDynamic(this, &AOrb::BeginSphereProjectileOverlap);
-	RotatingSphere->SetSphereRadius(BaseProjectileSphereRadius);
-	
-	Direction = FVector(Direction.X, Direction.Y, 0.0f);
-	ProjectileMovement->Velocity = Direction * BaseProjectileSpeed;
-
-	UE_LOG(LogTemp, Warning, TEXT("Firing Orb as Projectile"));
-	if(GetOwner())
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Name: %s"), *GetOwner()->GetName());
-	}
 }
 
 void AOrb::BeginSphereProjectileOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
@@ -148,7 +134,6 @@ void AOrb::ActivateEffect()
 	BaseNiagaraComponent->SetAsset(ActivationNiagaraSystemClass);
 	BaseNiagaraComponent->ActivateSystem();
 	
-
 	UE_LOG(LogTemp, Warning, TEXT("Activating Orb Effect"));
 }
 
@@ -216,6 +201,9 @@ void AOrb::SetBaseParamsForOrbEffect()
 	FVector Direction = GetActorForwardVector();
     Direction.Normalize();
     FVector StartLocation = GetOrbWorldLocation();
+
+	LineEffectInstance->SetStartLocation(StartLocation);
+	LineEffectInstance->SetDirection(Direction);
 
     for(FOrbEffectData& OrbEffectData : OrbEffectsData)
     {

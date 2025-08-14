@@ -39,7 +39,7 @@ public:
 
 	void SetupNiagaraRay(class AOrb* FollowOrb);
 
-
+	void SetNiagaraRayRotation(AOrb* FollowOrb);
 
 private:
 	/** Top down camera */
