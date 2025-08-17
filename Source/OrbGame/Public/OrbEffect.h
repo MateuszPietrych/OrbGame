@@ -20,7 +20,7 @@ class ORBGAME_API IOrbEffect
 	GENERATED_BODY()
 
 public:
-	virtual void ApplyEffect(FOrbEffectData OrbEffectData) = 0;
+	virtual void ApplyEffect(AActor* HitActor) = 0;
 
-	virtual TArray<AActor*> GetActorsAffected(FOrbEffectData OrbEffectData) = 0;
+	virtual TArray<AActor*> GetActorsAffected() = 0;
 };

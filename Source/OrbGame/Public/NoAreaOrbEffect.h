@@ -4,24 +4,16 @@
 
 #include "CoreMinimal.h"
 #include "OrbEffectBase.h"
-#include "LineOrbEffect.generated.h"
+#include "NoAreaOrbEffect.generated.h"
 
 /**
  * 
  */
 UCLASS(Blueprintable)
-class ORBGAME_API ULineOrbEffect : public UOrbEffectBase
+class ORBGAME_API UNoAreaOrbEffect : public UOrbEffectBase
 {
 	GENERATED_BODY()
 
-	public:
-
-	void ApplyEffect(AActor* HitActor) override;
-
 	TArray<AActor*> GetActorsAffected() override;
-
-	protected:
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Line")
-	float Range;
 
 };

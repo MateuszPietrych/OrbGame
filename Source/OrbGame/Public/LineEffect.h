@@ -23,8 +23,8 @@ public:
 	ULineEffect();
 
 	// virtual
-	void ApplyEffect(FOrbEffectData OrbEffectData) override;
+	void ApplyEffect(AActor* HitActor) override;
 
-	TArray<AActor*> GetActorsAffected(FOrbEffectData OrbEffectData) override;
+	TArray<AActor*> GetActorsAffected() override;
 
 };

@@ -12,6 +12,8 @@
 #include "NiagaraSystem.h"
 #include "NiagaraTypes.h"
 #include "NiagaraVariant.h"
+#include "OrbEffectBase.h"
+
 
 // Sets default values
 AOrb::AOrb()
@@ -41,6 +43,8 @@ AOrb::AOrb()
 	LongUseNiagaraComponent = CreateDefaultSubobject<UNiagaraComponent>(TEXT("LongUseNiagaraComponent"));
 	LongUseNiagaraComponent->SetupAttachment(OrbMesh);
 	LongUseNiagaraComponent->SetAutoActivate(false);
+
+	OrbMesh->OnComponentBeginOverlap.AddDynamic(this, &AOrb::BasicOverlapAction);
 }
 
 // Called when the game starts or when spawned
@@ -49,6 +53,8 @@ void AOrb::BeginPlay()
 	Super::BeginPlay();
 	BaseNiagaraComponent->SetAsset(BaseNiagaraSystemClass);
 	BaseNiagaraComponent->ActivateSystem();
+
+	OrbOverlapEffectInstance = NewObject<UOrbEffectBase>(this, OrbOverlapEffectClass);
 }
 
 // Called every frame
@@ -120,7 +126,7 @@ void AOrb::BeginSphereProjectileOverlap(UPrimitiveComponent* OverlappedComp, AAc
 {
 	// UE_LOG(LogTemp, Warning, TEXT("Orb Overlapped with %s"), *OtherActor->GetName());
 
-	if(OtherActor->ActorHasTag("Player"))
+	if(OtherActor->ActorHasTag("Player") || OtherActor->GetOwner() == this->GetOwner() || OtherActor==this->GetOwner())
 		return;
 
 	UE_LOG(LogTemp, Warning, TEXT("Orb Overlapped with %s"), *OtherActor->GetName());
@@ -197,18 +203,19 @@ TArray<AActor*> AOrb::GetAllHittedInLongLastingEffect()
 
 void AOrb::SetBaseParamsForOrbEffect()
 {
-	// FVector Direction = ProjectileMovement->Velocity;
+	// FVector Direction = ProjectileMovement->Velocity;WW
 	FVector Direction = GetActorForwardVector();
     Direction.Normalize();
     FVector StartLocation = GetOrbWorldLocation();
-
-	LineEffectInstance->SetStartLocation(StartLocation);
-	LineEffectInstance->SetDirection(Direction);
-
-    for(FOrbEffectData& OrbEffectData : OrbEffectsData)
-    {
-        OrbEffectData.VectorParams.Add(OrbEffectsVectorParams::START_LOCATION, StartLocation);
-        OrbEffectData.VectorParams.Add(OrbEffectsVectorParams::DIRECTION, Direction);
-    }
 }
 
+void AOrb::BasicOverlapAction(UPrimitiveComponent *OverlappedComponent,
+    AActor *OtherActor,
+    UPrimitiveComponent *OtherComp,
+    int32 OtherBodyIndex,
+    bool bFromSweep,
+    const FHitResult &SweepResult)
+{
+	UE_LOG(LogTemp, Warning, TEXT("Orb Overlapped with %s"), *OtherActor->GetName());
+	OrbOverlapEffectInstance->ApplyEffect(OtherActor);
+}

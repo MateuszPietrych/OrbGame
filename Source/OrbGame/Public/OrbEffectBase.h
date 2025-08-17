@@ -16,12 +16,17 @@ class ORBGAME_API UOrbEffectBase : public UObject, public IOrbEffect
 	GENERATED_BODY()
 
 public:
-	virtual void ApplyEffect(FOrbEffectData OrbEffectData);
+	virtual void ApplyEffect(AActor* HitActor);
 
-	virtual TArray<AActor*> GetActorsAffected(FOrbEffectData OrbEffectData);
+	virtual TArray<AActor*> GetActorsAffected();
+
+	void ApplyEffectToAffectedActors( TArray<AActor*>* AdditionalAffectedActors = nullptr);
 
 	void SetStartLocation(const FVector& NewStartLocation);
 	void SetDirection(const FVector& NewDirection);
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Effects")
+	TArray<class UOrbEffectActionConfig*> EffectActions;
 
 protected:
 	UPROPERTY()
@@ -31,4 +36,6 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Debug")
 	bool bUseDebug;
+
+
 };

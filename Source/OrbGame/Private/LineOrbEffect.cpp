@@ -5,28 +5,17 @@
 #include "Enums.h"
 #include "Structures.h"
 #include "DrawDebugHelpers.h"
-#include "Kismet/GameplayStatics.h"
+#include "Kismet/GameplayStatics.h" 
 #include "Engine/World.h"
 
 
-void ULineOrbEffect::ApplyEffect(FOrbEffectData OrbEffectData)
+void ULineOrbEffect::ApplyEffect(AActor* HitActor)
 {
-   TArray<AActor*> AffectedActors = GetActorsAffected(OrbEffectData);
-
-    for(AActor* HitActor : AffectedActors)
-    {
-        if(HitActor == nullptr)
-        {
-            continue;
-        }
-        UGameplayStatics::ApplyDamage(HitActor, Damage, nullptr, nullptr, nullptr);
-    }
-
+    Super::ApplyEffect(HitActor);
 }
 
-TArray<AActor*> ULineOrbEffect::GetActorsAffected(FOrbEffectData OrbEffectData)
+TArray<AActor*> ULineOrbEffect::GetActorsAffected()
 {
-
     // FVector StartLocation = OrbEffectData.VectorParams[OrbEffectsVectorParams::START_LOCATION];
     // FVector Direction = OrbEffectData.VectorParams[OrbEffectsVectorParams::DIRECTION];
     // float Range = OrbEffectData.FloatParams[OrbEffectsFloatParams::RANGE];

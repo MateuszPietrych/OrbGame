@@ -76,6 +76,14 @@ public:
 	UFUNCTION(BlueprintCallable)
 	FVector GetOrbWorldLocation();
 
+	UFUNCTION(BlueprintCallable)
+	virtual void BasicOverlapAction(UPrimitiveComponent* OverlappedComponent,
+    AActor*              OtherActor,
+    UPrimitiveComponent* OtherComp,
+    int32                OtherBodyIndex,
+    bool                 bFromSweep,
+    const FHitResult&    SweepResult);
+
 	void SetBaseParamsForOrbEffect();
 
 	bool GetIsLongUseActive() const { return bIsLongUseActive; }
@@ -118,12 +126,19 @@ protected:
 	class UNiagaraSystem* LongUsageNiagaraSystemClass;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = OrbData, meta = (AllowPrivateAccess = "true"))
-	TArray<FOrbEffectData> OrbEffectsData;
+	TSubclassOf<class UOrbEffectBase> OrbOverlapEffectClass;
+
+	UPROPERTY()
+	class UOrbEffectBase* OrbOverlapEffectInstance;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = OrbData, meta = (AllowPrivateAccess = "true"))
 	float LongUseTickRate = 0.01f;
 
 	FTimerHandle LongUseTickTimerHandle;
 	bool bIsLongUseActive = false;
+
+	UPROPERTY (BlueprintAssignable, Category="Collision")  
+	FComponentBeginOverlapSignature OnComponentBeginOverlap;
+
 
 };

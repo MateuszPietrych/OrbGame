@@ -22,10 +22,12 @@ class ORBGAME_API AFireOrb : public AProjectileOrb
 
 	virtual void LongUseTickEffect() override;
 
+	virtual void BeginPlay() override;
+
 
 	private:
 
-	UPROPERTY(EditAnywhere, Category = "Effects")
+	UPROPERTY(EditAnywhere, Category = "OrbData")
 	TSubclassOf<class ULineOrbEffect> LineOrbEffect;
 
 	UPROPERTY()

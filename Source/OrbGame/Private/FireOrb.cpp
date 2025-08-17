@@ -10,7 +10,15 @@
 
 AFireOrb::AFireOrb()
 {
-    LineEffectInstance = CreateDefaultSubobject<ULineOrbEffect>(TEXT("LineEffectInstance"));
+
+}
+
+void AFireOrb::BeginPlay()
+{
+	Super::BeginPlay();
+    // create object from class LineOrbEffect
+    LineEffectInstance = NewObject<ULineOrbEffect>(this, LineOrbEffect);
+    UE_LOG(LogTemp, Warning, TEXT("LineEffectInstance is created"));
 }
 
 void AFireOrb::ActivateLongUsageEffect()
@@ -22,18 +30,20 @@ void AFireOrb::LongUseTickEffect()
 {   
     Super::LongUseTickEffect();
 
-    if(OrbEffectsData.Num() == 0)
-    {
-        return;
-    }
     SetBaseParamsForOrbEffect();
 
     FVector Direction = GetActorForwardVector();
     Direction.Normalize();
     FVector StartLocation = GetOrbWorldLocation();
 
+    UE_LOG(LogTemp, Warning, TEXT("LineEffect Start Location: %s"), *StartLocation.ToString());
+    UE_LOG(LogTemp, Warning, TEXT("LineEffect Direction: %s"), *Direction.ToString());
+    UE_LOG(LogTemp, Warning, TEXT("LineEffect Instance 1: %s"), *LineEffectInstance->GetName());
+
 	LineEffectInstance->SetStartLocation(StartLocation);
 	LineEffectInstance->SetDirection(Direction);
+
+    UE_LOG(LogTemp, Warning, TEXT("LineEffect Instance 2: %s"), *LineEffectInstance->GetName());
 
     if(LineOrbEffect == nullptr)
     {
@@ -41,12 +51,13 @@ void AFireOrb::LongUseTickEffect()
         return;
     }
 
-    TArray<AActor*> AffectedActors = LineEffectInstance->GetActorsAffected(OrbEffectsData[0]);
-    for(AActor* HitActor : AffectedActors)
-    {
-        if(HitActor == nullptr)
-            continue;
-        UGameplayStatics::ApplyDamage(HitActor, LineEffectInstance->Damage, nullptr, nullptr, nullptr);
-        UE_LOG(LogTemp, Warning, TEXT("Applying damage to %s"), *HitActor->GetName());
-    }
+    LineEffectInstance->ApplyEffectToAffectedActors();
+    // TArray<AActor*> AffectedActors = LineEffectInstance->GetActorsAffected(OrbEffectsData[0]);
+    // for(AActor* HitActor : AffectedActors)
+    // {
+    //     if(HitActor == nullptr)
+    //         continue;
+    //     UGameplayStatics::ApplyDamage(HitActor, LineEffectInstance->Damage, nullptr, nullptr, nullptr);
+    //     UE_LOG(LogTemp, Warning, TEXT("Applying damage to %s"), *HitActor->GetName());
+    // }
 }
