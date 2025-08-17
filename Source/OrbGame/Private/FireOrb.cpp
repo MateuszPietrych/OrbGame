@@ -2,7 +2,6 @@
 
 
 #include "FireOrb.h"
-#include "LineEffect.h"
 #include "LineOrbEffect.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
