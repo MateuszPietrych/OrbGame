@@ -131,13 +131,22 @@ void AOrb::BeginSphereProjectileOverlap(UPrimitiveComponent* OverlappedComp, AAc
 	ActivateEffect();
 	SetLifeSpan(1.0f);
 	ProjectileMovement->Velocity = FVector::ZeroVector;
+
+	UE_LOG(LogTemp, Warning, TEXT("bUseSimpleActionImmediately: %s, bWasSimpleActionUsed: %s"), bUseSimpleActionImmediately ? TEXT("true") : TEXT("false"), bWasSimpleActionUsed ? TEXT("true") : TEXT("false"));
+	if(!bUseSimpleActionImmediately && !bWasSimpleActionUsed)
+	{
+		// Immediately apply the simple use effect
+		SetBaseParamsForOrbEffect(OrbSimpleUseEffectInstance);
+		OrbSimpleUseEffectInstance->ApplyEffectToAffectedActors();
+		UE_LOG(LogTemp, Warning, TEXT("Applying Simple Use Effect Not Immediately"));
+		bWasSimpleActionUsed = true;
+	}
 }
 
 void AOrb::ActivateEffect()
 {
 	BaseNiagaraComponent->SetAsset(ActivationNiagaraSystemClass);
 	BaseNiagaraComponent->ActivateSystem();
-	OrbSimpleUseEffectInstance->ApplyEffectToAffectedActors();
 
 	UE_LOG(LogTemp, Warning, TEXT("Activating Orb Effect"));
 }
@@ -199,13 +208,14 @@ TArray<AActor*> AOrb::GetAllHittedInLongLastingEffect()
 	return HittedActors;
 }
 
-
-void AOrb::SetBaseParamsForOrbEffect()
+void AOrb::SetBaseParamsForOrbEffect(UOrbEffectBase* EffectInstance)
 {
-	// FVector Direction = ProjectileMovement->Velocity;WW
 	FVector Direction = GetActorForwardVector();
-    Direction.Normalize();
-    FVector StartLocation = GetOrbWorldLocation();
+	Direction.Normalize();
+	FVector StartLocation = GetOrbWorldLocation();
+
+	EffectInstance->SetStartLocation(StartLocation);
+	EffectInstance->SetDirection(Direction);
 }
 
 void AOrb::BasicOverlapAction(UPrimitiveComponent *OverlappedComponent,
@@ -215,6 +225,17 @@ void AOrb::BasicOverlapAction(UPrimitiveComponent *OverlappedComponent,
     bool bFromSweep,
     const FHitResult &SweepResult)
 {
-	UE_LOG(LogTemp, Warning, TEXT("Orb Overlapped with %s"), *OtherActor->GetName());
+	// UE_LOG(LogTemp, Warning, TEXT("Orb Overlapped with %s"), *OtherActor->GetName());
+	SetBaseParamsForOrbEffect(OrbOverlapEffectInstance);
+	
 	OrbOverlapEffectInstance->ApplyEffect(OtherActor);
+	if(bUseSimpleActionImmediately && !bWasSimpleActionUsed)
+	{
+		// Immediately apply the simple use effect
+		SetBaseParamsForOrbEffect(OrbSimpleUseEffectInstance);
+		OrbSimpleUseEffectInstance->ApplyEffectToAffectedActors();
+		bWasSimpleActionUsed = true;
+	}
 }
+
+

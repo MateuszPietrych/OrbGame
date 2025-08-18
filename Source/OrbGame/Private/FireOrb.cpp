@@ -29,8 +29,6 @@ void AFireOrb::LongUseTickEffect()
 {   
     Super::LongUseTickEffect();
 
-    SetBaseParamsForOrbEffect();
-
     FVector Direction = GetActorForwardVector();
     Direction.Normalize();
     FVector StartLocation = GetOrbWorldLocation();
@@ -39,8 +37,7 @@ void AFireOrb::LongUseTickEffect()
     UE_LOG(LogTemp, Warning, TEXT("LineEffect Direction: %s"), *Direction.ToString());
     UE_LOG(LogTemp, Warning, TEXT("LineEffect Instance 1: %s"), *LineEffectInstance->GetName());
 
-	LineEffectInstance->SetStartLocation(StartLocation);
-	LineEffectInstance->SetDirection(Direction);
+	SetBaseParamsForOrbEffect(LineEffectInstance);
 
     UE_LOG(LogTemp, Warning, TEXT("LineEffect Instance 2: %s"), *LineEffectInstance->GetName());
 

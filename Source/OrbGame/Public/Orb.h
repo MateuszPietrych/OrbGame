@@ -84,11 +84,13 @@ public:
     bool                 bFromSweep,
     const FHitResult&    SweepResult);
 
-	void SetBaseParamsForOrbEffect();
-
 	bool GetIsLongUseActive() const { return bIsLongUseActive; }
 
 protected:
+
+	UFUNCTION(BlueprintCallable)
+	void SetBaseParamsForOrbEffect(UOrbEffectBase* EffectInstance);
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Components, meta = (AllowPrivateAccess = "true"))
 	class USceneComponent* BaseSceneComponent;	
 
@@ -134,6 +136,10 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = OrbData, meta = (AllowPrivateAccess = "true"))
 	float LongUseTickRate = 0.01f;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = OrbData, meta = (AllowPrivateAccess = "true"))
+	bool bUseSimpleActionImmediately = false;
+
+	bool bWasSimpleActionUsed = false;
 	FTimerHandle LongUseTickTimerHandle;
 	bool bIsLongUseActive = false;
 

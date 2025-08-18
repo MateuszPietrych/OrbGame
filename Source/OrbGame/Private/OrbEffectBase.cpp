@@ -51,5 +51,6 @@ void UOrbEffectBase::ApplyEffectToAffectedActors(TArray<AActor*>* AdditionalAffe
             continue;
         }
         ApplyEffect(HitActor);
+        UE_LOG(LogTemp, Warning, TEXT("Applying effect to %s"), *HitActor->GetName());
     }
 }

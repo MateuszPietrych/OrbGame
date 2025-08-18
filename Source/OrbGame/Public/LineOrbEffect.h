@@ -17,7 +17,6 @@ class ORBGAME_API ULineOrbEffect : public UOrbEffectBase
 	public:
 
 	void ApplyEffect(AActor* HitActor) override;
-
 	TArray<AActor*> GetActorsAffected() override;
 
 	protected:

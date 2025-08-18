@@ -16,10 +16,6 @@ void ULineOrbEffect::ApplyEffect(AActor* HitActor)
 
 TArray<AActor*> ULineOrbEffect::GetActorsAffected()
 {
-    // FVector StartLocation = OrbEffectData.VectorParams[OrbEffectsVectorParams::START_LOCATION];
-    // FVector Direction = OrbEffectData.VectorParams[OrbEffectsVectorParams::DIRECTION];
-    // float Range = OrbEffectData.FloatParams[OrbEffectsFloatParams::RANGE];
-
     FVector EndLocation = StartLocation + Direction * Range;
     if(bUseDebug)
     {
