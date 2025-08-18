@@ -126,10 +126,10 @@ protected:
 	class UNiagaraSystem* LongUsageNiagaraSystemClass;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = OrbData, meta = (AllowPrivateAccess = "true"))
-	TSubclassOf<class UOrbEffectBase> OrbOverlapEffectClass;
-
-	UPROPERTY()
 	class UOrbEffectBase* OrbOverlapEffectInstance;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = OrbData, meta = (AllowPrivateAccess = "true"))
+	class UOrbEffectBase* OrbSimpleUseEffectInstance;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = OrbData, meta = (AllowPrivateAccess = "true"))
 	float LongUseTickRate = 0.01f;

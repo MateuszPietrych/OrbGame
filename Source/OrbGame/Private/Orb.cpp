@@ -53,8 +53,6 @@ void AOrb::BeginPlay()
 	Super::BeginPlay();
 	BaseNiagaraComponent->SetAsset(BaseNiagaraSystemClass);
 	BaseNiagaraComponent->ActivateSystem();
-
-	OrbOverlapEffectInstance = NewObject<UOrbEffectBase>(this, OrbOverlapEffectClass);
 }
 
 // Called every frame
@@ -139,7 +137,8 @@ void AOrb::ActivateEffect()
 {
 	BaseNiagaraComponent->SetAsset(ActivationNiagaraSystemClass);
 	BaseNiagaraComponent->ActivateSystem();
-	
+	OrbSimpleUseEffectInstance->ApplyEffectToAffectedActors();
+
 	UE_LOG(LogTemp, Warning, TEXT("Activating Orb Effect"));
 }
 

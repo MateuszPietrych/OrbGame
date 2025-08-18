@@ -10,7 +10,7 @@
 /**
  * 
  */
-UCLASS()
+UCLASS(BlueprintType, EditInlineNew, DefaultToInstanced)
 class ORBGAME_API UOrbEffectBase : public UObject, public IOrbEffect
 {
 	GENERATED_BODY()
@@ -36,6 +36,5 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Debug")
 	bool bUseDebug;
-
 
 };
