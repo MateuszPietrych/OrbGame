@@ -14,6 +14,8 @@ class ORBGAME_API UOrbDataAsset : public UPrimaryDataAsset
 {
 	GENERATED_BODY()
 
+	public:
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = OrbData, meta = (AllowPrivateAccess = "true"))
 	class UNiagaraSystem* BaseNiagaraSystemClass;
 
@@ -24,9 +26,19 @@ class ORBGAME_API UOrbDataAsset : public UPrimaryDataAsset
 	class UNiagaraSystem* LongUsageNiagaraSystemClass;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = OrbData, meta = (AllowPrivateAccess = "true"))
-	class UOrbEffectBase* OrbOverlapEffectInstance;
+	class UOrbGameGameplayAbility* OrbOverlapGameplayAbility;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = OrbData, meta = (AllowPrivateAccess = "true"))
-	class UOrbEffectBase* OrbSimpleUseEffectInstance;
-	
+	class UOrbGameGameplayAbility* OrbSimpleUseGameplayAbility;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = OrbData, meta = (AllowPrivateAccess = "true"))
+	class UOrbGameGameplayAbility* OrbAdvancedUseGameplayAbility;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = OrbData, meta = (AllowPrivateAccess = "true"))
+	bool bUseSimpleActionImmediately = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = OrbData, meta = (AllowPrivateAccess = "true"))
+	float LongUseTickRate = 0.01f;
+
+
 };

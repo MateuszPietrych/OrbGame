@@ -17,4 +17,8 @@ class ORBGAME_API UOrbGameGameplayAbility : public UGameplayAbility
 
 	UPROPERTY(EditDefaultsOnly, Category="Gameplay Ability")
 	FGameplayTag StartGameplayTag;
+
+public:
+	UPROPERTY(EditDefaultsOnly, Category="Gameplay Ability")
+	class UOrbEffectBase* OrbEffectInstance;
 };

@@ -5,10 +5,12 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "Logging/LogMacros.h"
+#include "AbilitySystemInterface.h"
 #include "OrbGameCharacter.generated.h"
 
+
 UCLASS(Blueprintable)
-class AOrbGameCharacter : public ACharacter
+class AOrbGameCharacter : public ACharacter, public IAbilitySystemInterface
 {
 	GENERATED_BODY()
 
@@ -18,6 +20,8 @@ public:
 	virtual void BeginPlay() override;
 
 	class UOrbManager* GetOrbManager();
+
+	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 
 	class UNiagaraComponent* GetNiagaraComponent();
 
@@ -41,6 +45,9 @@ public:
 
 	void SetNiagaraRayRotation(AOrb* FollowOrb);
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = GAS)
+	TSubclassOf<class UGameplayEffect> GameplayEffectClassToApplyOnStart;
+
 private:
 	/** Top down camera */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
@@ -58,6 +65,12 @@ private:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Components, meta = (AllowPrivateAccess = "true"))
 	class UOrbManager* OrbManager = nullptr;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Components, meta = (AllowPrivateAccess = "true"))
+	class UOrbGameAbilitySystemComponent* AbilitySystemComponent;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Components, meta = (AllowPrivateAccess = "true"))
+	class UOrbGameAttributeSet* AttributeSet;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Components, meta = (AllowPrivateAccess = "true"))
 	class USphereComponent* RotatingSphereForArrow;	

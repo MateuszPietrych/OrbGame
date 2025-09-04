@@ -91,6 +91,9 @@ protected:
 	UFUNCTION(BlueprintCallable)
 	void SetBaseParamsForOrbEffect(UOrbEffectBase* EffectInstance);
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = OrbData, meta = (AllowPrivateAccess = "true"))
+	class UOrbDataAsset* OrbData;
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Components, meta = (AllowPrivateAccess = "true"))
 	class USceneComponent* BaseSceneComponent;	
 
@@ -117,27 +120,6 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = OrbData, meta = (AllowPrivateAccess = "true"))
 	float BaseProjectileSphereRadius = 100.0f;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = OrbData, meta = (AllowPrivateAccess = "true"))
-	class UNiagaraSystem* BaseNiagaraSystemClass;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = OrbData, meta = (AllowPrivateAccess = "true"))
-	class UNiagaraSystem* ActivationNiagaraSystemClass;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = OrbData, meta = (AllowPrivateAccess = "true"))
-	class UNiagaraSystem* LongUsageNiagaraSystemClass;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = OrbData, meta = (AllowPrivateAccess = "true"))
-	class UOrbEffectBase* OrbOverlapEffectInstance;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = OrbData, meta = (AllowPrivateAccess = "true"))
-	class UOrbEffectBase* OrbSimpleUseEffectInstance;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = OrbData, meta = (AllowPrivateAccess = "true"))
-	float LongUseTickRate = 0.01f;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = OrbData, meta = (AllowPrivateAccess = "true"))
-	bool bUseSimpleActionImmediately = false;
 
 	bool bWasSimpleActionUsed = false;
 	FTimerHandle LongUseTickTimerHandle;

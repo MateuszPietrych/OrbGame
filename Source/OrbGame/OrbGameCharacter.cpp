@@ -23,6 +23,9 @@
 #include "InputActionValue.h"
 #include "NiagaraComponent.h"
 #include "NiagaraSystem.h"
+#include "AbilitySystemComponent.h"
+#include "OrbSystem/GAS/OrbGameAbilitySystemComponent.h"
+#include "OrbSystem/GAS/OrbGameAttributeSet.h"
 
 
 
@@ -93,6 +96,9 @@ AOrbGameCharacter::AOrbGameCharacter()
 	PrimaryActorTick.bCanEverTick = true;
 	PrimaryActorTick.bStartWithTickEnabled = true;
 
+	AbilitySystemComponent = CreateDefaultSubobject<UOrbGameAbilitySystemComponent>("OrbGameAbilitySystemComponent");
+		
+	AttributeSet = CreateDefaultSubobject<UOrbGameAttributeSet>("OrbGameAttributeSet");
 	
 }
 
@@ -100,6 +106,16 @@ void AOrbGameCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 	Tags.Add("Player");
+
+	AbilitySystemComponent->InitAbilityActorInfo(this, this);
+
+	FGameplayEffectContextHandle Context = AbilitySystemComponent->MakeEffectContext();
+    Context.AddSourceObject(this); // optional but useful
+	FGameplayEffectSpecHandle SpecHandle = AbilitySystemComponent->MakeOutgoingSpec(GameplayEffectClassToApplyOnStart, /*Level=*/1.f, Context);
+	if (SpecHandle.IsValid())
+    {
+        AbilitySystemComponent->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
+    }
 }
  
 void AOrbGameCharacter::Tick(float DeltaSeconds)
@@ -109,6 +125,12 @@ void AOrbGameCharacter::Tick(float DeltaSeconds)
 	OrbsCenterPoint->SetWorldLocation(NewLocation);
 
 }
+
+UAbilitySystemComponent* AOrbGameCharacter::GetAbilitySystemComponent() const
+{
+	return AbilitySystemComponent;
+}
+
 
 UOrbManager* AOrbGameCharacter::GetOrbManager()
 {

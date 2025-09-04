@@ -2,6 +2,7 @@
 
 
 #include "OrbSystem/Orb/Orb.h"
+#include "OrbSystem/Orb/OrbDataAsset.h"
 #include "Components/StaticMeshComponent.h"
 #include "GameFramework/RotatingMovementComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
@@ -13,6 +14,7 @@
 #include "NiagaraTypes.h"
 #include "NiagaraVariant.h"
 #include "OrbSystem/OrbEffect/OrbEffectBase.h"
+#include "OrbSystem/GAS/OrbGameGameplayAbility.h"
 
 
 
@@ -52,7 +54,7 @@ AOrb::AOrb()
 void AOrb::BeginPlay()
 {
 	Super::BeginPlay();
-	BaseNiagaraComponent->SetAsset(BaseNiagaraSystemClass);
+	BaseNiagaraComponent->SetAsset(OrbData->BaseNiagaraSystemClass);
 	BaseNiagaraComponent->ActivateSystem();
 }
 
@@ -133,12 +135,12 @@ void AOrb::BeginSphereProjectileOverlap(UPrimitiveComponent* OverlappedComp, AAc
 	SetLifeSpan(1.0f);
 	ProjectileMovement->Velocity = FVector::ZeroVector;
 
-	UE_LOG(LogTemp, Warning, TEXT("bUseSimpleActionImmediately: %s, bWasSimpleActionUsed: %s"), bUseSimpleActionImmediately ? TEXT("true") : TEXT("false"), bWasSimpleActionUsed ? TEXT("true") : TEXT("false"));
-	if(!bUseSimpleActionImmediately && !bWasSimpleActionUsed)
+	UE_LOG(LogTemp, Warning, TEXT("bUseSimpleActionImmediately: %s, bWasSimpleActionUsed: %s"), OrbData->bUseSimpleActionImmediately ? TEXT("true") : TEXT("false"), bWasSimpleActionUsed ? TEXT("true") : TEXT("false"));
+	if(!OrbData->bUseSimpleActionImmediately && !bWasSimpleActionUsed)
 	{
 		// Immediately apply the simple use effect
-		SetBaseParamsForOrbEffect(OrbSimpleUseEffectInstance);
-		OrbSimpleUseEffectInstance->ApplyEffectToAffectedActors();
+		SetBaseParamsForOrbEffect(OrbData->OrbSimpleUseGameplayAbility->OrbEffectInstance);
+		OrbData->OrbSimpleUseGameplayAbility->OrbEffectInstance->ApplyEffectToAffectedActors();
 		UE_LOG(LogTemp, Warning, TEXT("Applying Simple Use Effect Not Immediately"));
 		bWasSimpleActionUsed = true;
 	}
@@ -146,7 +148,7 @@ void AOrb::BeginSphereProjectileOverlap(UPrimitiveComponent* OverlappedComp, AAc
 
 void AOrb::ActivateEffect()
 {
-	BaseNiagaraComponent->SetAsset(ActivationNiagaraSystemClass);
+	BaseNiagaraComponent->SetAsset(OrbData->ActivationNiagaraSystemClass);
 	BaseNiagaraComponent->ActivateSystem();
 
 	UE_LOG(LogTemp, Warning, TEXT("Activating Orb Effect"));
@@ -154,11 +156,11 @@ void AOrb::ActivateEffect()
 
 void AOrb::ActivateLongUsageEffect()
 {
-	LongUseNiagaraComponent->SetAsset(LongUsageNiagaraSystemClass);
+	LongUseNiagaraComponent->SetAsset(OrbData->LongUsageNiagaraSystemClass);
 	LongUseNiagaraComponent->ActivateSystem();
 	bIsLongUseActive = true;
-	
-	GetWorld()->GetTimerManager().SetTimer(LongUseTickTimerHandle, this, &AOrb::LongUseTickEffect, LongUseTickRate, true);
+
+	GetWorld()->GetTimerManager().SetTimer(LongUseTickTimerHandle, this, &AOrb::LongUseTickEffect, OrbData->LongUseTickRate, true);
 	UE_LOG(LogTemp, Warning, TEXT("Activating Orb Long Usage Effect"));
 }
 
@@ -227,14 +229,14 @@ void AOrb::BasicOverlapAction(UPrimitiveComponent *OverlappedComponent,
     const FHitResult &SweepResult)
 {
 	// UE_LOG(LogTemp, Warning, TEXT("Orb Overlapped with %s"), *OtherActor->GetName());
-	SetBaseParamsForOrbEffect(OrbOverlapEffectInstance);
+	SetBaseParamsForOrbEffect(OrbData->OrbSimpleUseGameplayAbility->OrbEffectInstance);
 	
-	OrbOverlapEffectInstance->ApplyEffect(OtherActor);
-	if(bUseSimpleActionImmediately && !bWasSimpleActionUsed)
+	OrbData->OrbOverlapGameplayAbility->OrbEffectInstance->ApplyEffect(OtherActor);
+	if(OrbData->bUseSimpleActionImmediately && !bWasSimpleActionUsed)
 	{
 		// Immediately apply the simple use effect
-		SetBaseParamsForOrbEffect(OrbSimpleUseEffectInstance);
-		OrbSimpleUseEffectInstance->ApplyEffectToAffectedActors();
+		SetBaseParamsForOrbEffect(OrbData->OrbSimpleUseGameplayAbility->OrbEffectInstance);
+		OrbData->OrbSimpleUseGameplayAbility->OrbEffectInstance->ApplyEffectToAffectedActors();
 		bWasSimpleActionUsed = true;
 	}
 }
