@@ -2,12 +2,14 @@
 
 
 #include "DamageOrbEffectActionConfig.h"
+#include "EffectsApplyerzGISubsystem.h"
 #include "Kismet/GameplayStatics.h" 
 
 
 void UDamageOrbEffectActionConfig::ApplyEffect(AActor* Target)
 {
-    UGameplayStatics::ApplyDamage(Target, Damage, nullptr, nullptr, nullptr);
+    UEffectsApplyerzGISubsystem* Subsystem = GetWorld()->GetGameInstance()->GetSubsystem<UEffectsApplyerzGISubsystem>();
+	Subsystem->HandleDamageDealt(Target, Damage);
 }
 
 bool UDamageOrbEffectActionConfig::IsValidConfig(FString& OutError) const

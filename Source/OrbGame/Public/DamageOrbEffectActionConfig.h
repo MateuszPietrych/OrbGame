@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "OrbEffectActionConfig.h"
+#include "OrbSystem/OrbEffect/OrbEffectActionConfig.h"
 #include "DamageOrbEffectActionConfig.generated.h"
 
 /**

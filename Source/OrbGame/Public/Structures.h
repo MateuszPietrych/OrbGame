@@ -81,3 +81,65 @@ struct FOrbUseContext
 
 };
 
+
+
+
+
+/////////////////////////////// STATS //////////////////////////////////////
+
+UENUM(BlueprintType)
+enum class EUniversalStatType : uint8
+{
+	DAMAGE,
+};
+
+
+USTRUCT(BlueprintType)
+struct FStatChanger
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stat Changer")
+	float Additive;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stat Changer")
+	float Multiplicative;
+
+	float Apply(float BaseValue) const
+    {
+        return (BaseValue + Additive) * Multiplicative;
+    }
+
+	void AddAdditive(float Delta)     { Additive += Delta; }
+    void MulBy(float Factor)          { Multiplicative *= Factor; }
+	void SetAdditive(float Value)     { Additive = Value; }
+	void SetMultiplicative(float Value){ Multiplicative = Value; }
+};
+
+USTRUCT(BlueprintType)
+struct FStat
+{
+    GENERATED_BODY()
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    EUniversalStatType StatType = EUniversalStatType::DAMAGE;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    float Base = 0.f;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    FStatChanger Permanent;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    FStatChanger Temporary;
+
+    float GetStatValue() const
+    {
+        // ((Base + Perm.Add) * Perm.Mul) then apply temp changes
+        const float AfterAdditive = Base + Permanent.Additive + Temporary.Additive;
+        return AfterAdditive * (Permanent.Multiplicative * Temporary.Multiplicative);
+    }
+};
+
+
+
