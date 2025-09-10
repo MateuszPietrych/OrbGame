@@ -116,6 +116,16 @@ void AOrbGameCharacter::BeginPlay()
     {
         AbilitySystemComponent->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
     }
+
+	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(AttributeSet->GetSpeedAttribute()).AddLambda(
+			[this](const FOnAttributeChangeData& Data)
+			{
+				// UE_LOG(LogTemp, Warning, TEXT("Character speed changed to: %f"), Data.NewValue);
+				OnSpeedChanged.Broadcast(Data.NewValue);
+			}
+		);
+	OnSpeedChanged.AddDynamic(this, &AOrbGameCharacter::OnCharacterSpeedChanged);
+	OnSpeedChanged.Broadcast(AttributeSet->GetSpeed());
 }
  
 void AOrbGameCharacter::Tick(float DeltaSeconds)
@@ -191,8 +201,11 @@ void AOrbGameCharacter::SetNiagaraRayRotation(AOrb* FollowOrb)
 	NiagaraComponent->SetWorldRotation(NewNiagaraRotation);
 }
 
-
-
+void AOrbGameCharacter::OnCharacterSpeedChanged(float NewValue)
+{
+	// UE_LOG(LogTemp, Warning, TEXT("OnCharacterSpeedChanged: %f"), NewValue);
+	GetCharacterMovement()->MaxWalkSpeed = NewValue;
+}
 
 // void AOrbGameCharacter::MoveToLocation(FVector StartLocation, FVector EndLocation, float Duration)
 // {

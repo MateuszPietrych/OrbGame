@@ -15,6 +15,9 @@
 	GAMEPLAYATTRIBUTE_VALUE_INITTER(PropertyName)
 
 
+// template<class T>
+// using TStaticFuncPtr = typename TBaseStaticDelegateInstance<T, FDefaultDelegateUserPolicy>::FFuncPtr;
+
 /**
  * 
  */
@@ -27,6 +30,8 @@ public:
 	UOrbGameAttributeSet();
 	
 	virtual void PostGameplayEffectExecute(const FGameplayEffectModCallbackData& Data) override;
+
+	void HandleIncomingDamage(const FGameplayEffectModCallbackData& Data);
 
 
 	UPROPERTY(BlueprintReadOnly, Category = "Attributes")
@@ -56,5 +61,9 @@ public:
 	UPROPERTY(BlueprintReadOnly, Category = "Attributes")
 	FGameplayAttributeData ExpModifier;
 	ATTRIBUTE_ACCESSORS(UOrbGameAttributeSet, ExpModifier);
+
+	UPROPERTY(BlueprintReadOnly, Category = "Attributes")
+	FGameplayAttributeData IncomingDamage;
+	ATTRIBUTE_ACCESSORS(UOrbGameAttributeSet, IncomingDamage);
 
 };

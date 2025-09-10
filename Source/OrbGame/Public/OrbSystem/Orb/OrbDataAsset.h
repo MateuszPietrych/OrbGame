@@ -9,7 +9,7 @@
 /**
  * 
  */
-UCLASS()
+UCLASS(BlueprintType)
 class ORBGAME_API UOrbDataAsset : public UPrimaryDataAsset
 {
 	GENERATED_BODY()

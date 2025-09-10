@@ -7,6 +7,9 @@
 #include "Components/StaticMeshComponent.h"
 #include "Components/WidgetComponent.h"
 #include "UI/HpWidget.h"
+#include "AbilitySystemComponent.h"
+#include "OrbSystem/GAS/OrbGameAbilitySystemComponent.h"
+#include "OrbSystem/GAS/OrbGameAttributeSet.h"
 
 // Sets default values
 AEnemy::AEnemy()
@@ -24,14 +27,34 @@ AEnemy::AEnemy()
 
 	// HpWidgetComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("HpWidgetComponent"));
 	// HpWidgetComponent->SetupAttachment(RootComponent);
-	
+	AbilitySystemComponent = CreateDefaultSubobject<UOrbGameAbilitySystemComponent>("OrbGameAbilitySystemComponent");
+	AttributeSet = CreateDefaultSubobject<UOrbGameAttributeSet>("OrbGameAttributeSet");
+
 }
 
 // Called when the game starts or when spawned
 void AEnemy::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
+	AbilitySystemComponent->InitAbilityActorInfo(this, this);
+
+	FGameplayEffectContextHandle Context = AbilitySystemComponent->MakeEffectContext();
+    Context.AddSourceObject(this); // optional but useful
+	FGameplayEffectSpecHandle SpecHandle = AbilitySystemComponent->MakeOutgoingSpec(GameplayEffectClassToApplyOnStart, /*Level=*/1.f, Context);
+	if (SpecHandle.IsValid())
+    {
+        AbilitySystemComponent->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
+    }
+
+	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(AttributeSet->GetSpeedAttribute()).AddLambda(
+		[this](const FOnAttributeChangeData& Data)
+		{
+			// UE_LOG(LogTemp, Warning, TEXT("Enemy speed changed to: %f"), Data.NewValue);
+			OnSpeedChanged.Broadcast(Data.NewValue);
+		}
+	);
+	OnSpeedChanged.Broadcast(AttributeSet->GetSpeed());
 	// if(IsValid(HpWidgetClass))
     // {
     //     HpWidget = CreateWidget<UHpWidget>(GetWorld(), HpWidgetClass);
@@ -46,6 +69,11 @@ void AEnemy::BeginPlay()
     // {
     //     UE_LOG(LogTemp, Error, TEXT("GameWidgetClass is not valid"));
     // }
+}
+
+UAbilitySystemComponent* AEnemy::GetAbilitySystemComponent() const
+{
+	return AbilitySystemComponent;
 }
 
 // Called every frame
@@ -76,4 +104,5 @@ float AEnemy::TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEv
 
 	return OldTakeDamage;
 }
+
 

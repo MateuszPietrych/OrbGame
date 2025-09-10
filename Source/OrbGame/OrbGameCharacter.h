@@ -8,6 +8,7 @@
 #include "AbilitySystemInterface.h"
 #include "OrbGameCharacter.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnAttributeChangedSignature, float, NewValue);
 
 UCLASS(Blueprintable)
 class AOrbGameCharacter : public ACharacter, public IAbilitySystemInterface
@@ -44,6 +45,9 @@ public:
 	void SetupNiagaraRay(class AOrb* FollowOrb);
 
 	void SetNiagaraRayRotation(AOrb* FollowOrb);
+
+	UFUNCTION() 
+	void OnCharacterSpeedChanged(float NewValue);
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = GAS)
 	TSubclassOf<class UGameplayEffect> GameplayEffectClassToApplyOnStart;
@@ -93,6 +97,10 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Ray, meta = (AllowPrivateAccess = "true"))
 	float RayScaleMultiplier = 1.0f;
 
+	UPROPERTY(BlueprintAssignable)
+	FOnAttributeChangedSignature OnSpeedChanged;
+
+	
 
 };
 

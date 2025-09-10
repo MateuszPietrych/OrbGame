@@ -229,6 +229,12 @@ void AOrb::BasicOverlapAction(UPrimitiveComponent *OverlappedComponent,
     const FHitResult &SweepResult)
 {
 	// UE_LOG(LogTemp, Warning, TEXT("Orb Overlapped with %s"), *OtherActor->GetName());
+	if(OrbData == nullptr || OrbData->OrbOverlapGameplayAbility == nullptr || OrbData->OrbOverlapGameplayAbility->OrbEffectInstance == nullptr)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("OrbData or OrbOverlapGameplayAbility or OrbEffectInstance is null"));
+		return;
+	}
+
 	SetBaseParamsForOrbEffect(OrbData->OrbSimpleUseGameplayAbility->OrbEffectInstance);
 	
 	OrbData->OrbOverlapGameplayAbility->OrbEffectInstance->ApplyEffect(OtherActor);

@@ -3,12 +3,14 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "OrbGame/OrbGameCharacter.h"
 #include "GameFramework/Pawn.h"
 #include "Interface/Damageable.h"
 #include "Enemy.generated.h"
 
+
 UCLASS()
-class ORBGAME_API AEnemy : public APawn, public IDamageable
+class ORBGAME_API AEnemy : public APawn, public IDamageable, public IAbilitySystemInterface
 {
 	GENERATED_BODY()
 
@@ -29,6 +31,11 @@ public:
 
 	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser) override;
 
+	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = GAS)
+	TSubclassOf<class UGameplayEffect> GameplayEffectClassToApplyOnStart;
+
+
 private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Components, meta = (AllowPrivateAccess = "true"))
 	class UStaticMeshComponent* BodyMesh;	
@@ -38,6 +45,15 @@ private:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Components, meta = (AllowPrivateAccess = "true"))
 	class UHealthComponent* HealthComponent;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Components, meta = (AllowPrivateAccess = "true"))
+	class UOrbGameAbilitySystemComponent* AbilitySystemComponent;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Components, meta = (AllowPrivateAccess = "true"))
+	class UOrbGameAttributeSet* AttributeSet;
+
+	UPROPERTY(BlueprintAssignable)
+	FOnAttributeChangedSignature OnSpeedChanged;
 
 	// UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Components, meta = (AllowPrivateAccess = "true"))
 	// class UWidgetComponent * HpWidgetComponent;
