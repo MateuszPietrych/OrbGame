@@ -3,18 +3,23 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "OrbSystem/GAS/OrbGameGameplayAbility.h"
+#include "OrbSystem/GAS/GameplayAbility/DamageGameplayAbility.h"
 #include "ProjectileGameplayAbility.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class ORBGAME_API UProjectileGameplayAbility : public UOrbGameGameplayAbility
+class ORBGAME_API UProjectileGameplayAbility : public UDamageGameplayAbility
 {
 	GENERATED_BODY()
 
-	UPROPERTY(EditAnywhere, Category="Gameplay Ability")
-	float ProjectileSpeed = 1000.0f;
+public:
+
+	UFUNCTION(BlueprintCallable, Category = "Projectile")
+	void SpawnProjectile(const FVector& ProjectileTargetLocation, const FVector& StartLocation);
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TSubclassOf<class AOrbGameProjectile> ProjectileClass;
 	
 };
