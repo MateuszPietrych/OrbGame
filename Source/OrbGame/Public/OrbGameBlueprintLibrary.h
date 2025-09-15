@@ -9,6 +9,8 @@
 /**
  * 
  */
+
+class OrbGamePlayerController;
 UCLASS()
 class ORBGAME_API UOrbGameBlueprintLibrary : public UBlueprintFunctionLibrary
 {
@@ -20,4 +22,10 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "OrbGame|Damage")
 	static void DealDamage(FDamageEffectParams DamageParams);
+
+	UFUNCTION(BlueprintCallable, Category = "OrbGame|Utility")
+	static FVector FromPlayerToMouseDirection(class APlayerController* PlayerController);
+
+	UFUNCTION(BlueprintCallable, Category = "OrbGame|Utility")
+	static AOrbGamePlayerController* GetOrbGamePlayerController(class APlayerController* PlayerController);
 };

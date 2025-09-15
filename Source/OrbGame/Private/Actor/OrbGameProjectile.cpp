@@ -57,3 +57,4 @@ void AOrbGameProjectile::OnSphereOverlap(UPrimitiveComponent* OverlappedComponen
 	
 	Destroy();
 }
+

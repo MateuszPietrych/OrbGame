@@ -26,13 +26,13 @@ class ORBGAME_API UOrbDataAsset : public UPrimaryDataAsset
 	class UNiagaraSystem* LongUsageNiagaraSystemClass;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = OrbData, meta = (AllowPrivateAccess = "true"))
-	class UOrbGameGameplayAbility* OrbOverlapGameplayAbility;
+	TSubclassOf<class UOrbGameGameplayAbility> OrbOverlapGameplayAbility;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = OrbData, meta = (AllowPrivateAccess = "true"))
-	class UOrbGameGameplayAbility* OrbSimpleUseGameplayAbility;
+	TSubclassOf<class UOrbGameGameplayAbility> OrbSimpleUseGameplayAbility;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = OrbData, meta = (AllowPrivateAccess = "true"))
-	class UOrbGameGameplayAbility* OrbAdvancedUseGameplayAbility;
+	TSubclassOf<class UOrbGameGameplayAbility> OrbAdvancedUseGameplayAbility;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = OrbData, meta = (AllowPrivateAccess = "true"))
 	bool bUseSimpleActionImmediately = false;

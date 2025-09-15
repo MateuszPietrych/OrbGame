@@ -9,6 +9,9 @@
 #include "GameplayEffect.h"
 #include "GameplayTagContainer.h"
 #include "Abilities/GameplayAbility.h"
+#include "GameFramework/PlayerController.h"
+#include "OrbGame/OrbGamePlayerController.h"
+#include "GameFramework/Character.h"
 
 void UOrbGameBlueprintLibrary::DealDamage(FDamageEffectParams DamageParams)
 {
@@ -25,6 +28,41 @@ void UOrbGameBlueprintLibrary::DealDamage(FDamageEffectParams DamageParams)
 
     DamageParams.TargetAbilitySystemComponent->ApplyGameplayEffectSpecToSelf(*DamageSpecHandle.Data.Get());
 }
+
+FVector UOrbGameBlueprintLibrary::FromPlayerToMouseDirection(APlayerController* PlayerController)
+{
+    if (!PlayerController)
+    {
+        return FVector::ZeroVector;
+    }
+
+    FHitResult Hit;
+    bool bHitSuccessful = PlayerController->GetHitResultUnderCursor(ECollisionChannel::ECC_Visibility, true, Hit);
+    if (!bHitSuccessful || !PlayerController->GetCharacter())
+    {
+        return FVector::ZeroVector;
+    }
+
+    FVector MouseLocation = Hit.ImpactPoint;
+    FVector ActorLocation = PlayerController->GetCharacter()->GetActorLocation();
+    FVector Direction = (MouseLocation - ActorLocation).GetSafeNormal();
+    Direction.Z = 0; // Ignore vertical component
+    Direction.Normalize();
+    
+    return Direction;
+}
+
+AOrbGamePlayerController* UOrbGameBlueprintLibrary::GetOrbGamePlayerController(APlayerController* PlayerController)
+{
+    if (!PlayerController)
+    {
+        return nullptr;
+    }
+
+    return Cast<AOrbGamePlayerController>(PlayerController);
+}
+
+
 
 // void UOrbGameBlueprintLibrary::CauseDamage(AActor* TargetActor, UGameplayAbility* SourceAbility, FDamageEffectParams DamageParams)
 // {

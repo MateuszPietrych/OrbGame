@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Abilities/GameplayAbility.h"
+#include "Structures.h"
 #include "OrbGameGameplayAbility.generated.h"
 
 /**
@@ -21,4 +22,9 @@ class ORBGAME_API UOrbGameGameplayAbility : public UGameplayAbility
 public:
 	UPROPERTY(EditDefaultsOnly, Category="Gameplay Ability")
 	class UOrbEffectBase* OrbEffectInstance;
+
+	void SetActorInfo(AActor* AvatarActor, AActor* OwnerActor);
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FOrbUseContext OrbUseContext;
 };

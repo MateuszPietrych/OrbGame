@@ -79,6 +79,10 @@ struct FOrbUseContext
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Orb Transform Context")
 	FVector Direction;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Orb GameplayAbilitySystem Context")
+	class UAbilitySystemComponent* SourceAbilitySystemComponent = nullptr;
+
+
 };
 
 

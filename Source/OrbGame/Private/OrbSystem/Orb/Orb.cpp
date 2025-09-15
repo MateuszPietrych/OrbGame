@@ -15,6 +15,8 @@
 #include "NiagaraVariant.h"
 #include "OrbSystem/OrbEffect/OrbEffectBase.h"
 #include "OrbSystem/GAS/OrbGameGameplayAbility.h"
+#include "AbilitySystemComponent.h"
+#include "Abilities/GameplayAbility.h"
 
 
 
@@ -56,6 +58,26 @@ void AOrb::BeginPlay()
 	Super::BeginPlay();
 	BaseNiagaraComponent->SetAsset(OrbData->BaseNiagaraSystemClass);
 	BaseNiagaraComponent->ActivateSystem();
+
+	InitOrbAbilities();
+}
+
+void AOrb::InitOrbAbilities(float OverlapAbilityLevel, float SimpleUseAbilityLevel, float AdvancedUseAbilityLevel)
+{
+	// CurrentOrbOverlapAbilityInstance = NewObject<UOrbGameGameplayAbility>(this, OrbData->OrbOverlapGameplayAbility);
+	// CurrentOrbOverlapAbilityInstance->SetActorInfo(GetOwner(), GetOwner());
+	OverlapAbilitySpec = FGameplayAbilitySpec(CurrentOrbOverlapAbilityInstance, OverlapAbilityLevel, static_cast<int32>(INDEX_NONE), this);
+
+	// CurrentOrbSimpleUseAbilityInstance = NewObject<UOrbGameGameplayAbility>(this, OrbData->OrbSimpleUseGameplayAbility);
+	// TSubclassOf<UGameplayAbility> SimpleUseAbilityClass = OrbData->OrbSimpleUseGameplayAbility;
+	// SimpleUseAbilitySpec = FGameplayAbilitySpec(SimpleUseAbilityClass, SimpleUseAbilityLevel, static_cast<int32>(INDEX_NONE), this);
+	// CurrentOrbSimpleUseAbilityInstance->SetActorInfo(GetOwner(), GetOwner());
+
+	SimpleUseAbilitySpec = FGameplayAbilitySpec(OrbData->OrbSimpleUseGameplayAbility, SimpleUseAbilityLevel, static_cast<int32>(INDEX_NONE), this);
+
+	// CurrentOrbAdvancedUseAbilityInstance = NewObject<UOrbGameGameplayAbility>(this, OrbData->OrbAdvancedUseGameplayAbility);
+	// CurrentOrbAdvancedUseAbilityInstance->SetActorInfo(GetOwner(), GetOwner());
+	AdvancedUseAbilitySpec = FGameplayAbilitySpec(CurrentOrbAdvancedUseAbilityInstance, AdvancedUseAbilityLevel, static_cast<int32>(INDEX_NONE), this);
 }
 
 // Called every frame
@@ -118,9 +140,47 @@ float AOrb::GetCurrentOrbRotationDeviation0to360()
 
 void AOrb::SimpleOrbUse(FOrbUseContext OrbUseContext)
 {
-	DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
-	RotatingSphere->IgnoreActorWhenMoving(UGameplayStatics::GetPlayerPawn(GetWorld(),0), true);
-	RotatingSphere->IgnoreActorWhenMoving(this, true);
+	// CurrentOrbSimpleUseAbilityInstance->ActivateAbility(SimpleUseAbilitySpec);
+	// Grant (must be on the server!)
+	UAbilitySystemComponent* ASC = OrbUseContext.SourceAbilitySystemComponent;
+	ensure(ASC); // will log if null
+
+	// CurrentOrbSimpleUseAbilityInstance->OrbUseContext = OrbUseContext;
+	// SimpleUseAbilitySpec = FGameplayAbilitySpec(CurrentOrbSimpleUseAbilityInstance, SimpleUseAbilitySpec.Level, static_cast<int32>(INDEX_NONE), this);
+	TArray<UGameplayAbility*> SimpleUseAbilityInstances = SimpleUseAbilitySpec.GetAbilityInstances();
+	for(UGameplayAbility* Ability : SimpleUseAbilityInstances)
+	{
+		UOrbGameGameplayAbility* OrbGameAbility = Cast<UOrbGameGameplayAbility>(Ability);
+		if(OrbGameAbility)
+		{
+			OrbGameAbility->OrbUseContext = OrbUseContext;
+		}
+	}
+	FGameplayEventData TriggerEventData = FGameplayEventData();
+	TriggerEventData.Instigator = Cast<APawn>(GetOwner());
+	// const FGameplayAbilitySpecHandle SimpleUseHandle = ASC->GiveAbility(SimpleUseAbilitySpec, TriggerEventData);
+
+	// // Activate using the returned handle
+	// UE_LOG(LogTemp, Warning, TEXT("AOrb::SimpleOrbUse: Activating SimpleUseAbility"));
+	// const bool bActivated = ASC->TryActivateAbility(SimpleUseHandle);
+	// UE_LOG(LogTemp, Warning, TEXT("AOrb::SimpleOrbUse: Activated SimpleUseAbility"));
+	ASC->GiveAbilityAndActivateOnce(SimpleUseAbilitySpec, &TriggerEventData);
+
+    // UE_LOG(LogTemp, Warning, TEXT("Trying to activate SimpleUseAbility: %s"),bActivated ? TEXT("Succeeded") : TEXT("Failed"));
+
+	
+	// FGameplayAbilitySpecHandle SimpleUseAbilitySpecthHandle = SimpleUseAbilitySpec.Handle;
+	// const FGameplayAbilityActorInfo* ActorInfo = CurrentOrbSimpleUseAbilityInstance->GetCurrentActorInfo();
+	// const FGameplayAbilityActivationInfo ActivationInfo = CurrentOrbSimpleUseAbilityInstance->GetCurrentActivationInfo();
+	// const FGameplayEventData TriggerEventData = FGameplayEventData();
+	// CurrentOrbSimpleUseAbilityInstance->ActivateAbility(SimpleUseAbilitySpecthHandle, ActorInfo, ActivationInfo, TriggerEventData);
+	
+
+	// ActivateSimpleUseAbility(OrbUseContext);
+	// CurrentOrbSimpleUseAbilityInstance->CommitAbility();
+	// DetachFromActor(FDetachmentTranasformRules::KeepWorldTransform);
+	// RotatingSphere->IgnoreActorWhenMoving(UGameplayStatics::GetPlayerPawn(GetWorld(),0), true);
+	// RotatingSphere->IgnoreActorWhenMoving(this, true);
 }
 
 void AOrb::BeginSphereProjectileOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
@@ -139,8 +199,10 @@ void AOrb::BeginSphereProjectileOverlap(UPrimitiveComponent* OverlappedComp, AAc
 	if(!OrbData->bUseSimpleActionImmediately && !bWasSimpleActionUsed)
 	{
 		// Immediately apply the simple use effect
-		SetBaseParamsForOrbEffect(OrbData->OrbSimpleUseGameplayAbility->OrbEffectInstance);
-		OrbData->OrbSimpleUseGameplayAbility->OrbEffectInstance->ApplyEffectToAffectedActors();
+		// SetBaseParamsForOrbEffect(CurrentOrbSimpleUseAbilityInstance->OrbEffectInstance);
+		// CurrentOrbSimpleUseAbilityInstance->OrbEffectInstance->ApplyEffectToAffectedActors();
+		// CurrentOrbOverlapAbilityInstance->CommitAbility();
+		ActivateOverlapAbility();
 		UE_LOG(LogTemp, Warning, TEXT("Applying Simple Use Effect Not Immediately"));
 		bWasSimpleActionUsed = true;
 	}
@@ -217,8 +279,8 @@ void AOrb::SetBaseParamsForOrbEffect(UOrbEffectBase* EffectInstance)
 	Direction.Normalize();
 	FVector StartLocation = GetOrbWorldLocation();
 
-	EffectInstance->SetStartLocation(StartLocation);
-	EffectInstance->SetDirection(Direction);
+	// EffectInstance->SetStartLocation(StartLocation);
+	// EffectInstance->SetDirection(Direction);
 }
 
 void AOrb::BasicOverlapAction(UPrimitiveComponent *OverlappedComponent,
@@ -229,22 +291,21 @@ void AOrb::BasicOverlapAction(UPrimitiveComponent *OverlappedComponent,
     const FHitResult &SweepResult)
 {
 	// UE_LOG(LogTemp, Warning, TEXT("Orb Overlapped with %s"), *OtherActor->GetName());
-	if(OrbData == nullptr || OrbData->OrbOverlapGameplayAbility == nullptr || OrbData->OrbOverlapGameplayAbility->OrbEffectInstance == nullptr)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("OrbData or OrbOverlapGameplayAbility or OrbEffectInstance is null"));
-		return;
-	}
+	// if(OrbData == nullptr || CurrentOrbOverlapAbilityInstance == nullptr || CurrentOrbOverlapAbilityInstance->OrbEffectInstance == nullptr)
+	// {
+	// 	UE_LOG(LogTemp, Warning, TEXT("OrbData or OrbOverlapGameplayAbility or OrbEffectInstance is null"));
+	// 	return;
+	// }
 
-	SetBaseParamsForOrbEffect(OrbData->OrbSimpleUseGameplayAbility->OrbEffectInstance);
+	// SetBaseParamsForOrbEffect(CurrentOrbSimpleUseAbilityInstance->OrbEffectInstance);
 	
-	OrbData->OrbOverlapGameplayAbility->OrbEffectInstance->ApplyEffect(OtherActor);
-	if(OrbData->bUseSimpleActionImmediately && !bWasSimpleActionUsed)
-	{
-		// Immediately apply the simple use effect
-		SetBaseParamsForOrbEffect(OrbData->OrbSimpleUseGameplayAbility->OrbEffectInstance);
-		OrbData->OrbSimpleUseGameplayAbility->OrbEffectInstance->ApplyEffectToAffectedActors();
-		bWasSimpleActionUsed = true;
-	}
+	// CurrentOrbOverlapAbilityInstance->OrbEffectInstance->ApplyEffect(OtherActor);
+	// if(OrbData->bUseSimpleActionImmediately && !bWasSimpleActionUsed)
+	// {
+	// 	// Immediately apply the simple use effect
+	// 	SetBaseParamsForOrbEffect(CurrentOrbSimpleUseAbilityInstance->OrbEffectInstance);
+	// 	CurrentOrbSimpleUseAbilityInstance->OrbEffectInstance->ApplyEffectToAffectedActors();
+	// 	bWasSimpleActionUsed = true;
+	// }
 }
-
 

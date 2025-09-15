@@ -5,3 +5,5 @@
 #include "CoreMinimal.h"
 
 DECLARE_LOG_CATEGORY_EXTERN(LogOrbGame, Log, All);
+
+#define ECC_Ability ECollisionChannel::ECC_GameTraceChannel1

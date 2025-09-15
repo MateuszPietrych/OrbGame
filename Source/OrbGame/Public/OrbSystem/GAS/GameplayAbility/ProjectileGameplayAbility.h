@@ -16,10 +16,16 @@ class ORBGAME_API UProjectileGameplayAbility : public UDamageGameplayAbility
 
 public:
 
+	virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override;
+
+
 	UFUNCTION(BlueprintCallable, Category = "Projectile")
 	void SpawnProjectile(const FVector& ProjectileTargetLocation, const FVector& StartLocation);
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TSubclassOf<class AOrbGameProjectile> ProjectileClass;
+
+private:
+	
 	
 };

@@ -6,6 +6,7 @@
 #include "GameFramework/Actor.h"
 #include "Enums.h"
 #include "Structures.h"
+#include "GameplayAbilitySpec.h"
 #include "Orb.generated.h"
 
 UCLASS()
@@ -76,6 +77,12 @@ public:
 	UFUNCTION(BlueprintCallable)
 	FVector GetOrbWorldLocation();
 
+	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent)
+	void ActivateSimpleUseAbility(FOrbUseContext OrbUseContext);
+
+	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent)
+	void ActivateOverlapAbility();
+
 	UFUNCTION(BlueprintCallable)
 	virtual void BasicOverlapAction(UPrimitiveComponent* OverlappedComponent,
     AActor*              OtherActor,
@@ -85,6 +92,9 @@ public:
     const FHitResult&    SweepResult);
 
 	bool GetIsLongUseActive() const { return bIsLongUseActive; }
+
+	UFUNCTION(BlueprintCallable)
+	void InitOrbAbilities(float OverlapAbilityLevel = 1.0f, float SimpleUseAbilityLevel = 1.0f, float AdvancedUseAbilityLevel = 1.0f);
 
 protected:
 
@@ -114,6 +124,24 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Components, meta = (AllowPrivateAccess = "true"))
 	class UProjectileMovementComponent* ProjectileMovement;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Components, meta = (AllowPrivateAccess = "true"))
+	FGameplayAbilitySpec OverlapAbilitySpec;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Components, meta =(AllowPrivateAccess = "true"))
+	class UOrbGameGameplayAbility* CurrentOrbOverlapAbilityInstance;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Components, meta = (AllowPrivateAccess = "true"))
+	FGameplayAbilitySpec SimpleUseAbilitySpec;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Components, meta =(AllowPrivateAccess = "true"))
+	class UOrbGameGameplayAbility* CurrentOrbSimpleUseAbilityInstance;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Components, meta = (AllowPrivateAccess = "true"))
+	FGameplayAbilitySpec AdvancedUseAbilitySpec;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Components, meta =(AllowPrivateAccess = "true"))
+	class UOrbGameGameplayAbility* CurrentOrbAdvancedUseAbilityInstance; 
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = OrbData, meta = (AllowPrivateAccess = "true"))
 	float BaseProjectileSpeed = 1000.0f;

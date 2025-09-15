@@ -8,6 +8,7 @@
 #include "Engine/World.h"
 #include "TimerManager.h"
 #include "OrbSystem/OrbTransferer.h"
+#include "AbilitySystemComponent.h"
 
 
 
@@ -415,6 +416,7 @@ void UOrbManager::SimpleOrbUse(FVector Direction)
 	{
 		FOrbUseContext OrbUseContext = FOrbUseContext();
 		OrbUseContext.Direction = Direction;
+		OrbUseContext.SourceAbilitySystemComponent = Cast<UAbilitySystemComponent>(GetOwner()->GetComponentByClass(UAbilitySystemComponent::StaticClass()));
 
 		OrbToUse->SimpleOrbUse(OrbUseContext);
 		OrbToUse = nullptr;
