@@ -50,11 +50,29 @@ void AEnemy::BeginPlay()
 	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(AttributeSet->GetSpeedAttribute()).AddLambda(
 		[this](const FOnAttributeChangeData& Data)
 		{
-			// UE_LOG(LogTemp, Warning, TEXT("Enemy speed changed to: %f"), Data.NewValue);
 			OnSpeedChanged.Broadcast(Data.NewValue);
 		}
 	);
+
+	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(AttributeSet->GetHealthAttribute()).AddLambda(
+		[this](const FOnAttributeChangeData& Data)
+		{
+			OnHealthChanged.Broadcast(Data.NewValue);
+		}
+	);
+
 	OnSpeedChanged.Broadcast(AttributeSet->GetSpeed());
+	OnHealthChanged.Broadcast(AttributeSet->GetHealth());
+
+	OnHealthChanged.AddDynamic(this, &AEnemy::OnHealthChangedHandler);
+
+	// HpWidgetComponent->SetWidgetSpace(EWidgetSpace::Screen);
+	// HpWidgetComponent->SetDrawSize(FVector2D(100, 20));
+	// HpWidgetComponent->SetRelativeLocation(FVector(0.f, 0.f, 100.f));
+	// HpWidgetComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	// HpWidgetComponent->SetGenerateOverlapEvents(false);
+	// HpWidgetComponent->SetHiddenInGame(false);
+	
 	// if(IsValid(HpWidgetClass))
     // {
     //     HpWidget = CreateWidget<UHpWidget>(GetWorld(), HpWidgetClass);
@@ -105,4 +123,11 @@ float AEnemy::TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEv
 	return OldTakeDamage;
 }
 
+void AEnemy::OnHealthChangedHandler(float NewHealth)
+{
+	if(NewHealth <= 0.f)
+	{
+		Destroy();
+	}
+}
 

@@ -6,6 +6,7 @@
 #include "GameplayEffect.h"
 #include "GameplayEffectTypes.h"
 #include "Kismet/GameplayStatics.h"
+#include "OrbGameGameplayTags.h"
 
 
 struct OrbGameDamageStatics
@@ -42,19 +43,17 @@ void UDamageExecutionCalculation::Execute_Implementation(const FGameplayEffectCu
 	EvaluationParameters.SourceTags = SourceTags;
 	EvaluationParameters.TargetTags = TargetTags;
 
-    float BaseDamage = 100.f; // Spec.GetSetByCallerMagnitude(Pair.Key, false);
+    float BaseDamage = Spec.GetSetByCallerMagnitude(FOrbGameGameplayTags::Get().Effect_Damage, false);
     float Armor = 0.0f;
     ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(DamageStatics().ArmorDef, EvaluationParameters, Armor);
 
     float ArmorModifier = 1.0f;
     if (Armor > 0.0f)
     {
-        // Use the armor data for damage calculation
-        ArmorModifier *= (1.0f - Armor / 100.0f); // Example: Reduce damage by armor percentage
+        ArmorModifier *= (1.0f - Armor / 100.0f); 
     }
 
 
-    // Apply the final damage calculation
     float FinalDamage = BaseDamage * ArmorModifier;
 
     UE_LOG(LogTemp, Warning, TEXT("BaseDamage: %f, Armor: %f, ArmorModifier: %f, FinalDamage: %f"), BaseDamage, Armor, ArmorModifier, FinalDamage);

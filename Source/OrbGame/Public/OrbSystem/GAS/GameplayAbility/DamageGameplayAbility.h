@@ -15,7 +15,10 @@ class ORBGAME_API UDamageGameplayAbility : public UOrbGameGameplayAbility
 {
 	GENERATED_BODY()
 
+	
+
 public:
+	UDamageGameplayAbility();
 	void CauseDamage(AActor* TargetActor);
 
 protected:

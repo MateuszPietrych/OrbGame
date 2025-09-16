@@ -13,7 +13,7 @@
 #include "OrbGame/OrbGamePlayerController.h"
 #include "GameFramework/Character.h"
 
-void UOrbGameBlueprintLibrary::DealDamage(FDamageEffectParams DamageParams)
+void UOrbGameBlueprintLibrary::DealDamage(const FDamageEffectParams& DamageParams)
 {
     if (!DamageParams.TargetAbilitySystemComponent || !DamageParams.SourceAbilitySystemComponent || !DamageParams.DamageGameplayEffectClass)
     {
@@ -26,7 +26,25 @@ void UOrbGameBlueprintLibrary::DealDamage(FDamageEffectParams DamageParams)
     const float ScaledDamage = DamageParams.GetDamageAtLevel();
     UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(DamageSpecHandle, FOrbGameGameplayTags::Get().Effect_Damage, ScaledDamage);
 
-    DamageParams.TargetAbilitySystemComponent->ApplyGameplayEffectSpecToSelf(*DamageSpecHandle.Data.Get());
+    DamageParams.SourceAbilitySystemComponent->ApplyGameplayEffectSpecToTarget(*DamageSpecHandle.Data, DamageParams.TargetAbilitySystemComponent);
+}
+
+void UOrbGameBlueprintLibrary::DealDamageToActors(const FDamageEffectParams& DamageParams, const TArray<AActor*>& TargetActors)
+{
+    if (!DamageParams.SourceAbilitySystemComponent || !DamageParams.DamageGameplayEffectClass)
+    {
+        UE_LOG(LogTemp, Warning, TEXT("DealDamageToActors: Invalid parameters"));
+        return;
+    }
+    for (AActor* TargetActor : TargetActors)
+    {
+        if (UAbilitySystemComponent* TargetASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(TargetActor))
+        {
+            FDamageEffectParams NewDamageParams = DamageParams;
+            NewDamageParams.TargetAbilitySystemComponent = TargetASC;
+            DealDamage(NewDamageParams);
+        }
+    }
 }
 
 FVector UOrbGameBlueprintLibrary::FromPlayerToMouseDirection(APlayerController* PlayerController)

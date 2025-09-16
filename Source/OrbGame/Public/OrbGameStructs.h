@@ -27,6 +27,9 @@ struct FDamageEffectParams
 	UPROPERTY(BlueprintReadWrite)
 	TObjectPtr<UAbilitySystemComponent> TargetAbilitySystemComponent;
 
+	UPROPERTY(BlueprintReadWrite)
+	TObjectPtr<class UGameplayAbility> DamageGameplayAbilityInstance = nullptr;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FScalableFloat Damage;
 

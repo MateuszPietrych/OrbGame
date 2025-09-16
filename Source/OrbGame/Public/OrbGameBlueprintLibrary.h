@@ -21,7 +21,10 @@ public:
 	// static void CauseDamage(AActor* TargetActor, UGameplayAbility* SourceAbility, FDamageEffectParams DamageParams);
 
 	UFUNCTION(BlueprintCallable, Category = "OrbGame|Damage")
-	static void DealDamage(FDamageEffectParams DamageParams);
+	static void DealDamage(const FDamageEffectParams& DamageParams);
+
+	UFUNCTION(BlueprintCallable, Category = "OrbGame|Damage")
+	static void DealDamageToActors(const FDamageEffectParams& DamageParams, const TArray<AActor*>& TargetActors);
 
 	UFUNCTION(BlueprintCallable, Category = "OrbGame|Utility")
 	static FVector FromPlayerToMouseDirection(class APlayerController* PlayerController);

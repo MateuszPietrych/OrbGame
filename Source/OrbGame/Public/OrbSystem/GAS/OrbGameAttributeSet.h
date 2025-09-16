@@ -15,8 +15,8 @@
 	GAMEPLAYATTRIBUTE_VALUE_INITTER(PropertyName)
 
 
-// template<class T>
-// using TStaticFuncPtr = typename TBaseStaticDelegateInstance<T, FDefaultDelegateUserPolicy>::FFuncPtr;
+template<class T>
+using TStaticFuncPtr = typename TBaseStaticDelegateInstance<T, FDefaultDelegateUserPolicy>::FFuncPtr;
 
 /**
  * 
@@ -26,6 +26,7 @@ class ORBGAME_API UOrbGameAttributeSet : public UAttributeSet
 {
 	GENERATED_BODY()
 
+	
 public:
 	UOrbGameAttributeSet();
 	
@@ -33,6 +34,7 @@ public:
 
 	void HandleIncomingDamage(const FGameplayEffectModCallbackData& Data);
 
+	TMap<FGameplayTag, TStaticFuncPtr<FGameplayAttribute()>> TagsToAttributes;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Attributes")
 	FGameplayAttributeData Strength;

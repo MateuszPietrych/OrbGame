@@ -54,6 +54,12 @@ private:
 
 	UPROPERTY(BlueprintAssignable)
 	FOnAttributeChangedSignature OnSpeedChanged;
+	
+	UPROPERTY(BlueprintAssignable)
+	FOnAttributeChangedSignature OnHealthChanged;
+
+	UFUNCTION()
+	void OnHealthChangedHandler(float NewHealth);
 
 	// UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Components, meta = (AllowPrivateAccess = "true"))
 	// class UWidgetComponent * HpWidgetComponent;

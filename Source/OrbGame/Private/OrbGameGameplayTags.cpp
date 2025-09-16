@@ -10,32 +10,32 @@ FOrbGameGameplayTags FOrbGameGameplayTags::GameplayTags;
 void FOrbGameGameplayTags::InitializeNativeGameplayTags()
 {
     /* Attributes */
-	GameplayTags.Attributes_Strength = UGameplayTagsManager::Get().AddNativeGameplayTag(
+	GameplayTags.Attribute_Strength = UGameplayTagsManager::Get().AddNativeGameplayTag(
         FName("Attributes.Strength"), 
         TEXT("Increases physical damage")
     );
 
-    GameplayTags.Attributes_Health = UGameplayTagsManager::Get().AddNativeGameplayTag(
+    GameplayTags.Attribute_Health = UGameplayTagsManager::Get().AddNativeGameplayTag(
         FName("Attributes.Health"), 
         TEXT("Current health of the character")
     );
 
-    GameplayTags.Attributes_MaxHealth = UGameplayTagsManager::Get().AddNativeGameplayTag(
+    GameplayTags.Attribute_MaxHealth = UGameplayTagsManager::Get().AddNativeGameplayTag(
         FName("Attributes.MaxHealth"), 
         TEXT("Maximum health of the character")
     );
 
-    GameplayTags.Attributes_Armor = UGameplayTagsManager::Get().AddNativeGameplayTag(
+    GameplayTags.Attribute_Armor = UGameplayTagsManager::Get().AddNativeGameplayTag(
         FName("Attributes.Armor"), 
         TEXT("Reduces incoming damage")
     );
 
-    GameplayTags.Attributes_HealthRegeneration = UGameplayTagsManager::Get().AddNativeGameplayTag(
+    GameplayTags.Attribute_HealthRegeneration = UGameplayTagsManager::Get().AddNativeGameplayTag(
         FName("Attributes.HealthRegeneration"), 
         TEXT("Regenerates health over time")
     );
 
-    GameplayTags.Attributes_Speed = UGameplayTagsManager::Get().AddNativeGameplayTag(
+    GameplayTags.Attribute_Speed = UGameplayTagsManager::Get().AddNativeGameplayTag(
         FName("Attributes.Speed"), 
         TEXT("Movement speed of the character")
     );

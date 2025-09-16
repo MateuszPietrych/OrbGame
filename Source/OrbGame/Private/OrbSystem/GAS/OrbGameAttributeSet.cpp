@@ -2,13 +2,20 @@
 
 
 #include "OrbSystem/GAS/OrbGameAttributeSet.h"
-
+#include "OrbGameGameplayTags.h"
 #include "GameplayEffectExtension.h"
+#include "GameplayTagContainer.h"
 
 
 UOrbGameAttributeSet::UOrbGameAttributeSet()
 {
-
+	const FOrbGameGameplayTags& GameplayTags = FOrbGameGameplayTags::Get();
+	TagsToAttributes.Add(GameplayTags.Attribute_Health, GetHealthAttribute);
+	TagsToAttributes.Add(GameplayTags.Attribute_MaxHealth, GetMaxHealthAttribute);
+	TagsToAttributes.Add(GameplayTags.Attribute_Armor, GetArmorAttribute);
+	TagsToAttributes.Add(GameplayTags.Attribute_Speed, GetSpeedAttribute);
+	TagsToAttributes.Add(GameplayTags.Attribute_Strength, GetStrengthAttribute);
+	TagsToAttributes.Add(GameplayTags.Attribute_HealthRegeneration, GetHealthRegenerationAttribute);
 }
 
 void UOrbGameAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallbackData& Data)
@@ -30,6 +37,6 @@ void UOrbGameAttributeSet::HandleIncomingDamage(const FGameplayEffectModCallback
 	{
 		const float NewHealth = GetHealth() - LocalIncomingDamage;
 		SetHealth(FMath::Clamp(NewHealth, 0.f, GetMaxHealth()));
-        UE_LOG(LogTemp, Warning, TEXT("Health changed to: %f"), GetHealth());
+        UE_LOG(LogTemp, Warning, TEXT("Target: %s,  Damage taken: %f,  Health changed to: %f"), *GetOwningActor()->GetName(), LocalIncomingDamage, GetHealth());
     }
 }

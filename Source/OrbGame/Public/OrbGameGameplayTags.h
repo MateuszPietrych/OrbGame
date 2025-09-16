@@ -17,12 +17,12 @@ public:
 	static void InitializeNativeGameplayTags();
 
 	/* Attributes */
-	FGameplayTag Attributes_Strength;
-	FGameplayTag Attributes_Armor;
-	FGameplayTag Attributes_HealthRegeneration;
-	FGameplayTag Attributes_MaxHealth;
-	FGameplayTag Attributes_Health;
-	FGameplayTag Attributes_Speed;
+	FGameplayTag Attribute_Strength;
+	FGameplayTag Attribute_Armor;
+	FGameplayTag Attribute_HealthRegeneration;
+	FGameplayTag Attribute_MaxHealth;
+	FGameplayTag Attribute_Health;
+	FGameplayTag Attribute_Speed;
 
 	/* Effects */
 	FGameplayTag Effect_Damage;

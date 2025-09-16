@@ -31,7 +31,7 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
+	UFUNCTION(BlueprintImplementableEvent)
 	void OnProjectileHit();
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)

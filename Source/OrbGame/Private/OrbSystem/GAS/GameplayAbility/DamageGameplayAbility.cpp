@@ -7,6 +7,11 @@
 #include "OrbGameGameplayTags.h"
 #include "AbilitySystemComponent.h"
 
+UDamageGameplayAbility::UDamageGameplayAbility()
+{
+	DamageEffectParams.DamageGameplayAbilityInstance = this;
+}
+
 
 void UDamageGameplayAbility::CauseDamage(AActor* TargetActor)
 {
