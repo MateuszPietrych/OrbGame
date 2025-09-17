@@ -9,6 +9,8 @@
 #include "TimerManager.h"
 #include "OrbSystem/OrbTransferer.h"
 #include "AbilitySystemComponent.h"
+#include "Chaos/ObjectPool.h"
+#include "Utility/OrbPool.h"
 
 
 
@@ -30,6 +32,12 @@ void UOrbManager::BeginPlay()
 	Super::BeginPlay();
 }
 
+void UOrbManager::InitializeOrbPools(FItemSet<FGameplayTag> OrbTags)
+{
+	OrbPool = NewObject<UOrbPool>(this, UOrbPool::StaticClass());
+	OrbPool->Initialize(OrbTags);
+}
+
 
 // Called every frame
 void UOrbManager::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
@@ -39,7 +47,7 @@ void UOrbManager::TickComponent(float DeltaTime, ELevelTick TickType, FActorComp
 	// ...
 }
 
-AOrb* UOrbManager::CreateOrb()
+AOrb* UOrbManager::CreateOrb(TSubclassOf<AOrb> OrbClass)
 {
 	FVector Location = K2_GetComponentToWorld().GetLocation();
 	FRotator Rotation = K2_GetComponentToWorld().GetRotation().Rotator();
@@ -64,7 +72,7 @@ void UOrbManager::AddOrb(){
 			
 			FixOrbsOnLevelPosition(OrbLevelData, true, -1);
 			
-			AOrb* Orb = CreateOrb();
+			AOrb* Orb = CreateOrb(DefaultOrbClass);
 			OrbLevelData.Orbs.Add(Orb);
 			Orb->SetOrbPosition(OrbLevelData.XOffset, OrbLevelData.ZOffset);
 			Orb->SetRotationSpeed(BaseSpeed);

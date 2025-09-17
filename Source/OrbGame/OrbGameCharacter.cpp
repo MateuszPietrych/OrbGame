@@ -24,7 +24,7 @@
 #include "NiagaraComponent.h"
 #include "NiagaraSystem.h"
 #include "AbilitySystemComponent.h"
-#include "OrbSystem/GAS/OrbGameAbilitySystemComponent.h"
+#include "OrbSystem/GAS/OrbUserAbilitySystemComponent.h"
 #include "OrbSystem/GAS/OrbGameAttributeSet.h"
 
 
@@ -96,10 +96,8 @@ AOrbGameCharacter::AOrbGameCharacter()
 	PrimaryActorTick.bCanEverTick = true;
 	PrimaryActorTick.bStartWithTickEnabled = true;
 
-	AbilitySystemComponent = CreateDefaultSubobject<UOrbGameAbilitySystemComponent>("OrbGameAbilitySystemComponent");
-		
+	AbilitySystemComponent = CreateDefaultSubobject<UOrbUserAbilitySystemComponent>("OrbUserAbilitySystemComponent");
 	AttributeSet = CreateDefaultSubobject<UOrbGameAttributeSet>("OrbGameAttributeSet");
-	
 }
 
 void AOrbGameCharacter::BeginPlay()
@@ -108,6 +106,8 @@ void AOrbGameCharacter::BeginPlay()
 	Tags.Add("Player");
 
 	AbilitySystemComponent->InitAbilityActorInfo(this, this);
+	AbilitySystemComponent->InitializeAttributesDelegate(AttributeSet);
+	AbilitySystemComponent->InitalizeOrbSystemElements(OrbManager);
 
 	FGameplayEffectContextHandle Context = AbilitySystemComponent->MakeEffectContext();
     Context.AddSourceObject(this); // optional but useful

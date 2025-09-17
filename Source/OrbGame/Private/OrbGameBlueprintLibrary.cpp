@@ -12,6 +12,7 @@
 #include "GameFramework/PlayerController.h"
 #include "OrbGame/OrbGamePlayerController.h"
 #include "GameFramework/Character.h"
+#include "OrbGame/OrbGameGameMode.h"
 
 void UOrbGameBlueprintLibrary::DealDamage(const FDamageEffectParams& DamageParams)
 {
@@ -78,6 +79,22 @@ AOrbGamePlayerController* UOrbGameBlueprintLibrary::GetOrbGamePlayerController(A
     }
 
     return Cast<AOrbGamePlayerController>(PlayerController);
+}
+
+AOrbGameGameMode* UOrbGameBlueprintLibrary::GetOrbGameGameMode(UObject* ContextObject)
+{
+    if (!ContextObject)
+    {
+        return nullptr;
+    }
+
+    UWorld* World = ContextObject->GetWorld();
+    if (!World)
+    {
+        return nullptr;
+    }
+
+    return Cast<AOrbGameGameMode>(World->GetAuthGameMode());
 }
 
 

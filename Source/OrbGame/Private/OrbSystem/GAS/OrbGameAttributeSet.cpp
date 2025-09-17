@@ -22,7 +22,6 @@ void UOrbGameAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCal
 {
     Super::PostGameplayEffectExecute(Data);
 
-    UE_LOG(LogTemp, Warning, TEXT("PostGameplayEffectExecute called for attribute: %s"), *Data.EvaluatedData.Attribute.GetName());
     if (Data.EvaluatedData.Attribute == GetIncomingDamageAttribute())
 	{
 		HandleIncomingDamage(Data);

@@ -29,12 +29,12 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
-	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser) override;
-
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = GAS)
 	TSubclassOf<class UGameplayEffect> GameplayEffectClassToApplyOnStart;
 
+	UFUNCTION(BlueprintImplementableEvent)
+	void OnSpeedChangedHandler(float NewSpeed);
 
 private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Components, meta = (AllowPrivateAccess = "true"))
@@ -52,22 +52,10 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Components, meta = (AllowPrivateAccess = "true"))
 	class UOrbGameAttributeSet* AttributeSet;
 
-	UPROPERTY(BlueprintAssignable)
-	FOnAttributeChangedSignature OnSpeedChanged;
-	
-	UPROPERTY(BlueprintAssignable)
-	FOnAttributeChangedSignature OnHealthChanged;
+	UFUNCTION()
+	void HandleAttributeChanged(const FGameplayTag AttributeTag, float NewValue);
 
 	UFUNCTION()
 	void OnHealthChangedHandler(float NewHealth);
-
-	// UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Components, meta = (AllowPrivateAccess = "true"))
-	// class UWidgetComponent * HpWidgetComponent;
-
-	// UPROPERTY(EditAnywhere, Category = "Setup")
-	// TSubclassOf<class UUserWidget> HpWidgetClass;
-
-	// UPROPERTY(VisibleInstanceOnly, Category = "Runtime")
-	// class UUserWidget* HpWidget;
 
 };

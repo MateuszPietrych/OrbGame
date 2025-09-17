@@ -31,4 +31,7 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "OrbGame|Utility")
 	static AOrbGamePlayerController* GetOrbGamePlayerController(class APlayerController* PlayerController);
+
+	UFUNCTION(BlueprintCallable, Category = "OrbGame|Utility")
+	static AOrbGameGameMode* GetOrbGameGameMode(class UObject* ContextObject);
 };

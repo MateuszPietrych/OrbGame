@@ -2,4 +2,25 @@
 
 
 #include "OrbSystem/GAS/OrbGameAbilitySystemComponent.h"
+#include "OrbSystem/GAS/OrbGameAttributeSet.h"
 
+
+
+
+void UOrbGameAbilitySystemComponent::InitializeAttributesDelegate(UOrbGameAttributeSet* AttributeSet)
+{
+    for (auto& Pair : AttributeSet->TagsToAttributes)
+	{
+		GetGameplayAttributeValueChangeDelegate(Pair.Value()).AddLambda(
+            [this, Pair, AttributeSet](const FOnAttributeChangeData& Data)
+            {
+                BroadcastAttributeInfo(Pair.Key, Pair.Value(), AttributeSet);
+            }
+        );
+    }
+}
+
+void UOrbGameAbilitySystemComponent::BroadcastAttributeInfo(const FGameplayTag& AttributeTag, const FGameplayAttribute& Attribute, UOrbGameAttributeSet* AttributeSet) const
+{
+	OnAttributeChanged.Broadcast(AttributeTag, Attribute.GetNumericValue(AttributeSet));
+}

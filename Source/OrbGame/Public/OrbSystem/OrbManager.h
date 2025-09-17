@@ -4,6 +4,10 @@
 
 #include "CoreMinimal.h"
 #include "Structures.h"
+#include "Components/SceneComponent.h"
+#include "GameplayTagContainer.h"
+#include "OrbGameStructs.h"
+#include "Chaos/ObjectPool.h"
 #include "OrbSystem/OrbTransferer.h"
 #include "Delegates/DelegateCombinations.h"
 #include "OrbManager.generated.h"
@@ -38,7 +42,7 @@ public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 	UFUNCTION(BlueprintCallable)
-	class AOrb* CreateOrb();
+	class AOrb* CreateOrb(TSubclassOf<AOrb> OrbClass);
 
 	UFUNCTION(BlueprintCallable)
 	void AddOrb();
@@ -109,16 +113,19 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void RemovePreparedOrb();
 
-
 	UFUNCTION(BlueprintCallable)
 	void SetFinishPoint(FVector NewFinishPoint);
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = CustomBaseOrb)
-	TSubclassOf<class AOrb> OrbClass;
+	TSubclassOf<class AOrb> DefaultOrbClass;
 
+	void InitializeOrbPools(FItemSet<FGameplayTag> OrbTags);
 
+	
 
 private:
+	class UOrbPool* OrbPool = nullptr;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = OrbLevelData, meta = (AllowPrivateAccess = "true"))
 	TArray<FOrbLevelData> OrbLevelsData;
 

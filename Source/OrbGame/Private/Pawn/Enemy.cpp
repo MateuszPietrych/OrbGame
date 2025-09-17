@@ -10,6 +10,8 @@
 #include "AbilitySystemComponent.h"
 #include "OrbSystem/GAS/OrbGameAbilitySystemComponent.h"
 #include "OrbSystem/GAS/OrbGameAttributeSet.h"
+#include "OrbGameGameplayTags.h"
+#include "GameFramework/PawnMovementComponent.h"
 
 // Sets default values
 AEnemy::AEnemy()
@@ -38,6 +40,9 @@ void AEnemy::BeginPlay()
 	Super::BeginPlay();
 
 	AbilitySystemComponent->InitAbilityActorInfo(this, this);
+	AbilitySystemComponent->InitializeAttributesDelegate(AttributeSet);
+
+	AbilitySystemComponent->OnAttributeChanged.AddDynamic(this, &AEnemy::HandleAttributeChanged);
 
 	FGameplayEffectContextHandle Context = AbilitySystemComponent->MakeEffectContext();
     Context.AddSourceObject(this); // optional but useful
@@ -46,47 +51,6 @@ void AEnemy::BeginPlay()
     {
         AbilitySystemComponent->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
     }
-
-	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(AttributeSet->GetSpeedAttribute()).AddLambda(
-		[this](const FOnAttributeChangeData& Data)
-		{
-			OnSpeedChanged.Broadcast(Data.NewValue);
-		}
-	);
-
-	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(AttributeSet->GetHealthAttribute()).AddLambda(
-		[this](const FOnAttributeChangeData& Data)
-		{
-			OnHealthChanged.Broadcast(Data.NewValue);
-		}
-	);
-
-	OnSpeedChanged.Broadcast(AttributeSet->GetSpeed());
-	OnHealthChanged.Broadcast(AttributeSet->GetHealth());
-
-	OnHealthChanged.AddDynamic(this, &AEnemy::OnHealthChangedHandler);
-
-	// HpWidgetComponent->SetWidgetSpace(EWidgetSpace::Screen);
-	// HpWidgetComponent->SetDrawSize(FVector2D(100, 20));
-	// HpWidgetComponent->SetRelativeLocation(FVector(0.f, 0.f, 100.f));
-	// HpWidgetComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	// HpWidgetComponent->SetGenerateOverlapEvents(false);
-	// HpWidgetComponent->SetHiddenInGame(false);
-	
-	// if(IsValid(HpWidgetClass))
-    // {
-    //     HpWidget = CreateWidget<UHpWidget>(GetWorld(), HpWidgetClass);
-    //     if (HpWidget)
-    //     {
-    //         HpWidget->AddToViewport();
-    //     }else{
-    //         UE_LOG(LogTemp, Error, TEXT("Widget is not valid"));
-    //     }
-    // }
-    // else
-    // {
-    //     UE_LOG(LogTemp, Error, TEXT("GameWidgetClass is not valid"));
-    // }
 }
 
 UAbilitySystemComponent* AEnemy::GetAbilitySystemComponent() const
@@ -108,19 +72,18 @@ void AEnemy::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 
 }
 
-float AEnemy::TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser)
+
+void AEnemy::HandleAttributeChanged(const FGameplayTag AttributeTag, float NewValue)
 {
-	float OldTakeDamage = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
-
-	HealthComponent->SetHealth(HealthComponent->GetHealth() - DamageAmount);
-	if(HealthComponent->IsDead())
+	UE_LOG(LogTemp, Warning, TEXT("HandleAttributeChanged: %s changed to %f"), *AttributeTag.ToString(), NewValue);
+	if (AttributeTag == FOrbGameGameplayTags::Get().Attribute_Health)
 	{
-		Destroy();
-	}else{
-		UE_LOG(LogTemp, Warning, TEXT("Enemy Health: %f"), HealthComponent->GetHealth());
+		OnHealthChangedHandler(NewValue);
 	}
-
-	return OldTakeDamage;
+	else if (AttributeTag == FOrbGameGameplayTags::Get().Attribute_Speed)
+	{
+		OnSpeedChangedHandler(NewValue);
+	}
 }
 
 void AEnemy::OnHealthChangedHandler(float NewHealth)
@@ -130,4 +93,3 @@ void AEnemy::OnHealthChangedHandler(float NewHealth)
 		Destroy();
 	}
 }
-
