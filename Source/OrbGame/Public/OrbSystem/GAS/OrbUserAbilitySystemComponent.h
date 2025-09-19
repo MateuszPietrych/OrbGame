@@ -21,12 +21,24 @@ public:
 
 	void InitalizeOrbSystemElements(class UOrbManager* OrbManager);
 
-private:
+	void SpawnOrbIfPossible();
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Orb Set", meta = (AllowPrivateAccess = "true"))
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Orb Set")
 	TArray<FOrbSetSlotStartInfo> OrbSetSlotStartInfos;
+
+protected:
+	virtual void BeginPlay() override;
+
+private:
 
 	FItemSet<FGameplayTag> OrbsSet = FItemSet<FGameplayTag>();
 
 	UOrbManager* OrbManager = nullptr;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = OrbLevelData, meta = (AllowPrivateAccess = "true"))
+	float TimeBetweenSpawn = 4.0f;
+
+	FTimerHandle SpawnOrbTimerHandle;
+
 };

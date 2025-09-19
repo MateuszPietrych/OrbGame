@@ -7,10 +7,11 @@
 #include "Enums.h"
 #include "Structures.h"
 #include "GameplayAbilitySpec.h"
+#include "Interface/PoolObject.h"
 #include "Orb.generated.h"
 
 UCLASS()
-class ORBGAME_API AOrb : public AActor
+class ORBGAME_API AOrb : public AActor, public IPoolObject
 {
 	GENERATED_BODY()
 	
@@ -95,6 +96,11 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void InitOrbAbilities(float OverlapAbilityLevel = 1.0f, float SimpleUseAbilityLevel = 1.0f, float AdvancedUseAbilityLevel = 1.0f);
+
+
+
+	virtual void OnAllocatedFromPool() override;
+	virtual void OnReturnedToPool() override;
 
 protected:
 

@@ -12,6 +12,9 @@
 /**
  * 
  */
+
+class AOrb;
+
 UCLASS()
 class ORBGAME_API UOrbPool : public UObject
 {
@@ -19,11 +22,13 @@ class ORBGAME_API UOrbPool : public UObject
 
 public:
 	
-	TMap<FGameplayTag, Chaos::TObjectPool<class AOrb*>*> OrbPoolByTag;
+	TMap<FGameplayTag, class UOrbGameObjectPool*> OrbPoolByTag;
 
 	AOrb* GetOrbFromPool(FGameplayTag OrbTag);
 
 	void ReturnOrbToPool(AOrb* Orb, FGameplayTag OrbTag);
 
 	void Initialize(FItemSet<FGameplayTag> OrbTags);
+
+	TSubclassOf<AOrb> GetOrbClassByTag(FGameplayTag OrbTag);
 };

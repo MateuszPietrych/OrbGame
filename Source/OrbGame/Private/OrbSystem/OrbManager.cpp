@@ -49,18 +49,36 @@ void UOrbManager::TickComponent(float DeltaTime, ELevelTick TickType, FActorComp
 
 AOrb* UOrbManager::CreateOrb(TSubclassOf<AOrb> OrbClass)
 {
+	// FVector Location = K2_GetComponentToWorld().GetLocation();
+	// FRotator Rotation = K2_GetComponentToWorld().GetRotation().Rotator();
+	// FActorSpawnParameters SpawnInfo = FActorSpawnParameters();
+	// SpawnInfo.Owner = GetOwner();
+
+	AOrb* Orb = GetWorld()->SpawnActor<AOrb>(OrbClass);
+	Orb = SetupOrb(Orb);
+	// Orb->K2_AttachToComponent(this,TEXT(""), EAttachmentRule::SnapToTarget, EAttachmentRule::SnapToTarget, EAttachmentRule::KeepWorld, true);
+
+	return Orb;
+}
+
+AOrb* UOrbManager::SetupOrb(AOrb* Orb)
+{
+	if (!Orb) return nullptr;
+
 	FVector Location = K2_GetComponentToWorld().GetLocation();
 	FRotator Rotation = K2_GetComponentToWorld().GetRotation().Rotator();
-	FActorSpawnParameters SpawnInfo = FActorSpawnParameters();
-	SpawnInfo.Owner = GetOwner();
 
-	AOrb* Orb = GetWorld()->SpawnActor<AOrb>(OrbClass, Location, Rotation, SpawnInfo);
+	Orb->SetActorLocation(Location);
+	Orb->SetActorRotation(Rotation);
+	Orb->SetOwner(GetOwner());
 	Orb->K2_AttachToComponent(this,TEXT(""), EAttachmentRule::SnapToTarget, EAttachmentRule::SnapToTarget, EAttachmentRule::KeepWorld, true);
 
 	return Orb;
 }
 
-void UOrbManager::AddOrb(){
+
+void UOrbManager::AddOrb(FGameplayTag OrbTag)
+{
 	UE_LOG(LogTemp, Warning, TEXT("AddOrb"));
 
 	for(FOrbLevelData& OrbLevelData : OrbLevelsData)
@@ -72,7 +90,15 @@ void UOrbManager::AddOrb(){
 			
 			FixOrbsOnLevelPosition(OrbLevelData, true, -1);
 			
-			AOrb* Orb = CreateOrb(DefaultOrbClass);
+			// AOrb* Orb = CreateOrb(DefaultOrbClass);
+			AOrb* Orb = OrbPool->GetOrbFromPool(OrbTag);
+			if(!Orb)
+			{
+				UE_LOG(LogTemp, Warning, TEXT("No orb in pool"));
+				return;
+			}
+			Orb = SetupOrb(Orb);
+
 			OrbLevelData.Orbs.Add(Orb);
 			Orb->SetOrbPosition(OrbLevelData.XOffset, OrbLevelData.ZOffset);
 			Orb->SetRotationSpeed(BaseSpeed);

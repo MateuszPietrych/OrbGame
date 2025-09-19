@@ -45,7 +45,10 @@ public:
 	class AOrb* CreateOrb(TSubclassOf<AOrb> OrbClass);
 
 	UFUNCTION(BlueprintCallable)
-	void AddOrb();
+	void AddOrb(FGameplayTag OrbTag);
+
+	UFUNCTION(BlueprintCallable)
+	AOrb* SetupOrb(AOrb* Orb);
 
 	UFUNCTION(BlueprintCallable)
 	void RevertSpeedChanges();
@@ -163,6 +166,7 @@ private:
 	FTimerHandle RevertSpeedTimerHandle;
 	FTimerHandle PrepareOrbToUseTimerHandle;
 	FTimerHandle TransferTimerHandle;
+
 
 	AOrb* OrbToUse = nullptr;
 	bool bOrbToUseIsPrepared = false;

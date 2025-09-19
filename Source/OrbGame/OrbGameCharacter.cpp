@@ -23,7 +23,6 @@
 #include "InputActionValue.h"
 #include "NiagaraComponent.h"
 #include "NiagaraSystem.h"
-#include "AbilitySystemComponent.h"
 #include "OrbSystem/GAS/OrbUserAbilitySystemComponent.h"
 #include "OrbSystem/GAS/OrbGameAttributeSet.h"
 
@@ -96,7 +95,7 @@ AOrbGameCharacter::AOrbGameCharacter()
 	PrimaryActorTick.bCanEverTick = true;
 	PrimaryActorTick.bStartWithTickEnabled = true;
 
-	AbilitySystemComponent = CreateDefaultSubobject<UOrbUserAbilitySystemComponent>("OrbUserAbilitySystemComponent");
+	OrbUserAbilitySystemComponent = CreateDefaultSubobject<UOrbUserAbilitySystemComponent>("OrbUserAbilitySystemComponent");
 	AttributeSet = CreateDefaultSubobject<UOrbGameAttributeSet>("OrbGameAttributeSet");
 }
 
@@ -105,19 +104,24 @@ void AOrbGameCharacter::BeginPlay()
 	Super::BeginPlay();
 	Tags.Add("Player");
 
-	AbilitySystemComponent->InitAbilityActorInfo(this, this);
-	AbilitySystemComponent->InitializeAttributesDelegate(AttributeSet);
-	AbilitySystemComponent->InitalizeOrbSystemElements(OrbManager);
+	if(!OrbUserAbilitySystemComponent)
+	{
+		OrbUserAbilitySystemComponent = CreateDefaultSubobject<UOrbUserAbilitySystemComponent>("OrbUserAbilitySystemComponent");
+	}
 
-	FGameplayEffectContextHandle Context = AbilitySystemComponent->MakeEffectContext();
+	OrbUserAbilitySystemComponent->InitAbilityActorInfo(this, this);
+	OrbUserAbilitySystemComponent->InitializeAttributesDelegate(AttributeSet);
+	OrbUserAbilitySystemComponent->InitalizeOrbSystemElements(OrbManager);
+
+	FGameplayEffectContextHandle Context = OrbUserAbilitySystemComponent->MakeEffectContext();
     Context.AddSourceObject(this); // optional but useful
-	FGameplayEffectSpecHandle SpecHandle = AbilitySystemComponent->MakeOutgoingSpec(GameplayEffectClassToApplyOnStart, /*Level=*/1.f, Context);
+	FGameplayEffectSpecHandle SpecHandle = OrbUserAbilitySystemComponent->MakeOutgoingSpec(GameplayEffectClassToApplyOnStart, /*Level=*/1.f, Context);
 	if (SpecHandle.IsValid())
     {
-        AbilitySystemComponent->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
+        OrbUserAbilitySystemComponent->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
     }
 
-	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(AttributeSet->GetSpeedAttribute()).AddLambda(
+	OrbUserAbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(AttributeSet->GetSpeedAttribute()).AddLambda(
 			[this](const FOnAttributeChangeData& Data)
 			{
 				// UE_LOG(LogTemp, Warning, TEXT("Character speed changed to: %f"), Data.NewValue);
@@ -138,7 +142,7 @@ void AOrbGameCharacter::Tick(float DeltaSeconds)
 
 UAbilitySystemComponent* AOrbGameCharacter::GetAbilitySystemComponent() const
 {
-	return AbilitySystemComponent;
+	return OrbUserAbilitySystemComponent;
 }
 
 

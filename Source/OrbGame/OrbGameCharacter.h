@@ -71,7 +71,7 @@ private:
 	class UOrbManager* OrbManager = nullptr;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Components, meta = (AllowPrivateAccess = "true"))
-	class UOrbUserAbilitySystemComponent* AbilitySystemComponent;
+	class UOrbUserAbilitySystemComponent* OrbUserAbilitySystemComponent;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Components, meta = (AllowPrivateAccess = "true"))
 	class UOrbGameAttributeSet* AttributeSet;

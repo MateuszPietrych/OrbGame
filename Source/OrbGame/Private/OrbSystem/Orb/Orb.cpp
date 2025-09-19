@@ -264,7 +264,7 @@ void AOrb::PrepareToDestroy(float TimeToDestroy)
 {
 	DeactivateLongUsageEffect();
 	HideOrb();
-	SetLifeSpan(TimeToDestroy);	
+	// SetLifeSpan(TimeToDestroy);	
 }
 
 TArray<AActor*> AOrb::GetAllHittedInLongLastingEffect()
@@ -307,5 +307,16 @@ void AOrb::BasicOverlapAction(UPrimitiveComponent *OverlappedComponent,
 	// 	CurrentOrbSimpleUseAbilityInstance->OrbEffectInstance->ApplyEffectToAffectedActors();
 	// 	bWasSimpleActionUsed = true;
 	// }
+}
+
+void AOrb::OnAllocatedFromPool()
+{
+	// Reset orb state
+	SetActorHiddenInGame(false);
+}
+
+void AOrb::OnReturnedToPool()
+{
+	SetActorHiddenInGame(true);
 }
 

@@ -104,10 +104,10 @@ void AOrbGamePlayerController::Move(const FInputActionValue& Value)
 
 void AOrbGamePlayerController::AddOrb()
 {
-	if (OrbGameCharacter)
-	{
-		OrbGameCharacter->GetOrbManager()->AddOrb();
-	}
+	// if (OrbGameCharacter)
+	// {
+	// 	OrbGameCharacter->GetOrbManager()->AddOrb();
+	// }
 }
 
 void AOrbGamePlayerController::SimpleOrbUse()

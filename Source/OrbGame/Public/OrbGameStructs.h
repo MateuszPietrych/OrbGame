@@ -51,6 +51,7 @@ struct FOrbSetSlotStartInfo
 {
 	GENERATED_BODY()
 
+public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Orb Set Slot Start Info")
 	FGameplayTag OrbType;
 
@@ -182,6 +183,28 @@ struct FItemSet
 
 		int TotalItems = GetTotalItems();
 		return TotalItems == ValidQuantity;
+	}
+
+	T DrawRandomItem() const
+	{
+		TMap<T, float> ItemChances;
+
+		for( const FItemSetSlot<T>& Slot : ItemSlots )
+		{
+			ItemChances.Add(Slot.Item, GetChanceToGetItem(Slot.Item));
+		}
+
+		float RandomValue = FMath::RandRange(0.f, 1.f);
+		for (const auto& Pair : ItemChances)
+		{
+			RandomValue -= Pair.Value;
+			if (RandomValue <= 0.f)
+			{
+				return Pair.Key;
+			}
+		}
+
+		return T();
 	}
 
 };
