@@ -10,6 +10,9 @@
 #include "Interface/PoolObject.h"
 #include "Orb.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnOrbEndedUseSignature, AOrb*, Orb);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_SixParams(FOnComponentBeginOverlapSignature, AOrb*, OverlappedOrb, AActor*, OtherActor, UPrimitiveComponent*, OtherComp, int32, OtherBodyIndex, bool, bFromSweep, const FHitResult&, SweepResult);
+
 UCLASS()
 class ORBGAME_API AOrb : public AActor, public IPoolObject
 {
@@ -97,10 +100,24 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void InitOrbAbilities(float OverlapAbilityLevel = 1.0f, float SimpleUseAbilityLevel = 1.0f, float AdvancedUseAbilityLevel = 1.0f);
 
+	void OrbEndedUse();
 
+	virtual void OnAllocatedFromPool_Implementation() override;
+	virtual void OnReturnedToPool_Implementation() override;
 
-	virtual void OnAllocatedFromPool() override;
-	virtual void OnReturnedToPool() override;
+	UPROPERTY (BlueprintAssignable, Category="Orb")  
+	FOnOrbEndedUseSignature OnOrbEndedUse;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = OrbData, meta = (AllowPrivateAccess = "true"))
+	FGameplayTag OrbGameplayTag;
+	
+	FGameplayTag GetOrbTag() const { return OrbGameplayTag; }
+
+	UPROPERTY ()  
+	FOnComponentBeginOverlapSignature OnOrbBeginOverlap;
+
+	UFUNCTION(BlueprintCallable)
+	FGameplayAbilitySpec GetGameplayAbilitySpecByType(EOrbAbilityType AbilityType);
 
 protected:
 
@@ -159,8 +176,8 @@ protected:
 	FTimerHandle LongUseTickTimerHandle;
 	bool bIsLongUseActive = false;
 
-	UPROPERTY (BlueprintAssignable, Category="Collision")  
-	FComponentBeginOverlapSignature OnComponentBeginOverlap;
+
+
 
 
 };

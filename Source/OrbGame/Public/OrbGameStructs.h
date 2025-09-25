@@ -23,16 +23,16 @@ struct FDamageEffectParams
 	TSubclassOf<UGameplayEffect> DamageGameplayEffectClass = nullptr;
 
 	UPROPERTY(BlueprintReadWrite)
-	TObjectPtr<UAbilitySystemComponent> SourceAbilitySystemComponent;
+	TObjectPtr<UAbilitySystemComponent> SourceAbilitySystemComponent = nullptr;
 
 	UPROPERTY(BlueprintReadWrite)
-	TObjectPtr<UAbilitySystemComponent> TargetAbilitySystemComponent;
+	TObjectPtr<UAbilitySystemComponent> TargetAbilitySystemComponent = nullptr;
 
 	UPROPERTY(BlueprintReadWrite)
 	TObjectPtr<class UGameplayAbility> DamageGameplayAbilityInstance = nullptr;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	FScalableFloat Damage;
+	FScalableFloat Damage = 0.f;
 
 	UPROPERTY(BlueprintReadWrite)
 	float BaseDamage = 0.f;
@@ -53,7 +53,7 @@ struct FOrbSetSlotStartInfo
 
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Orb Set Slot Start Info")
-	FGameplayTag OrbType;
+	FGameplayTag OrbType = FGameplayTag::EmptyTag;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Orb Set Slot Start Info")
 	int32 Quantity = 1;	

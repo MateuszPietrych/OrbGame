@@ -114,9 +114,7 @@ void AOrbGamePlayerController::SimpleOrbUse()
 {
 	if (OrbGameCharacter && OrbGameCharacter->GetOrbManager()->IsOrbPrepared() && !bLongEffectInUse)
 	{
-		FVector Direction = FVector(1.0f, 0.0f, 0.0f);
-		Direction = CachedRotation.RotateVector(Direction);
-		OrbGameCharacter->GetOrbManager()->SimpleOrbUse(Direction);
+		OrbGameCharacter->GetOrbManager()->SimpleOrbUse(this);
 	}
 }
 

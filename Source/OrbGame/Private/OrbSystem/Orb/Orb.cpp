@@ -30,6 +30,7 @@ AOrb::AOrb()
 	RootComponent = BaseSceneComponent;
 
 	RotatingSphere = CreateDefaultSubobject<USphereComponent>(TEXT("SphereComponent"));
+	RotatingSphere->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
 	RotatingSphere->SetupAttachment(RootComponent);
 
 	OrbMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("StaticMeshComponent"));
@@ -66,7 +67,7 @@ void AOrb::InitOrbAbilities(float OverlapAbilityLevel, float SimpleUseAbilityLev
 {
 	// CurrentOrbOverlapAbilityInstance = NewObject<UOrbGameGameplayAbility>(this, OrbData->OrbOverlapGameplayAbility);
 	// CurrentOrbOverlapAbilityInstance->SetActorInfo(GetOwner(), GetOwner());
-	OverlapAbilitySpec = FGameplayAbilitySpec(CurrentOrbOverlapAbilityInstance, OverlapAbilityLevel, static_cast<int32>(INDEX_NONE), this);
+	OverlapAbilitySpec = FGameplayAbilitySpec(OrbData->OrbOverlapGameplayAbility, OverlapAbilityLevel, static_cast<int32>(INDEX_NONE), this);
 
 	// CurrentOrbSimpleUseAbilityInstance = NewObject<UOrbGameGameplayAbility>(this, OrbData->OrbSimpleUseGameplayAbility);
 	// TSubclassOf<UGameplayAbility> SimpleUseAbilityClass = OrbData->OrbSimpleUseGameplayAbility;
@@ -77,7 +78,7 @@ void AOrb::InitOrbAbilities(float OverlapAbilityLevel, float SimpleUseAbilityLev
 
 	// CurrentOrbAdvancedUseAbilityInstance = NewObject<UOrbGameGameplayAbility>(this, OrbData->OrbAdvancedUseGameplayAbility);
 	// CurrentOrbAdvancedUseAbilityInstance->SetActorInfo(GetOwner(), GetOwner());
-	AdvancedUseAbilitySpec = FGameplayAbilitySpec(CurrentOrbAdvancedUseAbilityInstance, AdvancedUseAbilityLevel, static_cast<int32>(INDEX_NONE), this);
+	AdvancedUseAbilitySpec = FGameplayAbilitySpec(OrbData->OrbAdvancedUseGameplayAbility, AdvancedUseAbilityLevel, static_cast<int32>(INDEX_NONE), this);
 }
 
 // Called every frame
@@ -89,6 +90,8 @@ void AOrb::Tick(float DeltaTime)
 
 void AOrb::SetRadiusLength(float RadiusLength)
 {
+	if(RotatingSphere==nullptr || OrbMesh==nullptr)
+		return;
 	RotatingSphere->SetSphereRadius(RadiusLength);
 	OrbMesh->SetRelativeLocation(FVector(RadiusLength, 0.0f, 0.0f));
 }
@@ -190,9 +193,9 @@ void AOrb::BeginSphereProjectileOverlap(UPrimitiveComponent* OverlappedComp, AAc
 	if(OtherActor->ActorHasTag("Player") || OtherActor->GetOwner() == this->GetOwner() || OtherActor==this->GetOwner())
 		return;
 
-	UE_LOG(LogTemp, Warning, TEXT("Orb Overlapped with %s"), *OtherActor->GetName());
+	UE_LOG(LogTemp, Warning, TEXT("Component %s from Orb overlapped with actor %s and component %s"), *OverlappedComp->GetName(), *OtherActor->GetName(), *OtherComp->GetName());
 	ActivateEffect();
-	SetLifeSpan(1.0f);
+	// SetLifeSpan(1.0f);
 	ProjectileMovement->Velocity = FVector::ZeroVector;
 
 	UE_LOG(LogTemp, Warning, TEXT("bUseSimpleActionImmediately: %s, bWasSimpleActionUsed: %s"), OrbData->bUseSimpleActionImmediately ? TEXT("true") : TEXT("false"), bWasSimpleActionUsed ? TEXT("true") : TEXT("false"));
@@ -263,7 +266,8 @@ void AOrb::HideOrb()
 void AOrb::PrepareToDestroy(float TimeToDestroy)
 {
 	DeactivateLongUsageEffect();
-	HideOrb();
+	OrbEndedUse();
+	// HideOrb();
 	// SetLifeSpan(TimeToDestroy);	
 }
 
@@ -290,6 +294,26 @@ void AOrb::BasicOverlapAction(UPrimitiveComponent *OverlappedComponent,
     bool bFromSweep,
     const FHitResult &SweepResult)
 {
+
+	OnOrbBeginOverlap.Broadcast(this, OtherActor, OtherComp, OtherBodyIndex, bFromSweep, SweepResult);
+	// UAbilitySystemComponent* ASC = OrbUseContext.SourceAbilitySystemComponent;
+	// ensure(ASC); // will log if null
+
+	// TArray<UGameplayAbility*> OverlapAbilityInstances = OverlapAbilitySpec.GetAbilityInstances();
+	// for(UGameplayAbility* Ability : OverlapAbilityInstances)
+	// {
+	// 	UOrbGameGameplayAbility* OrbGameAbility = Cast<UOrbGameGameplayAbility>(Ability);
+	// 	if(OrbGameAbility)
+	// 	{
+	// 		OrbGameAbility->OrbUseContext = OrbUseContext;
+	// 	}
+	// }
+	// FGameplayEventData TriggerEventData = FGameplayEventData();
+	// TriggerEventData.Instigator = Cast<APawn>(GetOwner());
+
+	// ASC->GiveAbilityAndActivateOnce(OverlapAbilitySpec, &TriggerEventData);
+
+
 	// UE_LOG(LogTemp, Warning, TEXT("Orb Overlapped with %s"), *OtherActor->GetName());
 	// if(OrbData == nullptr || CurrentOrbOverlapAbilityInstance == nullptr || CurrentOrbOverlapAbilityInstance->OrbEffectInstance == nullptr)
 	// {
@@ -309,14 +333,39 @@ void AOrb::BasicOverlapAction(UPrimitiveComponent *OverlappedComponent,
 	// }
 }
 
-void AOrb::OnAllocatedFromPool()
+void AOrb::OnAllocatedFromPool_Implementation()
 {
 	// Reset orb state
 	SetActorHiddenInGame(false);
+	BaseNiagaraComponent->SetAsset(OrbData->BaseNiagaraSystemClass);
+	BaseNiagaraComponent->ActivateSystem();
 }
 
-void AOrb::OnReturnedToPool()
+void AOrb::OnReturnedToPool_Implementation()
 {
 	SetActorHiddenInGame(true);
+	BaseNiagaraComponent->DeactivateImmediate();
+	LongUseNiagaraComponent->DeactivateImmediate();
 }
 
+
+void AOrb::OrbEndedUse()
+{
+	OnOrbEndedUse.Broadcast(this);
+}
+
+
+FGameplayAbilitySpec AOrb::GetGameplayAbilitySpecByType(EOrbAbilityType AbilityType)
+{
+	switch(AbilityType)
+	{
+		case EOrbAbilityType::OVERLAP:
+			return OverlapAbilitySpec;
+		case EOrbAbilityType::SIMPLE_USE:
+			return SimpleUseAbilitySpec;
+		case EOrbAbilityType::ADVANCED_USE:
+			return AdvancedUseAbilitySpec;
+		default:
+			return FGameplayAbilitySpec();
+	}
+}

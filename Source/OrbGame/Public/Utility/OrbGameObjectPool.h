@@ -1,32 +1,40 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
 #pragma once
 
 #include "CoreMinimal.h"
 #include "Interface/PoolObject.h"
 #include "OrbGameObjectPool.generated.h"
 
+class AActor;
+
 /**
  * Object pool for reusable game objects.
  */
-class AActor;
-UCLASS()
-class ORBGAME_API UOrbGameObjectPool: public UObject
+UCLASS(BlueprintType)
+class ORBGAME_API UOrbGameObjectPool : public UObject
 {
+    GENERATED_BODY()
+
 public:
+    UPROPERTY()
+    TArray<TScriptInterface<IPoolObject>> InUseObjects;
 
-	GENERATED_BODY()
+    UPROPERTY()
+    TArray<TScriptInterface<IPoolObject>> PooledObjects;
 
-	TArray<IPoolObject*> InUseObjects;
-	TArray<IPoolObject*> PooledObjects;
+    UFUNCTION(BlueprintCallable, Category="Pooling")
+    void Initialize(TSubclassOf<AActor> NewActorClass, UObject* NewWorldContextObject);
 
-	void Initialize(TSubclassOf<AActor> NewActorClass, UObject* NewWorldContextObject);
-	IPoolObject* AcquireObject();
-	void ReleaseObject(IPoolObject* Object);
+    UFUNCTION(BlueprintCallable, Category="Pooling")
+    TScriptInterface<IPoolObject> AcquireObject();
+
+    // NOTE: take TScriptInterface, not IPoolObject*
+    UFUNCTION(BlueprintCallable, Category="Pooling")
+    void ReleaseObject(const TScriptInterface<IPoolObject>& Object);
 
 private:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pooling", meta = (AllowPrivateAccess = "true"))
-	TSubclassOf<AActor> ActorClass;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Pooling", meta=(AllowPrivateAccess="true"))
+    TSubclassOf<AActor> ActorClass;
 
-	UObject* WorldContextObject;
+    UPROPERTY() // keep it referenced for GC
+    UObject* WorldContextObject = nullptr;
 };

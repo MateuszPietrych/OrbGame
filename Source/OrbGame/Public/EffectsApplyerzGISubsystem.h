@@ -24,6 +24,7 @@ public:
     virtual void Deinitialize() override;
 
 	// void HandleEffectApply(AActor* HitActor, class UOrbEffectActionConfig* EffectConfig);
+	UFUNCTION()
 	void HandleDamageDealt(AActor* Target, float Damage);
 
 	// UPROPERTY(BlueprintAssignable, Category = "Effects")

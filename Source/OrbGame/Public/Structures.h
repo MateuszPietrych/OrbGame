@@ -11,16 +11,16 @@ struct FOrbLevelData
 	GENERATED_BODY()
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Orb Level Data")
-	int NumberOfOrbs;
+	int NumberOfOrbs = 3;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Orb Level Data")
-	float ZOffset;
+	float ZOffset = 0.0f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Orb Level Data")
-	float XOffset;
+	float XOffset = 100.0f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Orb Level Data")
-	TArray<class AOrb*> Orbs;
+	TArray<class AOrb*> Orbs = {};
 };
 
 USTRUCT(BlueprintType)
@@ -29,15 +29,15 @@ struct FTransferOrbData
 	GENERATED_BODY()
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Transfer Orb Data")
-	int FromLevel;
+	int FromLevel = 0;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Transfer Orb Data")
-	int ToLevel;
+	int ToLevel = 0;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Transfer Orb Data")
-	int OrbIndex;
+	int OrbIndex = 0;
 
-	class AOrb* Orb;
+	class AOrb* Orb = nullptr;
 };
 
 USTRUCT(BlueprintType)
@@ -46,10 +46,10 @@ struct FBasicOrbData
 	GENERATED_BODY()
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Transfer Orb Data")
-	int Level;
+	int Level = 1;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Transfer Orb Data")
-	int OrbIndex;
+	int OrbIndex = 0;
 
 	class AOrb* Orb;
 };
@@ -61,13 +61,13 @@ struct FOrbEffectData
 	GENERATED_BODY()
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Orb Effect Data")
-	TMap<OrbEffectsFloatParams, float> FloatParams;
+	TMap<OrbEffectsFloatParams, float> FloatParams = {};
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Orb Effect Data")
-	TMap<OrbEffectsVectorParams, FVector> VectorParams;
+	TMap<OrbEffectsVectorParams, FVector> VectorParams = {};
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Orb Effect Data")
-	TMap<OrbEffectsBoolParams, bool> BoolParams;
+	TMap<OrbEffectsBoolParams, bool> BoolParams = {};
 };
 
 
@@ -77,16 +77,26 @@ struct FOrbUseContext
 	GENERATED_BODY()
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Orb Transform Context")
-	FVector Direction;
+	FVector Direction = FVector::ZeroVector;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Orb GameplayAbilitySystem Context")
 	class UAbilitySystemComponent* SourceAbilitySystemComponent = nullptr;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Orb GameplayAbilitySystem Context")
+	class UAbilitySystemComponent* TargetAbilitySystemComponent = nullptr;
+
 
 };
 
+UCLASS(BlueprintType)
+class UOrbUseContextWrapper : public UObject
+{
+	GENERATED_BODY()
 
-
+public:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Orb Use Context")
+	FOrbUseContext OrbUseContext;
+};
 
 
 /////////////////////////////// STATS //////////////////////////////////////
@@ -97,6 +107,15 @@ enum class EUniversalStatType : uint8
 	DAMAGE,
 };
 
+UENUM(BlueprintType)
+enum class EOrbAbilityType : uint8
+{
+	OVERLAP,
+	SIMPLE_USE,
+	ADVANCED_USE
+};
+
+
 
 USTRUCT(BlueprintType)
 struct FStatChanger
@@ -104,10 +123,10 @@ struct FStatChanger
 	GENERATED_BODY()
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stat Changer")
-	float Additive;
+	float Additive = 0.f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stat Changer")
-	float Multiplicative;
+	float Multiplicative = 1.f;
 
 	float Apply(float BaseValue) const
     {
@@ -132,10 +151,10 @@ struct FStat
     float Base = 0.f;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
-    FStatChanger Permanent;
+    FStatChanger Permanent = {};
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
-    FStatChanger Temporary;
+    FStatChanger Temporary = {};
 
     float GetStatValue() const
     {

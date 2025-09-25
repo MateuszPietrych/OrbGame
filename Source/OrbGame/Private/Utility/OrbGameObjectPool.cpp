@@ -1,48 +1,79 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
-
 #include "Utility/OrbGameObjectPool.h"
 #include "Engine/World.h"
 #include "GameFramework/Actor.h"
-
 
 void UOrbGameObjectPool::Initialize(TSubclassOf<AActor> NewActorClass, UObject* NewWorldContextObject)
 {
     ActorClass = NewActorClass;
     WorldContextObject = NewWorldContextObject;
+
+    PooledObjects.Reset();
+    InUseObjects.Reset();
 }
 
-IPoolObject* UOrbGameObjectPool::AcquireObject()
+TScriptInterface<IPoolObject> UOrbGameObjectPool::AcquireObject()
 {
-    if(PooledObjects.Num() > 0)
+    // 1) Reuse from pool if available
+    if (PooledObjects.Num() > 0)
     {
-        IPoolObject* Obj = PooledObjects.Pop();
+        TScriptInterface<IPoolObject> Obj = PooledObjects.Pop();
         InUseObjects.Add(Obj);
-        Obj->OnAllocatedFromPool();
-        return Obj;
+
+        if (UObject* ObjU = Obj.GetObject())
+        {
+            IPoolObject::Execute_OnAllocatedFromPool(ObjU);
+        }
+        return Obj; // (default-constructible; no need to return nullptr)
     }
 
-    if(!ActorClass) return nullptr;
-    UWorld* World = WorldContextObject->GetWorld();
-    if (!ensure(World)) return nullptr;
+    // 2) Otherwise spawn new
+    if (!ActorClass)
+    {
+        return TScriptInterface<IPoolObject>();
+    }
+
+    UWorld* World =
+        (WorldContextObject ? WorldContextObject->GetWorld() : nullptr);
+    if (!ensure(World))
+    {
+        return TScriptInterface<IPoolObject>();
+    }
 
     AActor* Actor = World->SpawnActor<AActor>(ActorClass);
-    if(Actor && Actor->GetClass()->ImplementsInterface(UPoolObject::StaticClass()))
+    if (!Actor)
     {
-        IPoolObject* Obj = Cast<IPoolObject>(Actor);
-        InUseObjects.Add(Obj);
-        Obj->OnAllocatedFromPool();
-        return Obj;
+        return TScriptInterface<IPoolObject>();
     }
 
-    return nullptr;
+    if (!Actor->GetClass()->ImplementsInterface(UPoolObject::StaticClass()))
+    {
+        // Spawned class doesn't implement the interface – can't pool it
+        return TScriptInterface<IPoolObject>();
+    }
+
+    // Build a TScriptInterface from the actor
+    TScriptInterface<IPoolObject> NewIface;
+    NewIface.SetObject(Actor);
+    NewIface.SetInterface(Cast<IPoolObject>(Actor)); // may be null for BP-only; Execute_ calls still work using UObject*
+
+    InUseObjects.Add(NewIface);
+
+    // Use Execute_ to work with C++ or Blueprint implementations
+    IPoolObject::Execute_OnAllocatedFromPool(Actor);
+
+    return NewIface;
 }
 
-void UOrbGameObjectPool::ReleaseObject(IPoolObject* Object)
+void UOrbGameObjectPool::ReleaseObject(const TScriptInterface<IPoolObject>& Object)
 {
-    if (Object)
+    if (!Object.GetObject())
     {
-        PooledObjects.Add(Object);
-        Object->OnReturnedToPool();
+        return;
     }
+
+    // Move from InUse -> Pooled (optional: actually remove from InUse)
+    InUseObjects.Remove(Object);
+    PooledObjects.Add(Object);
+
+    IPoolObject::Execute_OnReturnedToPool(Object.GetObject());
 }

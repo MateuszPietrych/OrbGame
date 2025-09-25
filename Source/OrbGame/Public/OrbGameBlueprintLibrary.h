@@ -34,4 +34,7 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "OrbGame|Utility")
 	static AOrbGameGameMode* GetOrbGameGameMode(class UObject* ContextObject);
+
+	UFUNCTION(BlueprintCallable, Category = "OrbGame|Utility")
+	static FGameplayTag MakeChildTag(const FGameplayTag& Parent, FName Leaf);
 };

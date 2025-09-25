@@ -4,6 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "OrbSystem/GAS/OrbGameAbilitySystemComponent.h"
+#include "Structures.h"
+#include "OrbGameStructs.h"
 #include "OrbUserAbilitySystemComponent.generated.h"
 
 /**
@@ -30,7 +32,12 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
+	UFUNCTION()
+	void UseAbility(class AOrb* Orb, FOrbUseContext OrbUseContext, FGameplayTag AbilityTag);
+
 private:
+	UFUNCTION()
+	EOrbAbilityType GetOrbAbilityTypeFromTag(FGameplayTag OrbTag) const;
 
 	FItemSet<FGameplayTag> OrbsSet = FItemSet<FGameplayTag>();
 

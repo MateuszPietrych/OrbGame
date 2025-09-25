@@ -22,11 +22,12 @@ class ORBGAME_API UOrbPool : public UObject
 
 public:
 	
+	UPROPERTY()
 	TMap<FGameplayTag, class UOrbGameObjectPool*> OrbPoolByTag;
 
 	AOrb* GetOrbFromPool(FGameplayTag OrbTag);
 
-	void ReturnOrbToPool(AOrb* Orb, FGameplayTag OrbTag);
+	void ReturnOrbToPool(AOrb* Orb);
 
 	void Initialize(FItemSet<FGameplayTag> OrbTags);
 

@@ -10,12 +10,14 @@
 
 AOrb* UOrbPool::GetOrbFromPool(FGameplayTag OrbTag)
 {
+    if(!OrbTag.IsValid()) return nullptr;
     if(OrbPoolByTag.Contains(OrbTag))
     {
-        IPoolObject* PooledObj = OrbPoolByTag[OrbTag]->AcquireObject();
-        if(PooledObj)
+        TScriptInterface<IPoolObject> PooledObj = OrbPoolByTag[OrbTag]->AcquireObject();
+        IPoolObject* PooledObjPointer = PooledObj.GetInterface();
+        if(PooledObjPointer)
         {
-            AOrb* Orb = Cast<AOrb>(PooledObj);
+            AOrb* Orb = Cast<AOrb>(PooledObjPointer);
             if(Orb)
             {
                 return Orb;
@@ -37,13 +39,19 @@ void UOrbPool::Initialize(FItemSet<FGameplayTag> OrbTags)
 	}
 }
 
-void UOrbPool::ReturnOrbToPool(AOrb* Orb, FGameplayTag OrbTag)
+void UOrbPool::ReturnOrbToPool(AOrb* Orb)
 {
+    if(!Orb) return;
+    FGameplayTag OrbTag = Orb->GetOrbTag();
     if(Orb && OrbTag.IsValid() && OrbPoolByTag.Contains(OrbTag))
     {
         IPoolObject* PoolObject = Cast<IPoolObject>(Orb);
         if(!PoolObject) return;
-        OrbPoolByTag[OrbTag]->ReleaseObject(PoolObject);
+
+        TScriptInterface<IPoolObject> PoolObjectIface;
+        PoolObjectIface.SetObject(Orb);
+        PoolObjectIface.SetInterface(PoolObject);
+        OrbPoolByTag[OrbTag]->ReleaseObject(PoolObjectIface);
     }
 }
 

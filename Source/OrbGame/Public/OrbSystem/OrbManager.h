@@ -12,7 +12,7 @@
 #include "Delegates/DelegateCombinations.h"
 #include "OrbManager.generated.h"
 
-
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnOrbAbilityStartSignature, AOrb*, Orb, FOrbUseContext, OrbUseContext, FGameplayTag, AbilityTag);
 
 
 UCLASS(Blueprintable, ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
@@ -63,13 +63,16 @@ public:
 	void ChangeOrbPosition();
 
 	UFUNCTION(BlueprintCallable)
-	float CalculateNewRotationSpeed(int OrbIndex, int AmountOfOrbsBefore, int AmountOfOrbsAfter, int IndexOfRemovedOrb = -1);
+	float CalculateNewRotationSpeed(float FirstOrbYaw, float OrbYaw, int OrbIndex, int AmountOfOrbsBefore, int AmountOfOrbsAfter, int IndexOfRemovedOrb = -1);
 
 	UFUNCTION(BlueprintCallable)
 	void FixOrbsPosition(bool IsAddingOrb, int IndexOfRemovedOrb, AOrb* RemovedOrb);
 
 	UFUNCTION(BlueprintCallable)
-	void FixOrbsOnLevelPosition(FOrbLevelData& OrbLevelData,bool IsAddingOrb, int IndexOfRemovedOrb);
+	void FixOrbsOnLevelPosition(FOrbLevelData& OrbLevelData, int AmountOfOrbsBefore, int AmountOfOrbsAfter, bool IsAddingOrb, int IndexOfRemovedOrb = -1);
+
+	UFUNCTION(BlueprintCallable)
+	void FixOrbsOnChangeQuantity(FOrbLevelData& OrbLevelData, bool IsAddingOrb, int IndexOfRemovedOrb);
 
 	UFUNCTION(BlueprintCallable)
 	void TransferOrbToAnotherLevel();
@@ -87,7 +90,7 @@ public:
 	void UnprepareFirstLevel();
 
 	UFUNCTION(BlueprintCallable)
-	void SimpleOrbUse(FVector Direction);
+	void SimpleOrbUse(APlayerController* PlayerController);
 
 	UFUNCTION(BlueprintCallable)
 	void SetNewZOffset(float Z);
@@ -124,9 +127,21 @@ public:
 
 	void InitializeOrbPools(FItemSet<FGameplayTag> OrbTags);
 
-	
+	UFUNCTION()
+	void OnOrbEndedUse(AOrb* Orb);
+
+	UFUNCTION(BlueprintCallable)
+	FOrbUseContext MakeOrbUseContext(AOrb* Orb);
+
+	UPROPERTY(BlueprintAssignable, Category="Orb")
+	FOnOrbAbilityStartSignature OnOrbAbilityStart;
 
 private:
+
+	UFUNCTION()
+	void OnOrbBeginOverlap(AOrb* OverlappedOrb, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
+	UPROPERTY()
 	class UOrbPool* OrbPool = nullptr;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = OrbLevelData, meta = (AllowPrivateAccess = "true"))

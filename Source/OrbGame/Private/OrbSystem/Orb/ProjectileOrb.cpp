@@ -8,13 +8,13 @@
 void AProjectileOrb::SimpleOrbUse(FOrbUseContext OrbUseContext)
 {
     Super::SimpleOrbUse(OrbUseContext);
-	RotatingSphere->SetCollisionProfileName(TEXT("OverlapAllDynamic"));
-	RotatingSphere->SetGenerateOverlapEvents(true);
-	RotatingSphere->OnComponentBeginOverlap.AddDynamic(this, &AOrb::BeginSphereProjectileOverlap);
-	RotatingSphere->SetSphereRadius(BaseProjectileSphereRadius);
+	// RotatingSphere->SetCollisionProfileName(TEXT("OverlapAllDynamic"));
+	// RotatingSphere->SetGenerateOverlapEvents(true);
+	// RotatingSphere->OnComponentBeginOverlap.AddDynamic(this, &AOrb::BeginSphereProjectileOverlap);
+	// RotatingSphere->SetSphereRadius(BaseProjectileSphereRadius);
 	
-	FVector Direction = FVector(OrbUseContext.Direction.X, OrbUseContext.Direction.Y, 0.0f);
-	ProjectileMovement->Velocity = Direction * BaseProjectileSpeed;
+	// FVector Direction = FVector(OrbUseContext.Direction.X, OrbUseContext.Direction.Y, 0.0f);
+	// ProjectileMovement->Velocity = Direction * BaseProjectileSpeed;
 
 	UE_LOG(LogTemp, Warning, TEXT("Firing Orb as Projectile"));
 	if(GetOwner())

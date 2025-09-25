@@ -13,6 +13,7 @@
 #include "OrbGame/OrbGamePlayerController.h"
 #include "GameFramework/Character.h"
 #include "OrbGame/OrbGameGameMode.h"
+#include "GameplayTagsManager.h"
 
 void UOrbGameBlueprintLibrary::DealDamage(const FDamageEffectParams& DamageParams)
 {
@@ -97,7 +98,17 @@ AOrbGameGameMode* UOrbGameBlueprintLibrary::GetOrbGameGameMode(UObject* ContextO
     return Cast<AOrbGameGameMode>(World->GetAuthGameMode());
 }
 
+FGameplayTag UOrbGameBlueprintLibrary::MakeChildTag(const FGameplayTag& Parent, FName Leaf)
+{
+    if (!Parent.IsValid()) return FGameplayTag();
 
+    FString Full = Parent.ToString();
+    if (!Full.IsEmpty()) { Full += TEXT("."); }
+    Full += Leaf.ToString();
+
+    // false = don't ensure if it's missing; check validity instead
+    return UGameplayTagsManager::Get().RequestGameplayTag(FName(*Full), /*ErrorIfNotFound=*/false);
+}
 
 // void UOrbGameBlueprintLibrary::CauseDamage(AActor* TargetActor, UGameplayAbility* SourceAbility, FDamageEffectParams DamageParams)
 // {
