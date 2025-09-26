@@ -75,15 +75,20 @@ void UOrbUserAbilitySystemComponent::UseAbility(AOrb* Orb, FOrbUseContext OrbUse
 
 EOrbAbilityType UOrbUserAbilitySystemComponent::GetOrbAbilityTypeFromTag(FGameplayTag OrbTag) const
 {
-    if(OrbTag.MatchesTagExact(UOrbGameBlueprintLibrary::MakeChildTag(OrbTag, TEXT("Overlap"))))
+    FGameplayTag ParentTag = OrbTag.RequestDirectParent();
+    FGameplayTag OverlapTag = UOrbGameBlueprintLibrary::MakeChildTag(ParentTag, TEXT("Overlap"));
+    FGameplayTag SimpleUseTag = UOrbGameBlueprintLibrary::MakeChildTag(ParentTag, TEXT("SimpleUse"));
+    FGameplayTag AdvancedUseTag = UOrbGameBlueprintLibrary::MakeChildTag(ParentTag, TEXT("AdvancedUse"));
+
+    if(OrbTag.MatchesTag(OverlapTag))
     {
         return EOrbAbilityType::OVERLAP;
     }
-    else if(OrbTag.MatchesTagExact(UOrbGameBlueprintLibrary::MakeChildTag(OrbTag, TEXT("SimpleUse"))))
+    else if(OrbTag.MatchesTag(SimpleUseTag))
     {
         return EOrbAbilityType::SIMPLE_USE;
     }
-    else if(OrbTag.MatchesTagExact(UOrbGameBlueprintLibrary::MakeChildTag(OrbTag, TEXT("AdvancedUse"))))
+    else if(OrbTag.MatchesTag(AdvancedUseTag))
     {
         return EOrbAbilityType::ADVANCED_USE;
     }

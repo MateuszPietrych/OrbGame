@@ -99,6 +99,9 @@ public:
 };
 
 
+
+
+
 /////////////////////////////// STATS //////////////////////////////////////
 
 UENUM(BlueprintType)
@@ -114,6 +117,21 @@ enum class EOrbAbilityType : uint8
 	SIMPLE_USE,
 	ADVANCED_USE
 };
+
+UENUM(BlueprintType)
+enum class EOrbSystemState : uint8
+{
+	FREE_HAND,
+	PREPARING_ORB,
+	ORB_PREPARED,
+	PREPARING_ADVANCED_USE,
+	ADVANCED_USE_IN_PROGRESS,
+	UNPREPARING_ADVANCED_USE
+};
+
+
+/////////////////////////////// STATS //////////////////////////////////////
+
 
 
 

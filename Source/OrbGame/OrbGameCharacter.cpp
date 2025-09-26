@@ -211,6 +211,16 @@ void AOrbGameCharacter::OnCharacterSpeedChanged(float NewValue)
 	GetCharacterMovement()->MaxWalkSpeed = NewValue;
 }
 
+FRotator AOrbGameCharacter::LookAtOrb(AOrb* Orb)
+{
+	FVector PlayerLocation = GetActorLocation();
+	FVector HittedOrbPointFixed = Orb->GetOrbWorldLocation();
+	FRotator NewCharacterRotation = UKismetMathLibrary::FindLookAtRotation(PlayerLocation, HittedOrbPointFixed);
+	SetActorRotation(NewCharacterRotation);
+	
+	return NewCharacterRotation;
+}
+
 // void AOrbGameCharacter::MoveToLocation(FVector StartLocation, FVector EndLocation, float Duration)
 // {
 //     float ElapsedTime = 0.0f;

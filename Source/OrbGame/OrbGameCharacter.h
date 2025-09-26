@@ -49,6 +49,9 @@ public:
 	UFUNCTION() 
 	void OnCharacterSpeedChanged(float NewValue);
 
+	UFUNCTION()
+	FRotator LookAtOrb(AOrb* Orb);
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = GAS)
 	TSubclassOf<class UGameplayEffect> GameplayEffectClassToApplyOnStart;
 

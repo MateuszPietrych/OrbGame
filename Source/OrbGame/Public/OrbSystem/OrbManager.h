@@ -13,6 +13,7 @@
 #include "OrbManager.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnOrbAbilityStartSignature, AOrb*, Orb, FOrbUseContext, OrbUseContext, FGameplayTag, AbilityTag);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_FourParams(FOnOrbSystemStateChangedSignature, EOrbSystemState, NewState, EOrbSystemState, OldState, AOrb*, PreparedOrb, AOrb*, AdvancedUseOrb);
 
 
 UCLASS(Blueprintable, ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
@@ -84,6 +85,9 @@ public:
 	void PrepareFirstLevelToUse();
 
 	UFUNCTION(BlueprintCallable)
+	void PrepareAdvancedUse(AOrb* NewFollowOrb);
+
+	UFUNCTION(BlueprintCallable)
 	bool IsFirstLevelPreparing();
 
 	UFUNCTION(BlueprintCallable)
@@ -91,6 +95,9 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void SimpleOrbUse(APlayerController* PlayerController);
+
+	UFUNCTION(BlueprintCallable)
+	void AdvancedOrbUse(APlayerController* PlayerController);
 
 	UFUNCTION(BlueprintCallable)
 	void SetNewZOffset(float Z);
@@ -136,10 +143,19 @@ public:
 	UPROPERTY(BlueprintAssignable, Category="Orb")
 	FOnOrbAbilityStartSignature OnOrbAbilityStart;
 
+	UPROPERTY(BlueprintAssignable, Category="Orb")
+	FOnOrbSystemStateChangedSignature OnOrbSystemStateChanged;
+
+	UFUNCTION(BlueprintCallable)
+	EOrbSystemState GetCurrentOrbSystemState() const { return CurrentOrbSystemState; }
+
 private:
 
 	UFUNCTION()
 	void OnOrbBeginOverlap(AOrb* OverlappedOrb, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
+	UFUNCTION()
+	void ChangeOrbState(EOrbSystemState NewState);
 
 	UPROPERTY()
 	class UOrbPool* OrbPool = nullptr;
@@ -177,13 +193,19 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = CatchOrb, meta = (AllowPrivateAccess = "true"))
 	float DistanceFromComponentToStartOfRay = 100.0f;
 
+	UPROPERTY()
+	EOrbSystemState CurrentOrbSystemState = EOrbSystemState::FREE_HAND;
 
 	FTimerHandle RevertSpeedTimerHandle;
 	FTimerHandle PrepareOrbToUseTimerHandle;
 	FTimerHandle TransferTimerHandle;
 
-
+	UPROPERTY()
 	AOrb* OrbToUse = nullptr;
+
+	UPROPERTY()
+	AOrb* FollowOrb = nullptr;
+
 	bool bOrbToUseIsPrepared = false;
 	FVector FinishPoint;
 	FVector OldLocation;

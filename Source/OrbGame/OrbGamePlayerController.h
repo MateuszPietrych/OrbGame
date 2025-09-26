@@ -6,12 +6,14 @@
 #include "Templates/SubclassOf.h"
 #include "GameFramework/PlayerController.h"
 #include "InputActionValue.h"
+#include "Structures.h"
 #include "OrbGamePlayerController.generated.h"
 
 /** Forward declaration to improve compiling times */
 class UNiagaraSystem;
 class UInputMappingContext;
 class UInputAction;
+class AOrb;
 
 DECLARE_LOG_CATEGORY_EXTERN(LogTemplateCharacter, Log, All);
 
@@ -79,6 +81,10 @@ protected:
 	void Move(const FInputActionValue& Value);
 	void SimpleOrbUse();
 	void StopLongUseEffect();
+
+	UFUNCTION()
+	void ChooseActionByOrbSystemChanged(EOrbSystemState NewState, EOrbSystemState OldState, AOrb* PreparedOrb, AOrb* AdvancedUseOrb);
+	
 
 private:
 	FVector CachedDestination;

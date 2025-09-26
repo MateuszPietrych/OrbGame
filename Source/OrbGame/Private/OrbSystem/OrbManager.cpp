@@ -293,6 +293,8 @@ AOrb* UOrbManager::CatchOrbFromFirstLevel(FVector DirectionPoint, FVector NewFin
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Not HittedOrb"));
 	}
+
+
  	/* 
 	TRACE TO FIND THE CLOSEST ORB
 
@@ -320,6 +322,8 @@ void UOrbManager::PrepareOrbToUse(AOrb* HittedOrb, FVector NewFinishPoint)
 {
 	if(HittedOrb)
 	{
+		ChangeOrbState(EOrbSystemState::PREPARING_ORB);
+
 		UE_LOG(LogTemp, Warning, TEXT("HittedOrb"));
 		OrbToUse = HittedOrb;
 		FinishPoint = NewFinishPoint;
@@ -365,6 +369,7 @@ void UOrbManager::ChangeOrbPosition()
 		TimerManager.ClearTimer(PrepareOrbToUseTimerHandle);
 		TimeInReposition = 0.0f;
 		bOrbToUseIsPrepared = true;
+		ChangeOrbState(EOrbSystemState::ORB_PREPARED);
 		OnFinishOrbPreparationEvent.Broadcast(OrbToUse);
 	}
 	
@@ -407,7 +412,14 @@ void UOrbManager::PrepareFirstLevelToUse()
 
 	UE_LOG(LogTemp, Warning, TEXT("PrepareFirstLevelToUse"));
 	bIsPreparingFirstLevel = true;
+	ChangeOrbState(EOrbSystemState::PREPARING_ADVANCED_USE);
 	GetWorld()->GetTimerManager().SetTimer(PrepareOrbToUseTimerHandle, this, &UOrbManager::ChangeFirstLevelPosition, 0.01f, true);
+}
+
+void UOrbManager::PrepareAdvancedUse(AOrb* NewFollowOrb)
+{
+	FollowOrb = NewFollowOrb;
+	PrepareFirstLevelToUse();
 }
 
 bool UOrbManager::IsFirstLevelPreparing()
@@ -417,12 +429,15 @@ bool UOrbManager::IsFirstLevelPreparing()
 
 void UOrbManager::UnprepareFirstLevel()
 {
-	if(OrbLevelsData.Num() == 0 || GetWorld()->GetTimerManager().IsTimerActive(PrepareOrbToUseTimerHandle))
-	{
-		return;
-	}
+	// if(OrbLevelsData.Num() == 0 || GetWorld()->GetTimerManager().IsTimerActive(PrepareOrbToUseTimerHandle))
+	// {
+	// 	return;
+	// }
 
 	bIsPreparingFirstLevel = false;
+	ChangeOrbState(EOrbSystemState::UNPREPARING_ADVANCED_USE);
+	GetWorld()->GetTimerManager().ClearTimer(PrepareOrbToUseTimerHandle);
+	TimeInReposition = 0.0f;
 	GetWorld()->GetTimerManager().SetTimer(PrepareOrbToUseTimerHandle, this, &UOrbManager::ChangeFirstLevelPosition, 0.01f, true);
 }
 
@@ -469,7 +484,16 @@ void UOrbManager::ChangeFirstLevelPosition()
 	{
 		TimerManager.ClearTimer(PrepareOrbToUseTimerHandle);
 		TimeInReposition = 0.0f;
-		bIsFirstLevelPrepared = !bIsFirstLevelPrepared;
+
+		if(CurrentOrbSystemState == EOrbSystemState::UNPREPARING_ADVANCED_USE)
+		{
+			bIsFirstLevelPrepared = false;
+			ChangeOrbState(EOrbSystemState::FREE_HAND);
+		}else
+		{
+			bIsFirstLevelPrepared = true;
+			ChangeOrbState(EOrbSystemState::ADVANCED_USE_IN_PROGRESS);
+		}
 		bIsPreparingFirstLevel = false;
 	}
 }
@@ -481,12 +505,27 @@ void UOrbManager::SimpleOrbUse(APlayerController* PlayerController)
 	{
 		FOrbUseContext OrbUseContext = FOrbUseContext();
 		OrbUseContext.Direction = UOrbGameBlueprintLibrary::FromPlayerToMouseDirection(PlayerController);
-		OrbUseContext.SourceAbilitySystemComponent = Cast<UAbilitySystemComponent>(PlayerController->GetComponentByClass(UAbilitySystemComponent::StaticClass()));
+		OrbUseContext.SourceAbilitySystemComponent = Cast<UAbilitySystemComponent>(PlayerController->GetCharacter()->GetComponentByClass(UAbilitySystemComponent::StaticClass()));
 
-		OrbToUse->SimpleOrbUse(OrbUseContext);
+		OnOrbAbilityStart.Broadcast(OrbToUse, OrbUseContext, UOrbGameBlueprintLibrary::MakeChildTag(OrbToUse->GetOrbTag(), TEXT("SimpleUse")));
+		// OrbToUse->SimpleOrbUse(OrbUseContext);
 		OrbPool->ReturnOrbToPool(OrbToUse);
 		OrbToUse = nullptr;
 		bOrbToUseIsPrepared = false;
+		ChangeOrbState(EOrbSystemState::FREE_HAND);
+	}
+}
+
+void UOrbManager::AdvancedOrbUse(APlayerController* PlayerController)
+{
+	if(FollowOrb)
+	{
+		FollowOrb->ActivateLongUsageEffect();
+		FOrbUseContext OrbUseContext = FOrbUseContext();
+		OrbUseContext.Direction = UOrbGameBlueprintLibrary::FromPlayerToMouseDirection(PlayerController);
+		OrbUseContext.SourceAbilitySystemComponent = Cast<UAbilitySystemComponent>(PlayerController->GetCharacter()->GetComponentByClass(UAbilitySystemComponent::StaticClass()));
+
+		OnOrbAbilityStart.Broadcast(FollowOrb, OrbUseContext, UOrbGameBlueprintLibrary::MakeChildTag(FollowOrb->GetOrbTag(), TEXT("AdvancedUse")));
 	}
 }
 
@@ -588,4 +627,13 @@ FOrbUseContext UOrbManager::MakeOrbUseContext(AOrb* Orb)
 		Context.SourceAbilitySystemComponent = Cast<UAbilitySystemComponent>(OwnerCharacter->GetComponentByClass(UAbilitySystemComponent::StaticClass()));
 	}
 	return Context;
+}
+
+void UOrbManager::ChangeOrbState(EOrbSystemState NewState)
+{
+	EOrbSystemState OldState = CurrentOrbSystemState;
+	CurrentOrbSystemState = NewState;
+	FString StateString = "Orb system state changed!   New:" + UEnum::GetValueAsString(NewState);
+	GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, *StateString);
+	OnOrbSystemStateChanged.Broadcast(NewState, OldState, OrbToUse, FollowOrb);
 }

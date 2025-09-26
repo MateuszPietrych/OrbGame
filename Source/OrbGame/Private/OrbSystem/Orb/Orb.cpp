@@ -114,13 +114,6 @@ void AOrb::SetOrbRotation(float Rotation)
 	FRotator FixedRotation = FRotator(0.0f, Rotation, 0.0f);
 	BaseSceneComponent->SetRelativeRotation(FixedRotation); 
 	LongUseNiagaraComponent->SetRelativeRotation(FixedRotation);
-
-	//TODO - kick it out to subclass
-	FVector WindSpeed = FixedRotation.Vector();
-	WindSpeed.Normalize();
-	WindSpeed *= 200.0f;
-
-	LongUseNiagaraComponent->SetVariableVec3(FName("Wind Speed"), WindSpeed);
 }
 
 void AOrb::SetRotationSpeed(float Speed)
@@ -147,6 +140,7 @@ void AOrb::SimpleOrbUse(FOrbUseContext OrbUseContext)
 	// Grant (must be on the server!)
 	UAbilitySystemComponent* ASC = OrbUseContext.SourceAbilitySystemComponent;
 	ensure(ASC); // will log if null
+	if(!ASC) return;
 
 	// CurrentOrbSimpleUseAbilityInstance->OrbUseContext = OrbUseContext;
 	// SimpleUseAbilitySpec = FGameplayAbilitySpec(CurrentOrbSimpleUseAbilityInstance, SimpleUseAbilitySpec.Level, static_cast<int32>(INDEX_NONE), this);

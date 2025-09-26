@@ -29,25 +29,25 @@ void AFireOrb::LongUseTickEffect()
 {   
     Super::LongUseTickEffect();
 
-    FVector Direction = GetActorForwardVector();
-    Direction.Normalize();
-    FVector StartLocation = GetOrbWorldLocation();
+    // FVector Direction = GetActorForwardVector();
+    // Direction.Normalize();
+    // FVector StartLocation = GetOrbWorldLocation();
 
-    UE_LOG(LogTemp, Warning, TEXT("LineEffect Start Location: %s"), *StartLocation.ToString());
-    UE_LOG(LogTemp, Warning, TEXT("LineEffect Direction: %s"), *Direction.ToString());
-    UE_LOG(LogTemp, Warning, TEXT("LineEffect Instance 1: %s"), *LineEffectInstance->GetName());
+    // UE_LOG(LogTemp, Warning, TEXT("LineEffect Start Location: %s"), *StartLocation.ToString());
+    // UE_LOG(LogTemp, Warning, TEXT("LineEffect Direction: %s"), *Direction.ToString());
+    // UE_LOG(LogTemp, Warning, TEXT("LineEffect Instance 1: %s"), *LineEffectInstance->GetName());
 
-	SetBaseParamsForOrbEffect(LineEffectInstance);
+	// SetBaseParamsForOrbEffect(LineEffectInstance);
 
-    UE_LOG(LogTemp, Warning, TEXT("LineEffect Instance 2: %s"), *LineEffectInstance->GetName());
+    // UE_LOG(LogTemp, Warning, TEXT("LineEffect Instance 2: %s"), *LineEffectInstance->GetName());
 
-    if(LineOrbEffect == nullptr)
-    {
-        UE_LOG(LogTemp, Warning, TEXT("LineEffect is null"));
-        return;
-    }
+    // if(LineOrbEffect == nullptr)
+    // {
+    //     UE_LOG(LogTemp, Warning, TEXT("LineEffect is null"));
+    //     return;
+    // }
 
-    LineEffectInstance->ApplyEffectToAffectedActors();
+    // LineEffectInstance->ApplyEffectToAffectedActors();
     // TArray<AActor*> AffectedActors = LineEffectInstance->GetActorsAffected(OrbEffectsData[0]);
     // for(AActor* HitActor : AffectedActors)
     // {
