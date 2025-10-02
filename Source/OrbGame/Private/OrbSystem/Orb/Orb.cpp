@@ -65,19 +65,10 @@ void AOrb::BeginPlay()
 
 void AOrb::InitOrbAbilities(float OverlapAbilityLevel, float SimpleUseAbilityLevel, float AdvancedUseAbilityLevel)
 {
-	// CurrentOrbOverlapAbilityInstance = NewObject<UOrbGameGameplayAbility>(this, OrbData->OrbOverlapGameplayAbility);
-	// CurrentOrbOverlapAbilityInstance->SetActorInfo(GetOwner(), GetOwner());
 	OverlapAbilitySpec = FGameplayAbilitySpec(OrbData->OrbOverlapGameplayAbility, OverlapAbilityLevel, static_cast<int32>(INDEX_NONE), this);
-
-	// CurrentOrbSimpleUseAbilityInstance = NewObject<UOrbGameGameplayAbility>(this, OrbData->OrbSimpleUseGameplayAbility);
-	// TSubclassOf<UGameplayAbility> SimpleUseAbilityClass = OrbData->OrbSimpleUseGameplayAbility;
-	// SimpleUseAbilitySpec = FGameplayAbilitySpec(SimpleUseAbilityClass, SimpleUseAbilityLevel, static_cast<int32>(INDEX_NONE), this);
-	// CurrentOrbSimpleUseAbilityInstance->SetActorInfo(GetOwner(), GetOwner());
 
 	SimpleUseAbilitySpec = FGameplayAbilitySpec(OrbData->OrbSimpleUseGameplayAbility, SimpleUseAbilityLevel, static_cast<int32>(INDEX_NONE), this);
 
-	// CurrentOrbAdvancedUseAbilityInstance = NewObject<UOrbGameGameplayAbility>(this, OrbData->OrbAdvancedUseGameplayAbility);
-	// CurrentOrbAdvancedUseAbilityInstance->SetActorInfo(GetOwner(), GetOwner());
 	AdvancedUseAbilitySpec = FGameplayAbilitySpec(OrbData->OrbAdvancedUseGameplayAbility, AdvancedUseAbilityLevel, static_cast<int32>(INDEX_NONE), this);
 }
 
@@ -290,41 +281,6 @@ void AOrb::BasicOverlapAction(UPrimitiveComponent *OverlappedComponent,
 {
 
 	OnOrbBeginOverlap.Broadcast(this, OtherActor, OtherComp, OtherBodyIndex, bFromSweep, SweepResult);
-	// UAbilitySystemComponent* ASC = OrbUseContext.SourceAbilitySystemComponent;
-	// ensure(ASC); // will log if null
-
-	// TArray<UGameplayAbility*> OverlapAbilityInstances = OverlapAbilitySpec.GetAbilityInstances();
-	// for(UGameplayAbility* Ability : OverlapAbilityInstances)
-	// {
-	// 	UOrbGameGameplayAbility* OrbGameAbility = Cast<UOrbGameGameplayAbility>(Ability);
-	// 	if(OrbGameAbility)
-	// 	{
-	// 		OrbGameAbility->OrbUseContext = OrbUseContext;
-	// 	}
-	// }
-	// FGameplayEventData TriggerEventData = FGameplayEventData();
-	// TriggerEventData.Instigator = Cast<APawn>(GetOwner());
-
-	// ASC->GiveAbilityAndActivateOnce(OverlapAbilitySpec, &TriggerEventData);
-
-
-	// UE_LOG(LogTemp, Warning, TEXT("Orb Overlapped with %s"), *OtherActor->GetName());
-	// if(OrbData == nullptr || CurrentOrbOverlapAbilityInstance == nullptr || CurrentOrbOverlapAbilityInstance->OrbEffectInstance == nullptr)
-	// {
-	// 	UE_LOG(LogTemp, Warning, TEXT("OrbData or OrbOverlapGameplayAbility or OrbEffectInstance is null"));
-	// 	return;
-	// }
-
-	// SetBaseParamsForOrbEffect(CurrentOrbSimpleUseAbilityInstance->OrbEffectInstance);
-	
-	// CurrentOrbOverlapAbilityInstance->OrbEffectInstance->ApplyEffect(OtherActor);
-	// if(OrbData->bUseSimpleActionImmediately && !bWasSimpleActionUsed)
-	// {
-	// 	// Immediately apply the simple use effect
-	// 	SetBaseParamsForOrbEffect(CurrentOrbSimpleUseAbilityInstance->OrbEffectInstance);
-	// 	CurrentOrbSimpleUseAbilityInstance->OrbEffectInstance->ApplyEffectToAffectedActors();
-	// 	bWasSimpleActionUsed = true;
-	// }
 }
 
 void AOrb::OnAllocatedFromPool_Implementation()
@@ -361,5 +317,21 @@ FGameplayAbilitySpec AOrb::GetGameplayAbilitySpecByType(EOrbAbilityType AbilityT
 			return AdvancedUseAbilitySpec;
 		default:
 			return FGameplayAbilitySpec();
+	}
+}
+
+
+TSubclassOf<class UOrbGameGameplayAbility> AOrb::GetGameplayAbilityClassByType(EOrbAbilityType AbilityType)
+{
+	switch(AbilityType)
+	{
+		case EOrbAbilityType::OVERLAP:
+			return OrbData->OrbOverlapGameplayAbility;
+		case EOrbAbilityType::SIMPLE_USE:
+			return OrbData->OrbSimpleUseGameplayAbility;
+		case EOrbAbilityType::ADVANCED_USE:
+			return OrbData->OrbAdvancedUseGameplayAbility;
+		default:
+			return nullptr;
 	}
 }

@@ -119,6 +119,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 	FGameplayAbilitySpec GetGameplayAbilitySpecByType(EOrbAbilityType AbilityType);
 
+	UFUNCTION(BlueprintCallable)
+	TSubclassOf<class UOrbGameGameplayAbility> GetGameplayAbilityClassByType(EOrbAbilityType AbilityType);
+
 protected:
 
 	UFUNCTION(BlueprintCallable)

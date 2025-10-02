@@ -109,17 +109,27 @@ void AOrbGamePlayerController::Move(const FInputActionValue& Value)
 
 void AOrbGamePlayerController::AddOrb()
 {
-	// if (OrbGameCharacter)
-	// {
-	// 	OrbGameCharacter->GetOrbManager()->AddOrb();
-	// }
+	
 }
 
 void AOrbGamePlayerController::SimpleOrbUse()
 {
-	if (OrbGameCharacter && OrbGameCharacter->GetOrbManager()->IsOrbPrepared() && !bLongEffectInUse)
+	if(OrbGameCharacter)
 	{
-		OrbGameCharacter->GetOrbManager()->SimpleOrbUse(this);
+		UOrbManager* OrbManager = OrbGameCharacter->GetOrbManager();
+		if (OrbManager == nullptr)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("AOrbGamePlayerController->SimpleOrbUse - No OrbManager"));
+			return;
+		}
+
+		if (OrbGameCharacter && OrbManager->IsOrbPrepared() && !bLongEffectInUse)
+		{
+			OrbManager->SimpleOrbUse(this);
+		}
+	}else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("AOrbGamePlayerController->SimpleOrbUse - No OrbGameCharacter"));
 	}
 }
 
@@ -128,6 +138,13 @@ void AOrbGamePlayerController::OnInputStarted()
 {
 	StopMovement();
 	UOrbManager* PlayerOrbManager = OrbGameCharacter->GetOrbManager();
+
+	if(PlayerOrbManager == nullptr)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("AOrbGamePlayerController->OnInputStarted - No PlayerOrbManager"));
+		return;
+	}
+
 	if(!PlayerOrbManager->IsOrbPrepared())
 	{
 		FVector SpawnSpellPoint = OrbGameCharacter->GetLocationOfSpellSocket();

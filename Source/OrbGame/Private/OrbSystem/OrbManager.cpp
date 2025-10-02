@@ -51,14 +51,8 @@ void UOrbManager::TickComponent(float DeltaTime, ELevelTick TickType, FActorComp
 
 AOrb* UOrbManager::CreateOrb(TSubclassOf<AOrb> OrbClass)
 {
-	// FVector Location = K2_GetComponentToWorld().GetLocation();
-	// FRotator Rotation = K2_GetComponentToWorld().GetRotation().Rotator();
-	// FActorSpawnParameters SpawnInfo = FActorSpawnParameters();
-	// SpawnInfo.Owner = GetOwner();
-
 	AOrb* Orb = GetWorld()->SpawnActor<AOrb>(OrbClass);
 	Orb = SetupOrb(Orb);
-	// Orb->K2_AttachToComponent(this,TEXT(""), EAttachmentRule::SnapToTarget, EAttachmentRule::SnapToTarget, EAttachmentRule::KeepWorld, true);
 
 	return Orb;
 }
@@ -92,7 +86,6 @@ void UOrbManager::AddOrb(FGameplayTag OrbTag)
 
 			FixOrbsOnLevelPosition(OrbLevelData, AmountOfOrbsBefore, AmountOfOrbsAfter, true, -1);
 
-			// AOrb* Orb = CreateOrb(DefaultOrbClass);
 			AOrb* Orb = OrbPool->GetOrbFromPool(OrbTag);
 			if(!Orb)
 			{
@@ -125,36 +118,13 @@ void UOrbManager::AddOrb(FGameplayTag OrbTag)
 float UOrbManager::CalculateNewRotationSpeed(float FirstOrbYaw, float OrbYaw, int OrbIndex, int AmountOfOrbsBefore, int AmountOfOrbsAfter, int IndexOfRemovedOrb)
 {
 	float CurrentOrbRotationDeviationToFirst = OrbYaw >= FirstOrbYaw? OrbYaw - FirstOrbYaw : 360.0f - (FirstOrbYaw - OrbYaw);
-	// float TargetOrbRotation = FirstOrbYaw + (360.0f / AmountOfOrbsAfter) * OrbIndex;
 
 	float NewSpeed;
 	float Angle = (360.0f / AmountOfOrbsAfter) * OrbIndex;
 	float Distance = CurrentOrbRotationDeviationToFirst - Angle;
 	float DistanceChecked = Distance < 180.0f ? Distance : Distance - 360.0f;
 	NewSpeed = BaseSpeed - (DistanceChecked / RepositionTime);
-	/*
-	if(AmountOfOrbsBefore < AmountOfOrbsAfter)
-	{
-		// float OldAngle = (360.0f / AmountOfOrbsBefore) * OrbIndex;
-		float Angle = (360.0f / AmountOfOrbsAfter) * OrbIndex;
-		float Distance = CurrentOrbRotationDeviationToFirst - Angle;
-		float DistanceChecked = Distance < 180.0f ? Distance : Distance - 360.0f;
-		NewSpeed = BaseSpeed - (DistanceChecked / RepositionTime);
-	}else
-	{
-		// float OldAngle;
-		// if(IndexOfRemovedOrb != -1 && OrbIndex >= IndexOfRemovedOrb)
-		// {
-		// 	OldAngle = (360.0f / AmountOfOrbsBefore) * (OrbIndex + 1);
-		// }else
-		// {
-		// 	OldAngle = (360.0f / AmountOfOrbsBefore) * OrbIndex;
-		// }
-		float Angle = (360.0f / AmountOfOrbsAfter) * OrbIndex;
-		float Distance = CurrentOrbRotationDeviationToFirst - Angle;
 
-		NewSpeed = BaseSpeed - (Distance / RepositionTime);
-	}*/
 	return NewSpeed;
 }
 
@@ -192,19 +162,7 @@ void UOrbManager::FixOrbsPosition(bool IsAddingOrb, int IndexOfRemovedOrb, AOrb*
 			OrbLevelData.Orbs.RemoveAt(OrbIndex);
 			OrbLevelsData[i-1].Orbs.Insert(OrbToDown, IndexOfRemovedOrb);
 			
-			// set the new rotation speed
-			// float RemovedOrbYaw = RemovedOrb->GetCurrentOrbRotationDeviation();
-			// float OrbToDownYaw = OrbToDown->GetCurrentOrbRotationDeviation();
-			// // float Distance = RemovedOrbYaw >= OrbToDownYaw ? RemovedOrbYaw - OrbToDownYaw : 360.0f - (OrbToDownYaw - RemovedOrbYaw);
-			// float Distance = RemovedOrbYaw - OrbToDownYaw;
-			// float NewSpeed = BaseSpeed +  (Distance / RepositionTime);
-			// // 360.0f - (RemovedOrbYaw - OrbToDownYaw);
-			// // float FirstOrbOnLevelDownYaw = OrbLevelsData[i-1].Orbs[0]->GetCurrentOrbRotationDeviation();
-			// // float Distance = FirstOrbOnLevelDownYaw >= OrbToDown->GetCurrentOrbRotationDeviation()?  FirstOrbOnLevelDownYaw - OrbToDown->GetCurrentOrbRotationDeviation() : 360.0f - (OrbToDown->GetCurrentOrbRotationDeviation() - FirstOrbOnLevelDownYaw);
-			// // float NewSpeed = BaseSpeed + (Distance / RepositionTime);
-			// OrbToDown->SetRotationSpeed(NewSpeed);
 			FixOrbsOnLevelPosition(OrbLevelsData[i-1], OrbLevelsData[i-1].Orbs.Num(), OrbLevelsData[i-1].Orbs.Num(), false);
-
 
 			// fix the orbs position on level and prapre orb to transfer
 			bool IsLast = i == OrbLevelsData.Num() - 1;
@@ -362,8 +320,6 @@ void UOrbManager::ChangeOrbPosition()
 	OrbToUse->SetRotationSpeed(FMath::Lerp(BaseSpeed, 0.0f, Alpha));
 	OrbToUse->SetActorLocation(FMath::Lerp(OldLocation, FinishPoint, Alpha));
 
-	// UE_LOG(LogTemp, Warning, TEXT("ChangeOrbPosition %f"), Alpha);
-
 	if(Alpha >= 1)
 	{
 		TimerManager.ClearTimer(PrepareOrbToUseTimerHandle);
@@ -392,7 +348,6 @@ void UOrbManager::TransferOrbToAnotherLevel()
 	{	
 		TransferOrbData.Orb->SetRadiusLength(FMath::Lerp(OrbLevelsData[TransferOrbData.FromLevel].XOffset, OrbLevelsData[TransferOrbData.ToLevel].XOffset, Alpha));
 		TransferOrbData.Orb->SetHeight(FMath::Lerp(OrbLevelsData[TransferOrbData.FromLevel].ZOffset, OrbLevelsData[TransferOrbData.ToLevel].ZOffset, Alpha));
-		// UE_LOG(LogTemp, Warning, TEXT("TransferOrbToAnotherLevel %f"), Alpha);
 	}
 
 	if(Alpha >= 1)
@@ -429,11 +384,6 @@ bool UOrbManager::IsFirstLevelPreparing()
 
 void UOrbManager::UnprepareFirstLevel()
 {
-	// if(OrbLevelsData.Num() == 0 || GetWorld()->GetTimerManager().IsTimerActive(PrepareOrbToUseTimerHandle))
-	// {
-	// 	return;
-	// }
-
 	bIsPreparingFirstLevel = false;
 	ChangeOrbState(EOrbSystemState::UNPREPARING_ADVANCED_USE);
 	GetWorld()->GetTimerManager().ClearTimer(PrepareOrbToUseTimerHandle);
@@ -508,7 +458,6 @@ void UOrbManager::SimpleOrbUse(APlayerController* PlayerController)
 		OrbUseContext.SourceAbilitySystemComponent = Cast<UAbilitySystemComponent>(PlayerController->GetCharacter()->GetComponentByClass(UAbilitySystemComponent::StaticClass()));
 
 		OnOrbAbilityStart.Broadcast(OrbToUse, OrbUseContext, UOrbGameBlueprintLibrary::MakeChildTag(OrbToUse->GetOrbTag(), TEXT("SimpleUse")));
-		// OrbToUse->SimpleOrbUse(OrbUseContext);
 		OrbPool->ReturnOrbToPool(OrbToUse);
 		OrbToUse = nullptr;
 		bOrbToUseIsPrepared = false;

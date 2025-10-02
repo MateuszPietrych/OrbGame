@@ -25,6 +25,15 @@ public:
 
 	void SpawnOrbIfPossible();
 
+	UFUNCTION()
+	void GainExp(float NewExp);
+
+	UFUNCTION()
+	float ModifyExpGain(float NewExp);
+
+	UFUNCTION()
+	void LevelUp(int NewLevel);
+
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Orb Set")
 	TArray<FOrbSetSlotStartInfo> OrbSetSlotStartInfos;
@@ -41,11 +50,24 @@ private:
 
 	FItemSet<FGameplayTag> OrbsSet = FItemSet<FGameplayTag>();
 
+	UPROPERTY()
+	TMap<FGameplayTag, int32> AbilitiesLevel = TMap<FGameplayTag, int32>();
+
 	UOrbManager* OrbManager = nullptr;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = OrbLevelData, meta = (AllowPrivateAccess = "true"))
 	float TimeBetweenSpawn = 4.0f;
 
 	FTimerHandle SpawnOrbTimerHandle;
+
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = OrbLevelData, meta = (AllowPrivateAccess = "true"))
+	FScalableFloat ExpThreshold = 0.0f;
+
+	UPROPERTY()
+	int Level = 1;
+
+	UPROPERTY()
+	float CurrentExp = 0.0f;
 
 };

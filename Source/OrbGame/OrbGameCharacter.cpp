@@ -130,6 +130,8 @@ void AOrbGameCharacter::BeginPlay()
 		);
 	OnSpeedChanged.AddDynamic(this, &AOrbGameCharacter::OnCharacterSpeedChanged);
 	OnSpeedChanged.Broadcast(AttributeSet->GetSpeed());
+
+	OnExpChanged.AddDynamic(this, &AOrbGameCharacter::OnCharacterExpChanged);
 }
  
 void AOrbGameCharacter::Tick(float DeltaSeconds)
@@ -219,6 +221,11 @@ FRotator AOrbGameCharacter::LookAtOrb(AOrb* Orb)
 	SetActorRotation(NewCharacterRotation);
 	
 	return NewCharacterRotation;
+}
+
+void AOrbGameCharacter::OnCharacterExpChanged(float NewExpValue)
+{
+	OrbUserAbilitySystemComponent->GainExp(NewExpValue);
 }
 
 // void AOrbGameCharacter::MoveToLocation(FVector StartLocation, FVector EndLocation, float Duration)

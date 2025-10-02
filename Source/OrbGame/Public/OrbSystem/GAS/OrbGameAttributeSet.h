@@ -65,7 +65,7 @@ public:
 	FGameplayAttributeData ExpModifier;
 	ATTRIBUTE_ACCESSORS(UOrbGameAttributeSet, ExpModifier);
 
-	UPROPERTY(BlueprintReadOnly, Category = "Attributes")
+	UPROPERTY(BlueprintReadOnly, Category = "Incoming Attributes")
 	FGameplayAttributeData IncomingDamage;
 	ATTRIBUTE_ACCESSORS(UOrbGameAttributeSet, IncomingDamage);
 

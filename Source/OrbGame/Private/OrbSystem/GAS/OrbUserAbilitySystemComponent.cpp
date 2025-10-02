@@ -12,7 +12,8 @@
 #include "OrbGameBlueprintLibrary.h"
 #include "GameplayAbilitySpec.h"
 #include "GameFramework/Character.h"
-
+#include "GameplayTagsManager.h"
+#include "OrbSystem/GAS/OrbGameAttributeSet.h"
 
 UOrbUserAbilitySystemComponent::UOrbUserAbilitySystemComponent()
 {
@@ -25,6 +26,11 @@ void UOrbUserAbilitySystemComponent::BeginPlay()
     for(const FOrbSetSlotStartInfo& Info : OrbSetSlotStartInfos)
     {
         OrbsSet.AddItem(Info.OrbType, Info.Quantity, Info.Cost);
+        FGameplayTagContainer OrbTypeAbilitiesTags = UGameplayTagsManager::Get().RequestGameplayTagChildren(Info.OrbType);
+        for(const FGameplayTag& AbilityTag : OrbTypeAbilitiesTags)
+        {
+            AbilitiesLevel.Add(AbilityTag, 1);
+        }
     }
 
     GetWorld()->GetTimerManager().SetTimer(SpawnOrbTimerHandle, this, &UOrbUserAbilitySystemComponent::SpawnOrbIfPossible, TimeBetweenSpawn, true);
@@ -49,7 +55,10 @@ void UOrbUserAbilitySystemComponent::SpawnOrbIfPossible()
 void UOrbUserAbilitySystemComponent::UseAbility(AOrb* Orb, FOrbUseContext OrbUseContext, FGameplayTag AbilityTag)
 {
     EOrbAbilityType AbilityType = GetOrbAbilityTypeFromTag(AbilityTag);
-    FGameplayAbilitySpec AbilitySpec = Orb->GetGameplayAbilitySpecByType(AbilityType);
+    int32 AbilityLevel = AbilitiesLevel.Contains(AbilityTag) ? AbilitiesLevel[AbilityTag] : 1;
+    UE_LOG(LogTemp, Warning, TEXT("Using Ability %s of level %d"), *AbilityTag.ToString(), AbilityLevel);
+    FGameplayAbilitySpec AbilitySpec = FGameplayAbilitySpec(Orb->GetGameplayAbilityClassByType(AbilityType), AbilityLevel, static_cast<int32>(INDEX_NONE), Orb);
+    // FGameplayAbilitySpec AbilitySpec = Orb->GetGameplayAbilitySpecByType(AbilityType);
     UE_LOG(LogTemp, Warning, TEXT("Using Ability AAbilitySystemComponent from Orb"));
 
     UAbilitySystemComponent* ASC = OrbUseContext.SourceAbilitySystemComponent;
@@ -93,4 +102,33 @@ EOrbAbilityType UOrbUserAbilitySystemComponent::GetOrbAbilityTypeFromTag(FGamepl
         return EOrbAbilityType::ADVANCED_USE;
     }
     return EOrbAbilityType::OVERLAP;
+}
+
+
+void UOrbUserAbilitySystemComponent::GainExp(float GainExp)
+{
+    float NewExp = ModifyExpGain(GainExp);
+    if(NewExp <= 0.0f)
+    {
+        UE_LOG(LogTemp, Warning, TEXT("GainExp called with non-positive value: %f"), NewExp);
+        return;
+    }
+
+    CurrentExp += NewExp;
+    if(CurrentExp >= ExpThreshold.GetValueAtLevel(Level+1))
+    {
+        LevelUp(Level + 1);
+    }
+}
+
+float UOrbUserAbilitySystemComponent::ModifyExpGain(float NewExp)
+{
+    return NewExp * (1.0f + GetNumericAttribute(UOrbGameAttributeSet::GetExpModifierAttribute()) / 100.0f);
+}
+
+
+void UOrbUserAbilitySystemComponent::LevelUp(int NewLevel)
+{
+    Level = NewLevel;
+    CurrentExp = 0.0f;
 }

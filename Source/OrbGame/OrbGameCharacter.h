@@ -9,6 +9,7 @@
 #include "OrbGameCharacter.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnAttributeChangedSignature, float, NewValue);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnExpChangedSignature, float, NewExpValue);
 
 UCLASS(Blueprintable)
 class AOrbGameCharacter : public ACharacter, public IAbilitySystemInterface
@@ -46,8 +47,6 @@ public:
 
 	void SetNiagaraRayRotation(AOrb* FollowOrb);
 
-	UFUNCTION() 
-	void OnCharacterSpeedChanged(float NewValue);
 
 	UFUNCTION()
 	FRotator LookAtOrb(AOrb* Orb);
@@ -56,6 +55,13 @@ public:
 	TSubclassOf<class UGameplayEffect> GameplayEffectClassToApplyOnStart;
 
 private:
+
+	UFUNCTION() 
+	void OnCharacterSpeedChanged(float NewValue);
+
+	UFUNCTION() 
+	void OnCharacterExpChanged(float NewExpValue);
+
 	/** Top down camera */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	class UCameraComponent* TopDownCameraComponent;
@@ -102,6 +108,9 @@ private:
 
 	UPROPERTY(BlueprintAssignable)
 	FOnAttributeChangedSignature OnSpeedChanged;
+
+	UPROPERTY(BlueprintAssignable)
+	FOnExpChangedSignature OnExpChanged;
 
 	
 
