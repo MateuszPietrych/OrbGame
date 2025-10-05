@@ -47,6 +47,13 @@ public:
 
 	void SetNiagaraRayRotation(AOrb* FollowOrb);
 
+	UFUNCTION()
+	void ExpHolderInteraction(UPrimitiveComponent *OverlappedComponent,
+		AActor *OtherActor,
+		UPrimitiveComponent *OtherComp,
+		int32 OtherBodyIndex,
+		bool bFromSweep,
+		const FHitResult &SweepResult);
 
 	UFUNCTION()
 	FRotator LookAtOrb(AOrb* Orb);
@@ -87,6 +94,9 @@ private:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Components, meta = (AllowPrivateAccess = "true"))
 	class USphereComponent* RotatingSphereForArrow;	
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Components, meta = (AllowPrivateAccess = "true"))
+	class USphereComponent* ExpSphere;	
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Components, meta = (AllowPrivateAccess = "true"))
 	class UStaticMeshComponent* ArrowDirectionMesh;	

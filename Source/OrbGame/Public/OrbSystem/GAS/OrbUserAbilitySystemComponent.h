@@ -8,6 +8,8 @@
 #include "OrbGameStructs.h"
 #include "OrbUserAbilitySystemComponent.generated.h"
 
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnLevelUpSignature, int, NewLevel);
 /**
  * 
  */
@@ -33,6 +35,10 @@ public:
 
 	UFUNCTION()
 	void LevelUp(int NewLevel);
+
+
+	UFUNCTION()
+	TArray<FGameplayTag> DrawAbilities();
 
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Orb Set")
@@ -69,5 +75,12 @@ private:
 
 	UPROPERTY()
 	float CurrentExp = 0.0f;
+
+	UPROPERTY()
+	int NumberOfAbilitiesToDraw = 3;
+
+public:
+	UPROPERTY(BlueprintAssignable)
+	FOnLevelUpSignature OnLevelUp;
 
 };

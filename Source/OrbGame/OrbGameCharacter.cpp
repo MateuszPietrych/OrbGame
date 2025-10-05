@@ -25,6 +25,7 @@
 #include "NiagaraSystem.h"
 #include "OrbSystem/GAS/OrbUserAbilitySystemComponent.h"
 #include "OrbSystem/GAS/OrbGameAttributeSet.h"
+#include "Actor/ExpHolderObject.h"
 
 
 
@@ -73,6 +74,10 @@ AOrbGameCharacter::AOrbGameCharacter()
 	// Create a rotating sphere for arrow...
 	RotatingSphereForArrow = CreateDefaultSubobject<USphereComponent>(TEXT("RotatingSphereForArrow"));
 	RotatingSphereForArrow->SetupAttachment(RootComponent);
+
+	// Create an experience sphere...
+	ExpSphere = CreateDefaultSubobject<USphereComponent>(TEXT("ExpSphere"));
+	ExpSphere->SetupAttachment(RootComponent);
 	
 	// Create an arrow direction mesh...
 	ArrowDirectionMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("ArrowDirectionMesh"));
@@ -132,6 +137,8 @@ void AOrbGameCharacter::BeginPlay()
 	OnSpeedChanged.Broadcast(AttributeSet->GetSpeed());
 
 	OnExpChanged.AddDynamic(this, &AOrbGameCharacter::OnCharacterExpChanged);
+
+	ExpSphere->OnComponentBeginOverlap.AddDynamic(this, &AOrbGameCharacter::ExpHolderInteraction);
 }
  
 void AOrbGameCharacter::Tick(float DeltaSeconds)
@@ -226,6 +233,26 @@ FRotator AOrbGameCharacter::LookAtOrb(AOrb* Orb)
 void AOrbGameCharacter::OnCharacterExpChanged(float NewExpValue)
 {
 	OrbUserAbilitySystemComponent->GainExp(NewExpValue);
+}
+
+
+void AOrbGameCharacter::ExpHolderInteraction(UPrimitiveComponent *OverlappedComponent,
+	AActor *OtherActor,
+	UPrimitiveComponent *OtherComp,
+	int32 OtherBodyIndex,
+	bool bFromSweep,
+	const FHitResult &SweepResult)
+{
+	if(OtherActor && (OtherActor != this) && OtherComp)
+	{
+		AExpHolderObject* ExpHolderObject = Cast<AExpHolderObject>(OtherActor);
+		if(ExpHolderObject && ExpHolderObject->IsHoldingExp_Implementation())
+		{
+			float ExpAmount = ExpHolderObject->GetExpAmount_Implementation();
+			OnExpChanged.Broadcast(ExpAmount);
+			ExpHolderObject->Destroy();	
+		}
+	}
 }
 
 // void AOrbGameCharacter::MoveToLocation(FVector StartLocation, FVector EndLocation, float Duration)

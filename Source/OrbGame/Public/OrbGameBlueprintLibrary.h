@@ -37,4 +37,7 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "OrbGame|Utility")
 	static FGameplayTag MakeChildTag(const FGameplayTag& Parent, FName Leaf);
+
+	UFUNCTION(BlueprintCallable, Category = "OrbGame|Utility")
+	static FAbilityInfoForUI GetAbilityInfoForUI(UAbilityDataAsset* AbilityDataAsset, int Level);
 };

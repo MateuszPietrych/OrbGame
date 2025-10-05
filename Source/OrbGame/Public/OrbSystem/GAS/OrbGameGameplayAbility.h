@@ -7,6 +7,8 @@
 #include "Structures.h"
 #include "OrbGameGameplayAbility.generated.h"
 
+class UAbilityDataAsset;
+class UOrbEffectBase;
 /**
  * 
  */
@@ -21,9 +23,14 @@ class ORBGAME_API UOrbGameGameplayAbility : public UGameplayAbility
 
 public:
 	UPROPERTY(EditDefaultsOnly, Category="Gameplay Ability")
-	class UOrbEffectBase* OrbEffectInstance;
+	UOrbEffectBase* OrbEffectInstance;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay Ability")
+	UAbilityDataAsset* AbilityDataAsset;
 
 	void SetActorInfo(AActor* AvatarActor, AActor* OwnerActor);
+
+	UAbilityDataAsset* GetAbilityDataAsset() const;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FOrbUseContext OrbUseContext;

@@ -209,3 +209,53 @@ struct FItemSet
 
 };
 
+
+USTRUCT(BlueprintType)
+struct FAbilityDescriptionWithParams
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Description With Params")
+	FString DescriptionTemplate;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Description With Params")
+	TArray<FScalableFloat> Params;
+
+	FString GetDescriptionAtLevel(int Level) const
+	{
+		TArray<FString> ParamStrings;
+		for (const FScalableFloat& Param : Params)
+		{
+			float Value = Param.GetValueAtLevel(Level);
+			ParamStrings.Add(FString::SanitizeFloat(Value));
+		}
+
+		FString Result = DescriptionTemplate;
+		for (int32 i = 0; i < ParamStrings.Num(); ++i)
+		{
+			FString Placeholder = FString::Printf(TEXT("{%d}"), i);
+			Result = Result.Replace(*Placeholder, *ParamStrings[i]);
+		}
+		return Result;
+	}
+};
+
+
+USTRUCT(BlueprintType)
+struct FAbilityInfoForUI
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ability Info For UI")
+	FText AbilityName;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ability Info For UI")
+	FText Description;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ability Info For UI")
+	FGameplayTag AbilityTag;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ability Info For UI")
+	int AbilityLevel = 1;
+
+};

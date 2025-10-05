@@ -14,6 +14,7 @@
 #include "GameFramework/Character.h"
 #include "OrbGame/OrbGameGameMode.h"
 #include "GameplayTagsManager.h"
+#include "OrbSystem/GAS/AbilityDataAsset.h"
 
 void UOrbGameBlueprintLibrary::DealDamage(const FDamageEffectParams& DamageParams)
 {
@@ -109,6 +110,23 @@ FGameplayTag UOrbGameBlueprintLibrary::MakeChildTag(const FGameplayTag& Parent, 
     // false = don't ensure if it's missing; check validity instead
     return UGameplayTagsManager::Get().RequestGameplayTag(FName(*Full), /*ErrorIfNotFound=*/false);
 }
+
+FAbilityInfoForUI UOrbGameBlueprintLibrary::GetAbilityInfoForUI(UAbilityDataAsset* AbilityDataAsset, int Level)
+{
+    if (AbilityDataAsset)
+    {
+        FAbilityInfoForUI Info;
+        Info.AbilityName = FText::FromString(AbilityDataAsset->AbilityName);
+        Info.Description = FText::FromString(AbilityDataAsset->DescriptionWithParams.GetDescriptionAtLevel(Level));
+        Info.AbilityTag = AbilityDataAsset->AbilityTag;
+        Info.AbilityLevel = Level;
+        return Info;
+    }
+
+    UE_LOG(LogTemp, Warning, TEXT("GetAbilityInfoForUI: AbilityDataAsset is null"));
+    return FAbilityInfoForUI();
+}
+
 
 // void UOrbGameBlueprintLibrary::CauseDamage(AActor* TargetActor, UGameplayAbility* SourceAbility, FDamageEffectParams DamageParams)
 // {

@@ -52,6 +52,10 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Components, meta = (AllowPrivateAccess = "true"))
 	class UOrbGameAttributeSet* AttributeSet;
 
+	//Probably to move to some Object Pool
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Exp, meta = (AllowPrivateAccess = "true"))
+	TSubclassOf<class AExpHolderObject> ExpHolderObjectClass;
+
 	UFUNCTION()
 	void HandleAttributeChanged(const FGameplayTag AttributeTag, float NewValue);
 

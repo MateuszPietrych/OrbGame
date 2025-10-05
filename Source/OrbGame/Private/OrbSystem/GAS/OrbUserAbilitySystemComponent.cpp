@@ -131,4 +131,35 @@ void UOrbUserAbilitySystemComponent::LevelUp(int NewLevel)
 {
     Level = NewLevel;
     CurrentExp = 0.0f;
+    OnLevelUp.Broadcast(NewLevel);
+    UE_LOG(LogTemp, Log, TEXT("Level Up! New Level: %d"), NewLevel);
+}
+
+TArray<FGameplayTag> UOrbUserAbilitySystemComponent::DrawAbilities()
+{
+    TArray<FGameplayTag> DrawnAbilities;
+    TArray<FGameplayTag> AllAbilities;
+    AbilitiesLevel.GetKeys(AllAbilities);
+
+    int32 AbilitiesToDraw = FMath::Min(NumberOfAbilitiesToDraw, AllAbilities.Num());
+    int32 Attempts = 0;
+    const int32 MaxAttempts = 100; // Prevent potential infinite loop
+    while(DrawnAbilities.Num() < AbilitiesToDraw && Attempts < MaxAttempts)
+    {
+        int32 RandomIndex = FMath::RandRange(0, AllAbilities.Num() - 1);
+        FGameplayTag SelectedAbility = AllAbilities[RandomIndex];
+        if(!DrawnAbilities.Contains(SelectedAbility))
+        {
+            DrawnAbilities.Add(SelectedAbility);
+            AllAbilities.RemoveAt(RandomIndex);
+        }
+        Attempts++;
+    }
+
+    if(Attempts == MaxAttempts)
+    {
+        UE_LOG(LogTemp, Warning, TEXT("DrawAbilities reached maximum attempts. Possible issue with ability selection logic."));
+    }
+
+    return DrawnAbilities;
 }

@@ -12,6 +12,7 @@
 #include "OrbSystem/GAS/OrbGameAttributeSet.h"
 #include "OrbGameGameplayTags.h"
 #include "GameFramework/PawnMovementComponent.h"
+#include "Actor/ExpHolderObject.h"
 
 // Sets default values
 AEnemy::AEnemy()
@@ -90,6 +91,12 @@ void AEnemy::OnHealthChangedHandler(float NewHealth)
 {
 	if(NewHealth <= 0.f)
 	{
+		if(ExpHolderObjectClass)
+		{
+			FActorSpawnParameters SpawnParams;
+			SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+			GetWorld()->SpawnActor<AExpHolderObject>(ExpHolderObjectClass, GetActorLocation(), FRotator::ZeroRotator, SpawnParams);
+		}
 		Destroy();
 	}
 }
