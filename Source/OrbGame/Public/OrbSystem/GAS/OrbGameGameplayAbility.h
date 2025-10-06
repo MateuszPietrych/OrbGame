@@ -17,7 +17,7 @@ class ORBGAME_API UOrbGameGameplayAbility : public UGameplayAbility
 {
 	GENERATED_BODY()
 	
-
+protected:
 	UPROPERTY(EditDefaultsOnly, Category="Gameplay Ability")
 	FGameplayTag StartGameplayTag;
 

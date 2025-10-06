@@ -10,6 +10,7 @@
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnLevelUpControllerSignature, const TArray<FAbilityInfoForUI>&, Abilities);
 
+
 class UAttributeSet;
 class UAbilitySystemComponent;
 class APlayerController;
@@ -70,6 +71,9 @@ public:
 
 	UFUNCTION()
 	void HandleLevelUp(int Level);
+
+	UFUNCTION()
+	void HandleAbilityLevelUpChoosen(FGameplayTag AbilityTag, int AdditionalLevel);
 
 
 protected:

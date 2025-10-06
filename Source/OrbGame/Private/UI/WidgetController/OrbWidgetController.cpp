@@ -55,6 +55,7 @@ void UOrbWidgetController::BindCallbacksToDependencies()
 {
     UE_LOG(LogTemp, Warning, TEXT("UOrbWidgetController::BindCallbacksToDependencies"));
     GetOrbGameAbilitySystemComponent()->OnLevelUp.AddDynamic(this, &UOrbWidgetController::HandleLevelUp);
+	
 }
 
 void UOrbWidgetController::HandleLevelUp(int Level)
@@ -68,9 +69,15 @@ void UOrbWidgetController::HandleLevelUp(int Level)
 		UOrbGameGameplayAbility* Ability = GameMode->AbilityByTag[AbilityTag]->GetDefaultObject<UOrbGameGameplayAbility>();
 		if (Ability)
 		{
-			Abilities.Add(UOrbGameBlueprintLibrary::GetAbilityInfoForUI(Ability->AbilityDataAsset, Level));
+			int AbilityLevel = GetOrbGameAbilitySystemComponent()->GetAbilityLevel(AbilityTag);
+			Abilities.Add(UOrbGameBlueprintLibrary::GetAbilityInfoForUI(Ability->AbilityDataAsset, AbilityLevel));
 		}
 	}
 
 	OnLevelUp.Broadcast(Abilities);
+}
+
+void UOrbWidgetController::HandleAbilityLevelUpChoosen(FGameplayTag AbilityTag, int AdditionalLevel)
+{
+	GetOrbGameAbilitySystemComponent()->LevelUpAbility(AbilityTag, AdditionalLevel);
 }

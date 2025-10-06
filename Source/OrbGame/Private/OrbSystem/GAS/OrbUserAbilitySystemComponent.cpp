@@ -163,3 +163,28 @@ TArray<FGameplayTag> UOrbUserAbilitySystemComponent::DrawAbilities()
 
     return DrawnAbilities;
 }
+
+
+void UOrbUserAbilitySystemComponent::LevelUpAbility(FGameplayTag AbilityTag, int AdditionalLevel)
+{
+    if(AbilitiesLevel.Contains(AbilityTag))
+    {
+        AbilitiesLevel[AbilityTag] += AdditionalLevel;
+        UE_LOG(LogTemp, Log, TEXT("Leveled up ability %s to level %d"), *AbilityTag.ToString(), AbilitiesLevel[AbilityTag]);
+    }
+    else
+    {
+        AbilitiesLevel.Add(AbilityTag, AdditionalLevel);
+        UE_LOG(LogTemp, Log, TEXT("Added new ability %s at level %d"), *AbilityTag.ToString(), AdditionalLevel);
+    }
+}
+
+
+int UOrbUserAbilitySystemComponent::GetAbilityLevel(FGameplayTag AbilityTag) const
+{
+    if (AbilitiesLevel.Contains(AbilityTag))
+    {
+        return AbilitiesLevel[AbilityTag];
+    }
+    return 0;
+}

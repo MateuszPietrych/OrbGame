@@ -36,13 +36,21 @@ public:
 	UFUNCTION()
 	void LevelUp(int NewLevel);
 
-
 	UFUNCTION()
 	TArray<FGameplayTag> DrawAbilities();
+
+	UFUNCTION()
+	void LevelUpAbility(FGameplayTag AbilityTag, int AdditionalLevel = 1);
+
+	UFUNCTION(BlueprintCallable)
+	int GetAbilityLevel(FGameplayTag AbilityTag) const;
+
 
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Orb Set")
 	TArray<FOrbSetSlotStartInfo> OrbSetSlotStartInfos;
+
+
 
 protected:
 	virtual void BeginPlay() override;
