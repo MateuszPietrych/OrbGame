@@ -223,19 +223,83 @@ struct FAbilityDescriptionWithParams
 
 	FString GetDescriptionAtLevel(int Level) const
 	{
+		struct FStringPlaceholder
+		{
+			FString Placeholder;
+			bool bIsOld;
+		};
+
+		TArray<FStringPlaceholder> UsedPlaceholders;
+
+		int position = 0;
+		for (int32 i = 0; i < Params.Num(); ++i)
+		{
+			FString OldPlaceHolderText = FString::Printf(TEXT("{Old%d}"), i);
+			FString NewPlaceHolderText = FString::Printf(TEXT("{New%d}"), i);
+			
+			int OldIndex = DescriptionTemplate.Find(OldPlaceHolderText, ESearchCase::IgnoreCase, ESearchDir::FromStart, position);
+			int NewIndex = DescriptionTemplate.Find(NewPlaceHolderText
+				, ESearchCase::IgnoreCase, ESearchDir::FromStart, position);
+			if(OldIndex == INDEX_NONE && NewIndex == INDEX_NONE)
+			{
+				UE_LOG(LogTemp, Warning, TEXT("FAbilityDescriptionWithParams::GetDescriptionAtLevel - Not all placeholders were used in the description template: %s"), *DescriptionTemplate);
+				break;
+			}
+			bool bIsOld = OldIndex > NewIndex;
+			position = bIsOld ? OldIndex : NewIndex;
+			FString Placeholder = bIsOld ? FString::Printf(TEXT("{Old%d}"), i) : FString::Printf(TEXT("{New%d}"), i);
+			UsedPlaceholders.Add({Placeholder, bIsOld});
+		}
+\
 		TArray<FString> ParamStrings;
+		int Index = 0;
 		for (const FScalableFloat& Param : Params)
 		{
-			float Value = Param.GetValueAtLevel(Level);
+			if(UsedPlaceholders.Num() <= Index)
+			{
+				UE_LOG(LogTemp, Warning, TEXT("FAbilityDescriptionWithParams::GetDescriptionAtLevel - More params than placeholders in the description template: %s"), *DescriptionTemplate);
+				break;
+			}
+
+			FStringPlaceholder Placeholder = UsedPlaceholders[Index];
+			float Value;
+			if(Placeholder.bIsOld)
+			{
+				Value = Param.GetValueAtLevel(FMath::Max(0, Level));
+			}
+			else
+			{
+				Value = Param.GetValueAtLevel(Level + 1);
+			}
 			ParamStrings.Add(FString::SanitizeFloat(Value));
+			++Index;
 		}
 
 		FString Result = DescriptionTemplate;
+	
 		for (int32 i = 0; i < ParamStrings.Num(); ++i)
 		{
-			FString Placeholder = FString::Printf(TEXT("{%d}"), i);
-			Result = Result.Replace(*Placeholder, *ParamStrings[i]);
+			FStringPlaceholder Placeholder = UsedPlaceholders[i];
+			Result = Result.Replace(*Placeholder.Placeholder, *ParamStrings[i]);
 		}
+
+
+
+
+		
+		// for (const FScalableFloat& Param : Params)
+		// {
+		// 	float Value = Param.GetValueAtLevel(Level);
+		// 	ParamStrings.Add(FString::SanitizeFloat(Value));
+		// }
+
+		// FString Result = DescriptionTemplate;
+	
+		// for (int32 i = 0; i < ParamStrings.Num(); ++i)
+		// {
+		// 	FString Placeholder = FString::Printf(TEXT("{%d}"), i);
+		// 	Result = Result.Replace(*Placeholder, *ParamStrings[i]);
+		// }
 		return Result;
 	}
 };
@@ -258,4 +322,17 @@ struct FAbilityInfoForUI
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ability Info For UI")
 	int AbilityLevel = 1;
 
+};
+
+
+USTRUCT(BlueprintType)
+struct FLevelUpWidgetInfo
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Level Up Widget Info")
+	TArray<FAbilityInfoForUI> AbilitiesToChoose;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Level Up Widget Info")
+	int NewLevel = 1;
 };

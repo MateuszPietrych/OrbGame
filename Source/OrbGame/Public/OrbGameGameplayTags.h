@@ -44,6 +44,30 @@ public:
 	FGameplayTag Orb_Earth_SimpleUse;
 	FGameplayTag Orb_Earth_AdvancedUse;
 
+	/* Abilities */
+	FGameplayTag Ability_Fire_Overlap;
+	FGameplayTag Ability_Fire_SimpleUse;
+	FGameplayTag Ability_Fire_AdvancedUse;
+
+	FGameplayTag Ability_Electric_Overlap;
+	FGameplayTag Ability_Electric_SimpleUse;
+	FGameplayTag Ability_Electric_AdvancedUse;
+
+	FGameplayTag Ability_Blood_Overlap;
+	FGameplayTag Ability_Blood_SimpleUse;
+	FGameplayTag Ability_Blood_AdvancedUse;
+
+	FGameplayTag Ability_Earth_Overlap;
+	FGameplayTag Ability_Earth_SimpleUse;
+	FGameplayTag Ability_Earth_AdvancedUse;
+
+	FGameplayTag Ability_Stat_IncreaseStrength;
+	FGameplayTag Ability_Stat_IncreaseMaxHealth;
+	FGameplayTag Ability_Stat_IncreaseHealthRegeneration;
+	FGameplayTag Ability_Stat_IncreaseArmor;
+	FGameplayTag Ability_Stat_IncreaseSpeed;
+	FGameplayTag Ability_Stat_HealthRegeneration;
+
 private:
 	static FOrbGameGameplayTags GameplayTags;
 

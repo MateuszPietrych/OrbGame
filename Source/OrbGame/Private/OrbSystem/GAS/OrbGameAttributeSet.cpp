@@ -39,3 +39,15 @@ void UOrbGameAttributeSet::HandleIncomingDamage(const FGameplayEffectModCallback
         UE_LOG(LogTemp, Warning, TEXT("Target: %s,  Damage taken: %f,  Health changed to: %f"), *GetOwningActor()->GetName(), LocalIncomingDamage, GetHealth());
     }
 }
+
+void UOrbGameAttributeSet::HandleIncomingHeal(const FGameplayEffectModCallbackData& Data)
+{
+	const float LocalIncomingHeal = GetIncomingHeal();
+	SetIncomingHeal(0.f);
+	if (LocalIncomingHeal > 0.f)
+	{
+		const float NewHealth = GetHealth() + LocalIncomingHeal;
+		SetHealth(FMath::Clamp(NewHealth, 0.f, GetMaxHealth()));
+        UE_LOG(LogTemp, Warning, TEXT("Target: %s,  Heal received: %f,  Health changed to: %f"), *GetOwningActor()->GetName(), LocalIncomingHeal, GetHealth());
+    }
+}

@@ -8,7 +8,7 @@
 #include "OrbWidgetController.generated.h"
 
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnLevelUpControllerSignature, const TArray<FAbilityInfoForUI>&, Abilities);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnLevelUpControllerSignature, FLevelUpWidgetInfo, LevelUpWidgetInfo);
 
 
 class UAttributeSet;

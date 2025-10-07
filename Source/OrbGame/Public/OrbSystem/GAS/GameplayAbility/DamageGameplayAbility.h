@@ -15,11 +15,12 @@ class ORBGAME_API UDamageGameplayAbility : public UOrbGameGameplayAbility
 {
 	GENERATED_BODY()
 
-	
-
 public:
 	UDamageGameplayAbility();
 	void CauseDamage(AActor* TargetActor);
+
+	UFUNCTION(BlueprintCallable, Category = "OrbGame|Damage")
+	void SetBaseDamageParams();
 
 protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "OrbGame|Damage")

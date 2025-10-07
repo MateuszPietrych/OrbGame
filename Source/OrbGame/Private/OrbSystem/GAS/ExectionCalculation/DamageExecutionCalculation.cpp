@@ -12,10 +12,12 @@
 struct OrbGameDamageStatics
 {
     DECLARE_ATTRIBUTE_CAPTUREDEF(Armor);
+    DECLARE_ATTRIBUTE_CAPTUREDEF(Strength);
 
     OrbGameDamageStatics()
     {
         DEFINE_ATTRIBUTE_CAPTUREDEF(UOrbGameAttributeSet, Armor, Target, false);
+        DEFINE_ATTRIBUTE_CAPTUREDEF(UOrbGameAttributeSet, Strength, Source, false);
     }
 };
 
@@ -45,7 +47,9 @@ void UDamageExecutionCalculation::Execute_Implementation(const FGameplayEffectCu
 
     float BaseDamage = Spec.GetSetByCallerMagnitude(FOrbGameGameplayTags::Get().Effect_Damage, false);
     float Armor = 0.0f;
+    float Strength = 0.0f;
     ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(DamageStatics().ArmorDef, EvaluationParameters, Armor);
+    ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(DamageStatics().StrengthDef, EvaluationParameters, Strength);
 
     float ArmorModifier = 1.0f;
     if (Armor > 0.0f)
@@ -53,8 +57,13 @@ void UDamageExecutionCalculation::Execute_Implementation(const FGameplayEffectCu
         ArmorModifier *= (1.0f - Armor / 100.0f); 
     }
 
+    float StrengthModifier = 1.0f;
+    if (Strength > 0.0f)
+    {
+        StrengthModifier *= (1.0f + Strength / 100.0f); 
+    }
 
-    float FinalDamage = BaseDamage * ArmorModifier;
+    float FinalDamage = BaseDamage * ArmorModifier * StrengthModifier;
 
     UE_LOG(LogTemp, Warning, TEXT("BaseDamage: %f, Armor: %f, ArmorModifier: %f, FinalDamage: %f"), BaseDamage, Armor, ArmorModifier, FinalDamage);
 

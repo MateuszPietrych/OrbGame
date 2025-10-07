@@ -14,6 +14,7 @@
 #include "GameFramework/Character.h"
 #include "GameplayTagsManager.h"
 #include "OrbSystem/GAS/OrbGameAttributeSet.h"
+#include "OrbSystem/GAS/AbilityDataAsset.h"
 
 UOrbUserAbilitySystemComponent::UOrbUserAbilitySystemComponent()
 {
@@ -30,6 +31,23 @@ void UOrbUserAbilitySystemComponent::BeginPlay()
         for(const FGameplayTag& AbilityTag : OrbTypeAbilitiesTags)
         {
             AbilitiesLevel.Add(AbilityTag, 1);
+        }
+    }
+
+    for(TSubclassOf<UOrbGameGameplayAbility> AbilityClass : StartingStatAbilities)
+    {
+        if(AbilityClass)
+        {
+            FGameplayTag AbilityTag = AbilityClass.GetDefaultObject()->AbilityDataAsset->AbilityTag;
+            if(!AbilitiesLevel.Contains(AbilityTag))
+            {
+                AbilitiesLevel.Add(AbilityTag, 0);
+            }
+
+            FGameplayAbilitySpec AbilitySpec = FGameplayAbilitySpec(AbilityClass, 0, static_cast<int32>(INDEX_NONE), this);
+
+            FGameplayAbilitySpecHandle SpecHandle = GiveAbility(AbilitySpec);
+            PassiveAbilityTagToSpecHandle.Add(AbilityTag, SpecHandle);
         }
     }
 
@@ -64,15 +82,15 @@ void UOrbUserAbilitySystemComponent::UseAbility(AOrb* Orb, FOrbUseContext OrbUse
     UAbilitySystemComponent* ASC = OrbUseContext.SourceAbilitySystemComponent;
 	ensure(ASC); // will log if null
 
-	TArray<UGameplayAbility*> AbilityInstances = AbilitySpec.GetAbilityInstances();
-	for(UGameplayAbility* Ability : AbilityInstances)
-	{
-		UOrbGameGameplayAbility* OrbGameAbility = Cast<UOrbGameGameplayAbility>(Ability);
-		if(OrbGameAbility)
-		{
-			OrbGameAbility->OrbUseContext = OrbUseContext;
-		}
-	}
+	// TArray<UGameplayAbility*> AbilityInstances = AbilitySpec.GetAbilityInstances();
+	// for(UGameplayAbility* Ability : AbilityInstances)
+	// {
+	// 	UOrbGameGameplayAbility* OrbGameAbility = Cast<UOrbGameGameplayAbility>(Ability);
+	// 	if(OrbGameAbility)
+	// 	{
+	// 		OrbGameAbility->OrbUseContext = OrbUseContext;
+	// 	}
+	// }
     UOrbUseContextWrapper* Wrapper = NewObject<UOrbUseContextWrapper>();
     Wrapper->OrbUseContext = OrbUseContext;
 	FGameplayEventData TriggerEventData = FGameplayEventData();
@@ -176,6 +194,34 @@ void UOrbUserAbilitySystemComponent::LevelUpAbility(FGameplayTag AbilityTag, int
     {
         AbilitiesLevel.Add(AbilityTag, AdditionalLevel);
         UE_LOG(LogTemp, Log, TEXT("Added new ability %s at level %d"), *AbilityTag.ToString(), AdditionalLevel);
+    }
+
+    if(PassiveAbilityTagToSpecHandle.Contains(AbilityTag))
+    {
+        FGameplayAbilitySpecHandle SpecHandle = PassiveAbilityTagToSpecHandle[AbilityTag];
+        FGameplayAbilitySpec* Spec = FindAbilitySpecFromHandle(SpecHandle);
+
+        if(Spec)
+        {
+            Spec->Level = AbilitiesLevel[AbilityTag];
+            // Get active effects from this ability
+            CancelAbilityHandle(SpecHandle);
+            bool bActivated = TryActivateAbility(SpecHandle, true);
+            if(bActivated)
+            {
+                UE_LOG(LogTemp, Log, TEXT("Re-activated passive ability %s at new level %d"), *AbilityTag.ToString(), AbilitiesLevel[AbilityTag]);
+            }
+            else
+            {
+                UE_LOG(LogTemp, Warning, TEXT("Failed to re-activate passive ability %s at new level %d"), *AbilityTag.ToString(), AbilitiesLevel[AbilityTag]);
+            }
+        }
+        else
+        {
+            UE_LOG(LogTemp, Warning, TEXT("Spec not found for ability tag %s"), *AbilityTag.ToString());
+        }
+        // ClearAbility(SpecHandle);
+        // PassiveAbilityTagToSpecHandle.Remove(AbilityTag);        
     }
 }
 

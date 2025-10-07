@@ -14,6 +14,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnLevelUpSignature, int, NewLevel);
  * 
  */
 class UOrbManager;
+class UOrbGameGameplayAbility;
 
 UCLASS()
 class ORBGAME_API UOrbUserAbilitySystemComponent : public UOrbGameAbilitySystemComponent
@@ -86,6 +87,13 @@ private:
 
 	UPROPERTY()
 	int NumberOfAbilitiesToDraw = 3;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = OrbLevelData, meta = (AllowPrivateAccess = "true"))
+	TArray<TSubclassOf<UOrbGameGameplayAbility>> StartingStatAbilities;
+
+	UPROPERTY()
+	TMap<FGameplayTag, FGameplayAbilitySpecHandle> PassiveAbilityTagToSpecHandle = TMap<FGameplayTag, FGameplayAbilitySpecHandle>();
+
 
 public:
 	UPROPERTY(BlueprintAssignable)

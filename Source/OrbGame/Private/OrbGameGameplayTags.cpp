@@ -112,4 +112,79 @@ void FOrbGameGameplayTags::InitializeNativeGameplayTags()
         TEXT("Earth Orb Advanced Use Ability")
     );
 
+    /* Abilities */
+    GameplayTags.Ability_Fire_Overlap = UGameplayTagsManager::Get().AddNativeGameplayTag(
+        FName("Ability.Fire.Overlap"), 
+        TEXT("Fire Ability Overlap")
+    );
+    GameplayTags.Ability_Fire_SimpleUse = UGameplayTagsManager::Get().AddNativeGameplayTag(
+        FName("Ability.Fire.SimpleUse"), 
+        TEXT("Fire Ability Simple Use")
+    );
+    GameplayTags.Ability_Fire_AdvancedUse = UGameplayTagsManager::Get().AddNativeGameplayTag(
+        FName("Ability.Fire.AdvancedUse"), 
+        TEXT("Fire Ability Advanced Use")
+    );
+    GameplayTags.Ability_Electric_Overlap = UGameplayTagsManager::Get().AddNativeGameplayTag(
+        FName("Ability.Electric.Overlap"), 
+        TEXT("Electric Ability Overlap")
+    );
+    GameplayTags.Ability_Electric_SimpleUse = UGameplayTagsManager::Get().AddNativeGameplayTag(
+        FName("Ability.Electric.SimpleUse"), 
+        TEXT("Electric Ability Simple Use")
+    );
+    GameplayTags.Ability_Electric_AdvancedUse = UGameplayTagsManager::Get().AddNativeGameplayTag(
+        FName("Ability.Electric.AdvancedUse"), 
+        TEXT("Electric Ability Advanced Use")
+    );
+    GameplayTags.Ability_Blood_Overlap = UGameplayTagsManager::Get().AddNativeGameplayTag(
+        FName("Ability.Blood.Overlap"), 
+        TEXT("Blood Ability Overlap")
+    );
+    GameplayTags.Ability_Blood_SimpleUse = UGameplayTagsManager::Get().AddNativeGameplayTag(
+        FName("Ability.Blood.SimpleUse"), 
+        TEXT("Blood Ability Simple Use")
+    );
+    GameplayTags.Ability_Blood_AdvancedUse = UGameplayTagsManager::Get().AddNativeGameplayTag(
+        FName("Ability.Blood.AdvancedUse"), 
+        TEXT("Blood Ability Advanced Use")
+    );
+    GameplayTags.Ability_Earth_Overlap = UGameplayTagsManager::Get().AddNativeGameplayTag(
+        FName("Ability.Earth.Overlap"), 
+        TEXT("Earth Ability Overlap")
+    );
+    GameplayTags.Ability_Earth_SimpleUse = UGameplayTagsManager::Get().AddNativeGameplayTag(
+        FName("Ability.Earth.SimpleUse"), 
+        TEXT("Earth Ability Simple Use")
+    );
+    GameplayTags.Ability_Earth_AdvancedUse = UGameplayTagsManager::Get().AddNativeGameplayTag(
+        FName("Ability.Earth.AdvancedUse"), 
+        TEXT("Earth Ability Advanced Use")
+    );
+    GameplayTags.Ability_Stat_IncreaseStrength = UGameplayTagsManager::Get().AddNativeGameplayTag(
+        FName("Ability.Stat.IncreaseStrength"), 
+        TEXT("Increases Strength Attribute")
+    );
+    GameplayTags.Ability_Stat_IncreaseMaxHealth = UGameplayTagsManager::Get().AddNativeGameplayTag(
+        FName("Ability.Stat.IncreaseMaxHealth"), 
+        TEXT("Increases Max Health Attribute")
+    );
+    GameplayTags.Ability_Stat_IncreaseHealthRegeneration = UGameplayTagsManager::Get().AddNativeGameplayTag(
+        FName("Ability.Stat.IncreaseHealthRegeneration"), 
+        TEXT("Increases Health Regeneration Attribute")
+    );
+    GameplayTags.Ability_Stat_IncreaseArmor = UGameplayTagsManager::Get().AddNativeGameplayTag(
+        FName("Ability.Stat.IncreaseArmor"), 
+        TEXT("Increases Armor Attribute")
+    );
+    GameplayTags.Ability_Stat_IncreaseSpeed = UGameplayTagsManager::Get().AddNativeGameplayTag(
+        FName("Ability.Stat.IncreaseSpeed"), 
+        TEXT("Increases Speed Attribute")
+    );
+    GameplayTags.Ability_Stat_HealthRegeneration = UGameplayTagsManager::Get().AddNativeGameplayTag(
+        FName("Ability.Stat.HealthRegeneration"), 
+        TEXT("Regenerates Health over time")
+    );
+    
+
 }

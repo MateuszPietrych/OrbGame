@@ -126,19 +126,25 @@ void AOrbGameCharacter::BeginPlay()
         OrbUserAbilitySystemComponent->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
     }
 
+
+	OnExpChanged.AddDynamic(this, &AOrbGameCharacter::OnCharacterExpChanged);
+
+	ExpSphere->OnComponentBeginOverlap.AddDynamic(this, &AOrbGameCharacter::ExpHolderInteraction);
+}
+
+void AOrbGameCharacter::SetupAttributeUsage()
+{
 	OrbUserAbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(AttributeSet->GetSpeedAttribute()).AddLambda(
 			[this](const FOnAttributeChangeData& Data)
 			{
-				// UE_LOG(LogTemp, Warning, TEXT("Character speed changed to: %f"), Data.NewValue);
 				OnSpeedChanged.Broadcast(Data.NewValue);
 			}
 		);
 	OnSpeedChanged.AddDynamic(this, &AOrbGameCharacter::OnCharacterSpeedChanged);
 	OnSpeedChanged.Broadcast(AttributeSet->GetSpeed());
 
-	OnExpChanged.AddDynamic(this, &AOrbGameCharacter::OnCharacterExpChanged);
 
-	ExpSphere->OnComponentBeginOverlap.AddDynamic(this, &AOrbGameCharacter::ExpHolderInteraction);
+
 }
  
 void AOrbGameCharacter::Tick(float DeltaSeconds)
@@ -214,11 +220,36 @@ void AOrbGameCharacter::SetNiagaraRayRotation(AOrb* FollowOrb)
 	NiagaraComponent->SetWorldRotation(NewNiagaraRotation);
 }
 
+// void AOrbGameCharacter::OnHealthRegenerationChanged(float NewValue)
+// {
+// 	if(!GetWorldTimerManager().IsTimerActive(HealthRegenerationTimerHandle) && NewValue > 0.0f)
+// 	{
+// 		GetWorldTimerManager().SetTimer(HealthRegenerationTimerHandle, this, &AOrbGameCharacter::HealthRegenerationTick, 1.0f, true);
+// 	}
+// }
+
+// void AOrbGameCharacter::HealthRegenerationTick()
+// {
+// 	if(AttributeSet->GetHealth() < AttributeSet->GetMaxHealth())
+// 	{
+// 		float NewHealth = FMath::Clamp(AttributeSet->GetHealth() + AttributeSet->GetHealthRegeneration(), 0.0f, AttributeSet->GetMaxHealth());
+// 		AttributeSet->SetHealth(NewHealth);
+// 	}
+// 	else
+// 	{
+// 		GetWorldTimerManager().ClearTimer(HealthRegenerationTimerHandle);
+// 	}
+// }
+
+
+
 void AOrbGameCharacter::OnCharacterSpeedChanged(float NewValue)
 {
-	// UE_LOG(LogTemp, Warning, TEXT("OnCharacterSpeedChanged: %f"), NewValue);
 	GetCharacterMovement()->MaxWalkSpeed = NewValue;
 }
+
+
+
 
 FRotator AOrbGameCharacter::LookAtOrb(AOrb* Orb)
 {

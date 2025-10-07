@@ -7,15 +7,12 @@
 #include "Kismet/GameplayStatics.h"
 
 #include "AbilitySystemComponent.h"
-#include "OrbSystem/GAS/AbilityDataAsset.h"
-#include "OrbSystem/GAS/OrbUserAbilitySystemComponent.h"
 
 void UProjectileGameplayAbility::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
                                            const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo,
                                            const FGameplayEventData* TriggerEventData)
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
-  // SetActorInfo(ActorInfo->AvatarActor.Get(), ActorInfo->OwnerActor.Get());
 
 	
 }
@@ -36,21 +33,7 @@ void UProjectileGameplayAbility::SpawnProjectile(const FVector& ProjectileTarget
 	
     if (Projectile)
     {
-        DamageEffectParams.SourceAbilitySystemComponent = GetAbilitySystemComponentFromActorInfo();
-        if(!DamageEffectParams.SourceAbilitySystemComponent)
-        {
-            UE_LOG(LogTemp, Warning, TEXT("UProjectileGameplayAbility::SpawnProjectile: SourceAbilitySystemComponent is null"));
-        }
-        DamageEffectParams.WorldContextObject = GetWorld();
-        UOrbUserAbilitySystemComponent* OrbUserASC = Cast<UOrbUserAbilitySystemComponent>(DamageEffectParams.SourceAbilitySystemComponent);
-        if(OrbUserASC)
-        {
-            DamageEffectParams.AbilityLevel = OrbUserASC->GetAbilityLevel(AbilityDataAsset->AbilityTag);
-        }
-        else
-        {
-            DamageEffectParams.AbilityLevel = 1;
-        }
+        SetBaseDamageParams();
         Projectile->DamageEffectParams = DamageEffectParams;
     }
 }

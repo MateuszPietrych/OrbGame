@@ -35,6 +35,8 @@ public:
 
 	void HandleIncomingDamage(const FGameplayEffectModCallbackData& Data);
 
+	void HandleIncomingHeal(const FGameplayEffectModCallbackData& Data);
+
 	TMap<FGameplayTag, TStaticFuncPtr<FGameplayAttribute()>> TagsToAttributes;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Attributes")
@@ -68,5 +70,9 @@ public:
 	UPROPERTY(BlueprintReadOnly, Category = "Incoming Attributes")
 	FGameplayAttributeData IncomingDamage;
 	ATTRIBUTE_ACCESSORS(UOrbGameAttributeSet, IncomingDamage);
+
+	UPROPERTY(BlueprintReadOnly, Category = "Incoming Attributes")
+	FGameplayAttributeData IncomingHeal;
+	ATTRIBUTE_ACCESSORS(UOrbGameAttributeSet, IncomingHeal);
 
 };

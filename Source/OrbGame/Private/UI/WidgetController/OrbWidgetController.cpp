@@ -61,6 +61,7 @@ void UOrbWidgetController::BindCallbacksToDependencies()
 void UOrbWidgetController::HandleLevelUp(int Level)
 {
 	TArray<FGameplayTag> AbilitiesTags = GetOrbGameAbilitySystemComponent()->DrawAbilities();
+	FLevelUpWidgetInfo LevelUpWidgetInfo;
 	TArray<FAbilityInfoForUI> Abilities;
 	AOrbGameGameMode* GameMode = UOrbGameBlueprintLibrary::GetOrbGameGameMode(this);
 
@@ -73,8 +74,10 @@ void UOrbWidgetController::HandleLevelUp(int Level)
 			Abilities.Add(UOrbGameBlueprintLibrary::GetAbilityInfoForUI(Ability->AbilityDataAsset, AbilityLevel));
 		}
 	}
-
-	OnLevelUp.Broadcast(Abilities);
+	
+	LevelUpWidgetInfo.AbilitiesToChoose = Abilities;
+	LevelUpWidgetInfo.NewLevel = Level;
+	OnLevelUp.Broadcast(LevelUpWidgetInfo);
 }
 
 void UOrbWidgetController::HandleAbilityLevelUpChoosen(FGameplayTag AbilityTag, int AdditionalLevel)

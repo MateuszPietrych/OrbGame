@@ -18,7 +18,7 @@
 
 void UOrbGameBlueprintLibrary::DealDamage(const FDamageEffectParams& DamageParams)
 {
-wwwww    if (!DamageParams.TargetAbilitySystemComponent || !DamageParams.SourceAbilitySystemComponent || !DamageParams.DamageGameplayEffectClass)
+    if (!DamageParams.TargetAbilitySystemComponent || !DamageParams.SourceAbilitySystemComponent || !DamageParams.DamageGameplayEffectClass)
     {
         UE_LOG(LogTemp, Warning, TEXT("DealDamage: Invalid parameters"));
         return;

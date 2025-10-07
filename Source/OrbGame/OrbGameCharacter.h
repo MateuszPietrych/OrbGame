@@ -21,6 +21,9 @@ public:
 
 	virtual void BeginPlay() override;
 
+	UFUNCTION()
+	void SetupAttributeUsage();
+
 	class UOrbManager* GetOrbManager();
 
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
@@ -66,7 +69,13 @@ private:
 	UFUNCTION() 
 	void OnCharacterSpeedChanged(float NewValue);
 
-	UFUNCTION() 
+	// UFUNCTION()
+	// void OnHealthRegenerationChanged(float NewValue);
+
+	// UFUNCTION()
+	// void HealthRegenerationTick();
+
+	UFUNCTION()  
 	void OnCharacterExpChanged(float NewExpValue);
 
 	/** Top down camera */
@@ -120,9 +129,13 @@ private:
 	FOnAttributeChangedSignature OnSpeedChanged;
 
 	UPROPERTY(BlueprintAssignable)
+	FOnAttributeChangedSignature OnHealthRegenerationChanged;
+
+	UPROPERTY(BlueprintAssignable)
 	FOnExpChangedSignature OnExpChanged;
 
-	
+	UPROPERTY()
+	FTimerHandle HealthRegenerationTimerHandle;
 
 };
 
