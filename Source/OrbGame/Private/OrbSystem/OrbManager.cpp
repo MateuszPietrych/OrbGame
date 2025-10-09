@@ -473,6 +473,9 @@ void UOrbManager::AdvancedOrbUse(APlayerController* PlayerController)
 		FOrbUseContext OrbUseContext = FOrbUseContext();
 		OrbUseContext.Direction = UOrbGameBlueprintLibrary::FromPlayerToMouseDirection(PlayerController);
 		OrbUseContext.SourceAbilitySystemComponent = Cast<UAbilitySystemComponent>(PlayerController->GetCharacter()->GetComponentByClass(UAbilitySystemComponent::StaticClass()));
+		OrbUseContext.HandOrb = OrbToUse;
+		OrbUseContext.AdvancedTargetOrb = FollowOrb;
+		OrbUseContext.Spellcaster = GetOwner();
 
 		OnOrbAbilityStart.Broadcast(FollowOrb, OrbUseContext, UOrbGameBlueprintLibrary::MakeChildTag(FollowOrb->GetOrbTag(), TEXT("AdvancedUse")));
 	}

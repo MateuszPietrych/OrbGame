@@ -46,18 +46,20 @@ public:
 	UFUNCTION(BlueprintCallable)
 	int GetAbilityLevel(FGameplayTag AbilityTag) const;
 
-
+	UFUNCTION()
+	void ChooseActionByOrbSystemChanged(EOrbSystemState NewState, EOrbSystemState OldState, AOrb* PreparedOrb, AOrb* AdvancedUseOrb);
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Orb Set")
 	TArray<FOrbSetSlotStartInfo> OrbSetSlotStartInfos;
-
 
 
 protected:
 	virtual void BeginPlay() override;
 
 	UFUNCTION()
-	void UseAbility(class AOrb* Orb, FOrbUseContext OrbUseContext, FGameplayTag AbilityTag);
+	void UseAbility(class AOrb* Orb, const FOrbUseContext& OrbUseContext, FGameplayTag AbilityTag);
+
+
 
 private:
 	UFUNCTION()
@@ -74,6 +76,9 @@ private:
 	float TimeBetweenSpawn = 4.0f;
 
 	FTimerHandle SpawnOrbTimerHandle;
+
+	UPROPERTY()
+	FGameplayAbilitySpecHandle LastAbilitySpecHandle;
 
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = OrbLevelData, meta = (AllowPrivateAccess = "true"))

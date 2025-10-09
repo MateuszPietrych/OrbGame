@@ -85,6 +85,14 @@ struct FOrbUseContext
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Orb GameplayAbilitySystem Context")
 	class UAbilitySystemComponent* TargetAbilitySystemComponent = nullptr;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Orb GameplayAbilitySystem Context")
+	class AOrb* HandOrb = nullptr;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Orb GameplayAbilitySystem Context")
+	class AOrb* AdvancedTargetOrb = nullptr;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Orb Transform Context")
+	class AActor* Spellcaster = nullptr;
 
 };
 

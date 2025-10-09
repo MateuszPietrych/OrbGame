@@ -12,7 +12,7 @@
 #include "Delegates/DelegateCombinations.h"
 #include "OrbManager.generated.h"
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnOrbAbilityStartSignature, AOrb*, Orb, FOrbUseContext, OrbUseContext, FGameplayTag, AbilityTag);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnOrbAbilityStartSignature, AOrb*, Orb, const FOrbUseContext&, OrbUseContext, FGameplayTag, AbilityTag);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_FourParams(FOnOrbSystemStateChangedSignature, EOrbSystemState, NewState, EOrbSystemState, OldState, AOrb*, PreparedOrb, AOrb*, AdvancedUseOrb);
 
 

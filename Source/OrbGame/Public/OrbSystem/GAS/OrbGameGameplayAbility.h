@@ -22,9 +22,6 @@ protected:
 	FGameplayTag StartGameplayTag;
 
 public:
-	UPROPERTY(EditDefaultsOnly, Category="Gameplay Ability")
-	UOrbEffectBase* OrbEffectInstance;
-
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay Ability")
 	UAbilityDataAsset* AbilityDataAsset;
 

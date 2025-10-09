@@ -289,6 +289,7 @@ void AOrb::OnAllocatedFromPool_Implementation()
 	SetActorHiddenInGame(false);
 	BaseNiagaraComponent->SetAsset(OrbData->BaseNiagaraSystemClass);
 	BaseNiagaraComponent->ActivateSystem();
+	bOrbIsActive = true;
 }
 
 void AOrb::OnReturnedToPool_Implementation()
@@ -296,6 +297,7 @@ void AOrb::OnReturnedToPool_Implementation()
 	SetActorHiddenInGame(true);
 	BaseNiagaraComponent->DeactivateImmediate();
 	LongUseNiagaraComponent->DeactivateImmediate();
+	bOrbIsActive = false;
 }
 
 

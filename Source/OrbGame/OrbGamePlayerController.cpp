@@ -303,5 +303,11 @@ void AOrbGamePlayerController::ChooseActionByOrbSystemChanged(EOrbSystemState Ne
 
 			bLongEffectInUse = true;
 		}
+	}else if(NewState == EOrbSystemState::FREE_HAND)
+	{
+		if(FollowOrb)
+		{
+			StopLongUseEffect();
+		}
 	}
 }

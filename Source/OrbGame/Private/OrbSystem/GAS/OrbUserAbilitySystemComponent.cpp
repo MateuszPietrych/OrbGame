@@ -15,6 +15,7 @@
 #include "GameplayTagsManager.h"
 #include "OrbSystem/GAS/OrbGameAttributeSet.h"
 #include "OrbSystem/GAS/AbilityDataAsset.h"
+#include "GameplayAbilitySpec.h"
 
 UOrbUserAbilitySystemComponent::UOrbUserAbilitySystemComponent()
 {
@@ -51,6 +52,8 @@ void UOrbUserAbilitySystemComponent::BeginPlay()
         }
     }
 
+    // OrbManager->OnOrbSystemStateChanged.AddDynamic(this, &UOrbUserAbilitySystemComponent::ChooseActionByOrbSystemChanged);
+
     GetWorld()->GetTimerManager().SetTimer(SpawnOrbTimerHandle, this, &UOrbUserAbilitySystemComponent::SpawnOrbIfPossible, TimeBetweenSpawn, true);
 }
 
@@ -70,7 +73,7 @@ void UOrbUserAbilitySystemComponent::SpawnOrbIfPossible()
     }
 }
 
-void UOrbUserAbilitySystemComponent::UseAbility(AOrb* Orb, FOrbUseContext OrbUseContext, FGameplayTag AbilityTag)
+void UOrbUserAbilitySystemComponent::UseAbility(AOrb* Orb, const FOrbUseContext& OrbUseContext, FGameplayTag AbilityTag)
 {
     EOrbAbilityType AbilityType = GetOrbAbilityTypeFromTag(AbilityTag);
     int32 AbilityLevel = AbilitiesLevel.Contains(AbilityTag) ? AbilitiesLevel[AbilityTag] : 1;
@@ -97,7 +100,7 @@ void UOrbUserAbilitySystemComponent::UseAbility(AOrb* Orb, FOrbUseContext OrbUse
 	TriggerEventData.Instigator = Cast<APawn>(GetOwner());
     TriggerEventData.OptionalObject = Wrapper;
 
-	ASC->GiveAbilityAndActivateOnce(AbilitySpec, &TriggerEventData);
+	LastAbilitySpecHandle = ASC->GiveAbilityAndActivateOnce(AbilitySpec, &TriggerEventData);
 }
 
 EOrbAbilityType UOrbUserAbilitySystemComponent::GetOrbAbilityTypeFromTag(FGameplayTag OrbTag) const
@@ -233,4 +236,21 @@ int UOrbUserAbilitySystemComponent::GetAbilityLevel(FGameplayTag AbilityTag) con
         return AbilitiesLevel[AbilityTag];
     }
     return 0;
+}
+
+void UOrbUserAbilitySystemComponent::ChooseActionByOrbSystemChanged(EOrbSystemState NewState, EOrbSystemState OldState, AOrb* PreparedOrb, AOrb* AdvancedUseOrb)
+{
+    if(NewState == EOrbSystemState::UNPREPARING_ADVANCED_USE)
+    {
+        FGameplayAbilitySpec* Spec = FindAbilitySpecFromHandle(LastAbilitySpecHandle);
+        if(Spec)
+        {
+            const FGameplayAbilitySpecHandle Handle = LastAbilitySpecHandle;
+            const FGameplayAbilityActorInfo* ActorInfo = AbilityActorInfo.Get();
+            const FGameplayAbilityActivationInfo ActivationInfo = Spec->Ability->GetCurrentActivationInfo();
+            bool bReplicateEndAbility = true;
+            bool bWasCancelled = false;
+            // Spec->Ability->EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
+        }
+    }
 }

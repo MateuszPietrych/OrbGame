@@ -122,6 +122,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 	TSubclassOf<class UOrbGameGameplayAbility> GetGameplayAbilityClassByType(EOrbAbilityType AbilityType);
 
+	UPROPERTY(BlueprintReadOnly, Category="Orb")
+	bool bOrbIsActive = true;
+
 protected:
 
 	UFUNCTION(BlueprintCallable)
@@ -175,6 +178,7 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = OrbData, meta = (AllowPrivateAccess = "true"))
 	float BaseProjectileSphereRadius = 100.0f;
 
+
 	bool bWasSimpleActionUsed = false;
 	FTimerHandle LongUseTickTimerHandle;
 	bool bIsLongUseActive = false;
@@ -184,3 +188,5 @@ protected:
 
 
 };
+
+
