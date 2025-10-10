@@ -7,6 +7,8 @@
 #include "OrbGameStructs.h"
 #include "DamageGameplayAbility.generated.h"
 
+
+class UDamageDataAsset;
 /**
  * 
  */
@@ -23,6 +25,9 @@ public:
 	void SetBaseDamageParams();
 
 protected:
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "OrbGame|Damage")
 	FDamageEffectParams DamageEffectParams;
+
+	
 };

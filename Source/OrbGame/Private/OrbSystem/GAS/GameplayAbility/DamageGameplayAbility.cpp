@@ -7,6 +7,7 @@
 #include "OrbGameGameplayTags.h"
 #include "AbilitySystemComponent.h"
 #include "OrbSystem/GAS/AbilityDataAsset.h"
+#include "Utility/DamageDataAsset.h"
 #include "OrbSystem/GAS/OrbUserAbilitySystemComponent.h"
 
 UDamageGameplayAbility::UDamageGameplayAbility()
@@ -34,6 +35,6 @@ void UDamageGameplayAbility::SetBaseDamageParams()
 	DamageEffectParams.WorldContextObject = GetWorld();
 
 	UOrbUserAbilitySystemComponent* OrbUserASC = Cast<UOrbUserAbilitySystemComponent>(DamageEffectParams.SourceAbilitySystemComponent);
-	DamageEffectParams.AbilityLevel = OrbUserASC ? OrbUserASC->GetAbilityLevel(AbilityDataAsset->AbilityTag) : 1;
+	DamageEffectParams.AbilityLevel = OrbUserASC != nullptr && AbilityDataAsset ? OrbUserASC->GetAbilityLevel(AbilityDataAsset->AbilityTag) : 1;
 
 }

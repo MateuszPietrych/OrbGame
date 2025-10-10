@@ -21,6 +21,7 @@ struct FOrbLevelData
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Orb Level Data")
 	TArray<class AOrb*> Orbs = {};
+
 };
 
 USTRUCT(BlueprintType)
@@ -93,6 +94,9 @@ struct FOrbUseContext
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Orb Transform Context")
 	class AActor* Spellcaster = nullptr;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Orb Transform Context")
+	class UOrbManager* OrbManager = nullptr;
 
 };
 

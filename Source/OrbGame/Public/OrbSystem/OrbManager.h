@@ -149,6 +149,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 	EOrbSystemState GetCurrentOrbSystemState() const { return CurrentOrbSystemState; }
 
+	UFUNCTION(BlueprintCallable)
+	TArray<FOrbLevelData> GetOrbLevelsData() const { return OrbLevelsData; }
+
 private:
 
 	UFUNCTION()

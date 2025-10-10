@@ -7,11 +7,6 @@
 void UAdvancedGameplayAbility::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
 {
     Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
-    const UOrbUseContextWrapper* Wrapper = Cast<UOrbUseContextWrapper>(TriggerEventData->OptionalObject);
-    if(Wrapper)
-    {
-        OrbUseContext = Wrapper->OrbUseContext;
-    }
     GetWorld()->GetTimerManager().SetTimer(AbilityTickTimer, this, &UAdvancedGameplayAbility::AbilityTickAction, AbilityTickInterval, true);
 }
 

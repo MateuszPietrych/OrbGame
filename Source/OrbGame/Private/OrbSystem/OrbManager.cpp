@@ -456,7 +456,7 @@ void UOrbManager::SimpleOrbUse(APlayerController* PlayerController)
 		FOrbUseContext OrbUseContext = FOrbUseContext();
 		OrbUseContext.Direction = UOrbGameBlueprintLibrary::FromPlayerToMouseDirection(PlayerController);
 		OrbUseContext.SourceAbilitySystemComponent = Cast<UAbilitySystemComponent>(PlayerController->GetCharacter()->GetComponentByClass(UAbilitySystemComponent::StaticClass()));
-
+		OrbUseContext.OrbManager = this;
 		OnOrbAbilityStart.Broadcast(OrbToUse, OrbUseContext, UOrbGameBlueprintLibrary::MakeChildTag(OrbToUse->GetOrbTag(), TEXT("SimpleUse")));
 		OrbPool->ReturnOrbToPool(OrbToUse);
 		OrbToUse = nullptr;
@@ -476,6 +476,7 @@ void UOrbManager::AdvancedOrbUse(APlayerController* PlayerController)
 		OrbUseContext.HandOrb = OrbToUse;
 		OrbUseContext.AdvancedTargetOrb = FollowOrb;
 		OrbUseContext.Spellcaster = GetOwner();
+		OrbUseContext.OrbManager = this;
 
 		OnOrbAbilityStart.Broadcast(FollowOrb, OrbUseContext, UOrbGameBlueprintLibrary::MakeChildTag(FollowOrb->GetOrbTag(), TEXT("AdvancedUse")));
 	}
