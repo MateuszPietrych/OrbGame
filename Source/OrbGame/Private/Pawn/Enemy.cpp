@@ -99,4 +99,15 @@ void AEnemy::OnHealthChangedHandler(float NewHealth)
 		}
 		Destroy();
 	}
+	OnDamageTaken(NewHealth);
+}
+
+void AEnemy::OnDamageTaken(float NewHealth)
+{
+	BodyMesh->SetOverlayMaterial(DamageOverlayMaterialInstance);
+	GetWorld()->GetTimerManager().ClearTimer(DamageTakenTimerHandle);
+	GetWorld()->GetTimerManager().SetTimer(DamageTakenTimerHandle, [this]()
+	{
+		BodyMesh->SetOverlayMaterial(nullptr);
+	}, DamageOverlayDuration, false);
 }

@@ -161,7 +161,7 @@ private:
 	void ChangeOrbState(EOrbSystemState NewState);
 
 	UPROPERTY()
-	class UOrbPool* OrbPool = nullptr;
+	class UOrbMultiPool* OrbPool = nullptr;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = OrbLevelData, meta = (AllowPrivateAccess = "true"))
 	TArray<FOrbLevelData> OrbLevelsData;

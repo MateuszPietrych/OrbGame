@@ -127,6 +127,19 @@ FAbilityInfoForUI UOrbGameBlueprintLibrary::GetAbilityInfoForUI(UAbilityDataAsse
     return FAbilityInfoForUI();
 }
 
+float UOrbGameBlueprintLibrary::DistanceToPlayer(AActor* Actor)
+{
+    if (!Actor) return -1.f;
+
+    UWorld* World = Actor->GetWorld();
+    if (!World) return -1.f;
+
+    APlayerController* PC = World->GetFirstPlayerController();
+    if (!PC || !PC->GetCharacter()) return -1.f;
+
+    return FVector::Dist(Actor->GetActorLocation(), PC->GetCharacter()->GetActorLocation());
+}
+
 
 // void UOrbGameBlueprintLibrary::CauseDamage(AActor* TargetActor, UGameplayAbility* SourceAbility, FDamageEffectParams DamageParams)
 // {

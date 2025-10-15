@@ -20,6 +20,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Mapping")
 	TMap<FGameplayTag, TSubclassOf<class AOrb>> OrbTypeByTag;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Mapping")
+	TMap<FGameplayTag, TSubclassOf<class AEnemy>> EnemyTypeByTag;
 };
 
 

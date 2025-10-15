@@ -2,8 +2,10 @@
 
 #include "CoreMinimal.h"
 #include "Enums.h"
+#include "GameFramework/Actor.h"
 #include "Structures.generated.h"
 
+class AEnemy;
 
 USTRUCT(BlueprintType)
 struct FOrbLevelData
@@ -114,7 +116,7 @@ public:
 
 
 
-/////////////////////////////// STATS //////////////////////////////////////
+/////////////////////////////// ENUM //////////////////////////////////////
 
 UENUM(BlueprintType)
 enum class EUniversalStatType : uint8
@@ -193,6 +195,92 @@ struct FStat
         return AfterAdditive * (Permanent.Multiplicative * Temporary.Multiplicative);
     }
 };
+
+
+/////////////////////////////// EnemiesSpawn //////////////////////////////////////
+
+USTRUCT(BlueprintType)
+struct FEnemyWaveGroup
+{
+	GENERATED_BODY()
+
+public:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Enemy Wave Group")
+	TMap<TSubclassOf<AActor>, int> EnemiesToSpawn = {};
+
+	int GetTotalEnemies() const
+	{
+		int Total = 0;
+		for (const auto& Pair : EnemiesToSpawn)
+		{
+			Total += Pair.Value;
+		}
+		return Total;
+	}
+};
+
+USTRUCT(BlueprintType)
+struct FEnemyWave
+{
+	GENERATED_BODY()
+
+public:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Enemy Wave")
+	FEnemyWaveGroup Group = {};
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Enemy Wave")
+	float TimeToThisWave = 5.f;
+
+	TArray<FEnemyWaveGroup> PartGroup(int Parts)
+	{
+		TArray<FEnemyWaveGroup> Result;
+		if(Parts <= 0) return Result;
+
+		Result.AddDefaulted(Parts);
+
+		int TotalEnemiesCount = Group.GetTotalEnemies();
+
+		TMap<TSubclassOf<AActor>, int> TotalEnemies = Group.EnemiesToSpawn;
+
+		
+		for(int i=0; i < TotalEnemiesCount; i++)
+		{
+			int MinEnemyIndex = 0;
+			int MaxEnemyIndex = TotalEnemies.Num();
+			int RandomEnemyIndex = FMath::RandRange(MinEnemyIndex, MaxEnemyIndex - 1);
+
+			TArray<TSubclassOf<AActor>> OutKeys;
+			TotalEnemies.GetKeys(OutKeys);
+			TSubclassOf<AActor> EnemyClass = OutKeys[RandomEnemyIndex];
+
+			if(EnemyClass)
+			{
+				int ResultGroupIndex = i % Parts;
+				if (!Result.IsValidIndex(ResultGroupIndex)) continue;
+				Result[ResultGroupIndex].EnemiesToSpawn.Add(EnemyClass, Result[ResultGroupIndex].EnemiesToSpawn.FindRef(EnemyClass) + 1);
+			}
+
+			if(TotalEnemies[EnemyClass] <= 0)
+			{
+				TotalEnemies.Remove(EnemyClass);
+			}
+		}
+
+		return Result;
+	}
+
+};
+
+USTRUCT(BlueprintType)
+struct FEnemyGroup
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Enemy Group")
+	TArray<AEnemy*> Enemies = {};
+
+};
+
 
 
 

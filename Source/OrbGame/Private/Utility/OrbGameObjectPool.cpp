@@ -2,7 +2,7 @@
 #include "Engine/World.h"
 #include "GameFramework/Actor.h"
 
-void UOrbGameObjectPool::Initialize(TSubclassOf<AActor> NewActorClass, UObject* NewWorldContextObject)
+void UOrbGameObjectPool::Initialize(TSubclassOf<UObject> NewActorClass, UObject* NewWorldContextObject)
 {
     ActorClass = NewActorClass;
     WorldContextObject = NewWorldContextObject;
@@ -17,13 +17,19 @@ TScriptInterface<IPoolObject> UOrbGameObjectPool::AcquireObject()
     if (PooledObjects.Num() > 0)
     {
         TScriptInterface<IPoolObject> Obj = PooledObjects.Pop();
+
+        if(!IsValid(Obj.GetObject()))
+        {
+            return TScriptInterface<IPoolObject>();
+        }
+
         InUseObjects.Add(Obj);
 
         if (UObject* ObjU = Obj.GetObject())
         {
             IPoolObject::Execute_OnAllocatedFromPool(ObjU);
         }
-        return Obj; // (default-constructible; no need to return nullptr)
+        return Obj; // (defaul-tconstructible; no need to return nullptr)
     }
 
     // 2) Otherwise spawn new
@@ -39,7 +45,16 @@ TScriptInterface<IPoolObject> UOrbGameObjectPool::AcquireObject()
         return TScriptInterface<IPoolObject>();
     }
 
-    AActor* Actor = World->SpawnActor<AActor>(ActorClass);
+    UObject* Actor = nullptr;
+    if(ActorClass->IsChildOf(AActor::StaticClass()))
+    {
+        Actor = World->SpawnActor<AActor>(ActorClass);
+    }
+    else
+    {
+        Actor = NewObject<UObject>(World, ActorClass);
+    }
+
     if (!Actor)
     {
         return TScriptInterface<IPoolObject>();

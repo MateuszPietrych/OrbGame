@@ -9,6 +9,13 @@
 void UOrbGameGameplayAbility::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
 {
     Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
+
+    if(!TriggerEventData)
+    {
+        UE_LOG(LogTemp, Warning, TEXT("UOrbGameGameplayAbility::ActivateAbility called without TriggerEventData"));
+        return;
+    }
+    
     const UOrbUseContextWrapper* Wrapper = Cast<UOrbUseContextWrapper>(TriggerEventData->OptionalObject);
     if(Wrapper)
     {

@@ -104,6 +104,7 @@ public:
 
 	virtual void OnAllocatedFromPool_Implementation() override;
 	virtual void OnReturnedToPool_Implementation() override;
+	virtual FGameplayTag GetObjectTag_Implementation() override;
 
 	UPROPERTY (BlueprintAssignable, Category="Orb")  
 	FOnOrbEndedUseSignature OnOrbEndedUse;

@@ -56,10 +56,21 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Exp, meta = (AllowPrivateAccess = "true"))
 	TSubclassOf<class AExpHolderObject> ExpHolderObjectClass;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = TakeDamage, meta = (AllowPrivateAccess = "true"))
+	UMaterialInstance* DamageOverlayMaterialInstance;
+
+	FTimerHandle DamageTakenTimerHandle;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = TakeDamage, meta = (AllowPrivateAccess = "true"))
+	float DamageOverlayDuration = 1.f;
+
 	UFUNCTION()
 	void HandleAttributeChanged(const FGameplayTag AttributeTag, float NewValue);
 
 	UFUNCTION()
 	void OnHealthChangedHandler(float NewHealth);
+
+	UFUNCTION()
+	void OnDamageTaken(float NewHealth);
 
 };

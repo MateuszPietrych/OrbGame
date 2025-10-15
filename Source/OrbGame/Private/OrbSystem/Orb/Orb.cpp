@@ -300,6 +300,11 @@ void AOrb::OnReturnedToPool_Implementation()
 	bOrbIsActive = false;
 }
 
+FGameplayTag AOrb::GetObjectTag_Implementation()
+{
+	return OrbGameplayTag;
+}
+
 
 void AOrb::OrbEndedUse()
 {

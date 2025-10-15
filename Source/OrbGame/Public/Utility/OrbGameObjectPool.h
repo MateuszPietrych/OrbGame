@@ -22,7 +22,7 @@ public:
     TArray<TScriptInterface<IPoolObject>> PooledObjects;
 
     UFUNCTION(BlueprintCallable, Category="Pooling")
-    void Initialize(TSubclassOf<AActor> NewActorClass, UObject* NewWorldContextObject);
+    void Initialize(TSubclassOf<UObject> NewActorClass, UObject* NewWorldContextObject);
 
     UFUNCTION(BlueprintCallable, Category="Pooling")
     TScriptInterface<IPoolObject> AcquireObject();
@@ -33,8 +33,13 @@ public:
 
 private:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Pooling", meta=(AllowPrivateAccess="true"))
-    TSubclassOf<AActor> ActorClass;
+    TSubclassOf<UObject> ActorClass;
 
     UPROPERTY() // keep it referenced for GC
     UObject* WorldContextObject = nullptr;
 };
+
+
+
+
+// 

@@ -40,4 +40,7 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "OrbGame|Utility")
 	static FAbilityInfoForUI GetAbilityInfoForUI(UAbilityDataAsset* AbilityDataAsset, int Level);
+
+	UFUNCTION(BlueprintCallable, Category = "OrbGame|Utility")
+	static float DistanceToPlayer(AActor* Actor);
 };

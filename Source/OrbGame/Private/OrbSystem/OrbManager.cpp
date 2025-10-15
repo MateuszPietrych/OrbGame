@@ -10,9 +10,9 @@
 #include "OrbSystem/OrbTransferer.h"
 #include "AbilitySystemComponent.h"
 #include "Chaos/ObjectPool.h"
-#include "Utility/OrbPool.h"
 #include "OrbGameBlueprintLibrary.h"
 #include "GameFramework/Character.h"
+#include "Utility/OrbMultiPool.h"
 
 
 
@@ -36,7 +36,7 @@ void UOrbManager::BeginPlay()
 
 void UOrbManager::InitializeOrbPools(FItemSet<FGameplayTag> OrbTags)
 {
-	OrbPool = NewObject<UOrbPool>(this, UOrbPool::StaticClass());
+	OrbPool = NewObject<UOrbMultiPool>(this, UOrbMultiPool::StaticClass());
 	OrbPool->Initialize(OrbTags);
 }
 
