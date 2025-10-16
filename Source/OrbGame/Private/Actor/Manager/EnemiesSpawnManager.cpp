@@ -4,6 +4,7 @@
 #include "Actor/Manager/EnemiesSpawnManager.h"
 #include "Kismet/GameplayStatics.h"
 #include "Actor/EnemySpawner.h"
+#include "OrbGameBlueprintLibrary.h"
 
 // Sets default values
 AEnemiesSpawnManager::AEnemiesSpawnManager()
@@ -17,7 +18,8 @@ AEnemiesSpawnManager::AEnemiesSpawnManager()
 void AEnemiesSpawnManager::BeginPlay()
 {
 	Super::BeginPlay();
-	// UGameplayStatics::GetAllActorsOfClass(GetWorld(), AEnemySpawner::StaticClass(), EnemySpawners);
+	float TimeToFirstWave = EnemyWaves[CurrentWaveIndex].TimeToThisWave;
+	GetWorld()->GetTimerManager().SetTimer(WaveTimerHandle, this, &AEnemiesSpawnManager::SpawnWave, TimeToFirstWave, false);
 }
 
 // Called every frame
@@ -31,10 +33,48 @@ void AEnemiesSpawnManager::SpawnWave()
 {
 	if (EnemyWaves.IsValidIndex(CurrentWaveIndex))
 	{
-		const FEnemyWave& WaveToSpawn = EnemyWaves[CurrentWaveIndex];
-		// Logic to spawn enemies based on WaveToSpawn data
+		FEnemyWave WaveToSpawn = EnemyWaves[CurrentWaveIndex];
+
+		// Spawn enemy far from player
+		TArray<AEnemySpawner*> ValidSpawners = GetValidSpawners();
+		if(ValidSpawners.Num() == 0)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("SpawnWave: No valid spawners found"));
+			return;
+		}
+
+		const TArray<FEnemyWaveGroup> PartedGroups = WaveToSpawn.PartGroup(ValidSpawners.Num());
+
+		for(AEnemySpawner* Spawner : ValidSpawners)
+		{
+			if(!Spawner) continue;
+
+			int SpawnerIndex = ValidSpawners.IndexOfByKey(Spawner);
+			if(!PartedGroups.IsValidIndex(SpawnerIndex)) continue;
+
+			FEnemyGroup SpawnedGroup = Spawner->SpawnEnemies(PartedGroups[SpawnerIndex], EnemyPool);
+		}
 
 		// Move to the next wave for the next call
 		CurrentWaveIndex++;
+		if(CurrentWaveIndex >= EnemyWaves.Num()) return;
+		GetWorld()->GetTimerManager().SetTimer(WaveTimerHandle, this, &AEnemiesSpawnManager::SpawnWave, EnemyWaves[CurrentWaveIndex].TimeToThisWave, false);
 	}
+}
+
+
+TArray<AEnemySpawner*> AEnemiesSpawnManager::GetValidSpawners()
+{
+	TArray<AEnemySpawner*> ValidSpawners;
+	for(AEnemySpawner* Spawner : EnemySpawners)
+	{
+		if(!Spawner) continue;
+
+		float DistanceToPlayer = UOrbGameBlueprintLibrary::DistanceToPlayer(Spawner);
+		if(DistanceToPlayer >= MinDistanceFromPlayer)
+		{
+			ValidSpawners.Add(Spawner);
+		}
+	}
+	return ValidSpawners;
 }

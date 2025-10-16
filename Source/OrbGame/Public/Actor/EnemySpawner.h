@@ -7,6 +7,8 @@
 #include "Structures.h"
 #include "EnemySpawner.generated.h"
 
+struct FEnemyGroup;
+class UEnemyMultiPool;
 
 UCLASS()
 class ORBGAME_API AEnemySpawner : public AActor
@@ -25,12 +27,13 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	void SpawnEnemies(FEnemyGroup EnemyGroup);
+	FEnemyGroup SpawnEnemies(const FEnemyWaveGroup& EnemyGroup, UEnemyMultiPool* EnemyPool = nullptr);
 
 private:
+	// UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Enemy Spawner", meta = (AllowPrivateAccess = "true"))
+	// int EnemiesSlotsForSpawn = 15;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Enemy Spawner", meta = (AllowPrivateAccess = "true"))
-	int EnemiesSlotsForSpawn = 15;
-
-
+	float MinDistanceBetweenEnemies = 5.f;
 
 };

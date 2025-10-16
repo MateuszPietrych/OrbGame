@@ -111,3 +111,16 @@ void AEnemy::OnDamageTaken(float NewHealth)
 		BodyMesh->SetOverlayMaterial(nullptr);
 	}, DamageOverlayDuration, false);
 }
+
+
+void AEnemy::ActivateSavingMode_Implementation()
+{
+	BodyMesh->SetVisibility(false);
+	CapsuleComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+}
+
+void AEnemy::DeactivateSavingMode_Implementation()
+{
+	BodyMesh->SetVisibility(true);
+	CapsuleComponent->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+}

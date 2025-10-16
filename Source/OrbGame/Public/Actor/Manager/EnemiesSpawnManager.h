@@ -32,12 +32,17 @@ public:
 
 	void SpawnWave();
 
+	TArray<AEnemySpawner*> GetValidSpawners();
+
 protected:
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Enemy Spawn Manager", meta = (AllowPrivateAccess = "true"))
 	TArray<FEnemyWave> EnemyWaves;
 
-	UPROPERTY()
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Enemy Spawn Manager", meta = (AllowPrivateAccess = "true"))
+	float MinDistanceFromPlayer = 1000.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Enemy Spawn Manager", meta = (AllowPrivateAccess = "true"))
 	TArray<AEnemySpawner*> EnemySpawners;
 
 	UPROPERTY()

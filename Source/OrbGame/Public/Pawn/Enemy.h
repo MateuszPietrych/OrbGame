@@ -6,11 +6,12 @@
 #include "OrbGame/OrbGameCharacter.h"
 #include "GameFramework/Pawn.h"
 #include "Interface/Damageable.h"
+#include "Interface/Optimizable.h"
 #include "Enemy.generated.h"
 
 
 UCLASS()
-class ORBGAME_API AEnemy : public APawn, public IDamageable, public IAbilitySystemInterface
+class ORBGAME_API AEnemy : public APawn, public IDamageable, public IAbilitySystemInterface, public IOptimizable
 {
 	GENERATED_BODY()
 
@@ -35,6 +36,9 @@ public:
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void OnSpeedChangedHandler(float NewSpeed);
+
+	virtual void ActivateSavingMode_Implementation() override;
+	virtual void DeactivateSavingMode_Implementation() override;
 
 private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Components, meta = (AllowPrivateAccess = "true"))

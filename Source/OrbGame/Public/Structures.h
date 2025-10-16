@@ -3,6 +3,7 @@
 #include "CoreMinimal.h"
 #include "Enums.h"
 #include "GameFramework/Actor.h"
+#include "GameplayTagContainer.h"
 #include "Structures.generated.h"
 
 class AEnemy;
@@ -206,7 +207,7 @@ struct FEnemyWaveGroup
 
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Enemy Wave Group")
-	TMap<TSubclassOf<AActor>, int> EnemiesToSpawn = {};
+	TMap<FGameplayTag, int> EnemiesToSpawn = {};
 
 	int GetTotalEnemies() const
 	{
@@ -240,7 +241,7 @@ public:
 
 		int TotalEnemiesCount = Group.GetTotalEnemies();
 
-		TMap<TSubclassOf<AActor>, int> TotalEnemies = Group.EnemiesToSpawn;
+		TMap<FGameplayTag, int> TotalEnemies = Group.EnemiesToSpawn;
 
 		
 		for(int i=0; i < TotalEnemiesCount; i++)
@@ -249,20 +250,20 @@ public:
 			int MaxEnemyIndex = TotalEnemies.Num();
 			int RandomEnemyIndex = FMath::RandRange(MinEnemyIndex, MaxEnemyIndex - 1);
 
-			TArray<TSubclassOf<AActor>> OutKeys;
+			TArray<FGameplayTag> OutKeys;
 			TotalEnemies.GetKeys(OutKeys);
-			TSubclassOf<AActor> EnemyClass = OutKeys[RandomEnemyIndex];
+			FGameplayTag EnemyTag = OutKeys[RandomEnemyIndex];
 
-			if(EnemyClass)
+			if(EnemyTag.IsValid())
 			{
 				int ResultGroupIndex = i % Parts;
 				if (!Result.IsValidIndex(ResultGroupIndex)) continue;
-				Result[ResultGroupIndex].EnemiesToSpawn.Add(EnemyClass, Result[ResultGroupIndex].EnemiesToSpawn.FindRef(EnemyClass) + 1);
+				Result[ResultGroupIndex].EnemiesToSpawn.Add(EnemyTag, Result[ResultGroupIndex].EnemiesToSpawn.FindRef(EnemyTag) + 1);
 			}
 
-			if(TotalEnemies[EnemyClass] <= 0)
+			if(TotalEnemies[EnemyTag] <= 0)
 			{
-				TotalEnemies.Remove(EnemyClass);
+				TotalEnemies.Remove(EnemyTag);
 			}
 		}
 
@@ -276,6 +277,7 @@ struct FEnemyGroup
 {
 	GENERATED_BODY()
 
+public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Enemy Group")
 	TArray<AEnemy*> Enemies = {};
 
