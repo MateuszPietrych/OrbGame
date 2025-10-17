@@ -5,6 +5,8 @@
 #include "Kismet/GameplayStatics.h"
 #include "Actor/EnemySpawner.h"
 #include "OrbGameBlueprintLibrary.h"
+#include "Actor/Manager/EnemiesManager.h"
+#include "Structures.h"
 
 // Sets default values
 AEnemiesSpawnManager::AEnemiesSpawnManager()
@@ -53,6 +55,7 @@ void AEnemiesSpawnManager::SpawnWave()
 			if(!PartedGroups.IsValidIndex(SpawnerIndex)) continue;
 
 			FEnemyGroup SpawnedGroup = Spawner->SpawnEnemies(PartedGroups[SpawnerIndex], EnemyPool);
+			EnemiesManager->AddEnemies(SpawnedGroup.Enemies);
 		}
 
 		// Move to the next wave for the next call

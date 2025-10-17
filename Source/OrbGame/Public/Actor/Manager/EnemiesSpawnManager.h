@@ -35,7 +35,10 @@ public:
 	TArray<AEnemySpawner*> GetValidSpawners();
 
 protected:
-	
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Enemy Spawn Manager", meta = (AllowPrivateAccess = "true"))
+	class AEnemiesManager* EnemiesManager;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Enemy Spawn Manager", meta = (AllowPrivateAccess = "true"))
 	TArray<FEnemyWave> EnemyWaves;
 
