@@ -14,6 +14,7 @@
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnOrbAbilityStartSignature, AOrb*, Orb, const FOrbUseContext&, OrbUseContext, FGameplayTag, AbilityTag);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_FourParams(FOnOrbSystemStateChangedSignature, EOrbSystemState, NewState, EOrbSystemState, OldState, AOrb*, PreparedOrb, AOrb*, AdvancedUseOrb);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FChangeOrbCountSignature, int32, NewOrbCount);
 
 
 UCLASS(Blueprintable, ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
@@ -151,6 +152,12 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	TArray<FOrbLevelData> GetOrbLevelsData() const { return OrbLevelsData; }
+
+	UFUNCTION(BlueprintCallable)
+	int32 GetTotalOrbsCount() const;
+
+	UPROPERTY(BlueprintAssignable, Category="Orb")
+	FChangeOrbCountSignature OnChangeOrbCount;
 
 private:
 

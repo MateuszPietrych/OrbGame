@@ -6,6 +6,7 @@
 #include "OrbSystem/GAS/OrbGameAbilitySystemComponent.h"
 #include "Structures.h"
 #include "OrbGameStructs.h"
+#include "OrbGame/OrbGameCharacter.h"
 #include "OrbUserAbilitySystemComponent.generated.h"
 
 
@@ -29,7 +30,7 @@ public:
 	void SpawnOrbIfPossible();
 
 	UFUNCTION()
-	void GainExp(float NewExp);
+	bool GainExp(float NewExp, float& OutExp);
 
 	UFUNCTION()
 	float ModifyExpGain(float NewExp);
@@ -49,9 +50,22 @@ public:
 	UFUNCTION()
 	void ChooseActionByOrbSystemChanged(EOrbSystemState NewState, EOrbSystemState OldState, AOrb* PreparedOrb, AOrb* AdvancedUseOrb);
 
+	UFUNCTION()
+	float GetCurrentExpThreshold() const;
+
+	UFUNCTION()
+	FScalableFloat GetSpeedDebuffPercent() const { return SpeedDebuffPercent; }
+
+	UFUNCTION(BlueprintCallable)
+	UOrbManager* GetOrbManager() const { return OrbManager; }
+
+	UFUNCTION()
+	void OnOrbCountChanged(int32 NewOrbCount);
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Orb Set")
 	TArray<FOrbSetSlotStartInfo> OrbSetSlotStartInfos;
 
+	FOnExpChangedSignature OnExpChanged;
 
 protected:
 	virtual void BeginPlay() override;
@@ -80,9 +94,11 @@ private:
 	UPROPERTY()
 	FGameplayAbilitySpecHandle LastAbilitySpecHandle;
 
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = OrbLevelData, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Exp, meta = (AllowPrivateAccess = "true"))
 	FScalableFloat ExpThreshold = 0.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = SpeedDebuff, meta = (AllowPrivateAccess = "true"))
+	FScalableFloat SpeedDebuffPercent = 0.0f;
 
 	UPROPERTY()
 	int Level = 1;
@@ -93,8 +109,11 @@ private:
 	UPROPERTY()
 	int NumberOfAbilitiesToDraw = 3;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = OrbLevelData, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Start, meta = (AllowPrivateAccess = "true"))
 	TArray<TSubclassOf<UOrbGameGameplayAbility>> StartingStatAbilities;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Start, meta = (AllowPrivateAccess = "true"))
+	TArray<TSubclassOf<UGameplayEffect>> StartingStatEffects;
 
 	UPROPERTY()
 	TMap<FGameplayTag, FGameplayAbilitySpecHandle> PassiveAbilityTagToSpecHandle = TMap<FGameplayTag, FGameplayAbilitySpecHandle>();

@@ -52,6 +52,8 @@ void UOrbUserAbilitySystemComponent::BeginPlay()
         }
     }
 
+
+
     // OrbManager->OnOrbSystemStateChanged.AddDynamic(this, &UOrbUserAbilitySystemComponent::ChooseActionByOrbSystemChanged);
 
     GetWorld()->GetTimerManager().SetTimer(SpawnOrbTimerHandle, this, &UOrbUserAbilitySystemComponent::SpawnOrbIfPossible, TimeBetweenSpawn, true);
@@ -62,6 +64,7 @@ void UOrbUserAbilitySystemComponent::InitalizeOrbSystemElements(UOrbManager* New
     OrbManager = NewOrbManager;
     OrbManager->InitializeOrbPools(OrbsSet);
     OrbManager->OnOrbAbilityStart.AddDynamic(this, &UOrbUserAbilitySystemComponent::UseAbility);
+    OrbManager->OnChangeOrbCount.AddDynamic(this, &UOrbUserAbilitySystemComponent::OnOrbCountChanged);
 }
 
 void UOrbUserAbilitySystemComponent::SpawnOrbIfPossible()
@@ -126,20 +129,25 @@ EOrbAbilityType UOrbUserAbilitySystemComponent::GetOrbAbilityTypeFromTag(FGamepl
 }
 
 
-void UOrbUserAbilitySystemComponent::GainExp(float GainExp)
+bool UOrbUserAbilitySystemComponent::GainExp(float GainExp, float& OutExp)
 {
     float NewExp = ModifyExpGain(GainExp);
     if(NewExp <= 0.0f)
     {
         UE_LOG(LogTemp, Warning, TEXT("GainExp called with non-positive value: %f"), NewExp);
-        return;
+        return false;
     }
 
     CurrentExp += NewExp;
-    if(CurrentExp >= ExpThreshold.GetValueAtLevel(Level+1))
+    if(CurrentExp >= GetCurrentExpThreshold())
     {
         LevelUp(Level + 1);
+        OutExp = CurrentExp - GetCurrentExpThreshold();
+        OnExpChanged.Broadcast(OutExp);
+        return true;
     }
+    OnExpChanged.Broadcast(CurrentExp);
+    return false;
 }
 
 float UOrbUserAbilitySystemComponent::ModifyExpGain(float NewExp)
@@ -253,4 +261,24 @@ void UOrbUserAbilitySystemComponent::ChooseActionByOrbSystemChanged(EOrbSystemSt
             // Spec->Ability->EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
         }
     }
+}
+
+float UOrbUserAbilitySystemComponent::GetCurrentExpThreshold() const
+{
+    return ExpThreshold.GetValueAtLevel(Level+1);
+}
+
+void UOrbUserAbilitySystemComponent::OnOrbCountChanged(int32 NewOrbCount)
+{
+    for(TSubclassOf<UGameplayEffect> EffectClass : StartingStatEffects)
+    {
+        if(EffectClass)
+        {
+            RemoveActiveGameplayEffectBySourceEffect(EffectClass, this);
+            FGameplayEffectContextHandle EffectContext = MakeEffectContext();
+            EffectContext.AddInstigator(GetOwner(), Cast<ACharacter>(GetOwner()));
+            FGameplayEffectSpecHandle SpecHandle = MakeOutgoingSpec(EffectClass, NewOrbCount, EffectContext);
+            ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
+        }
+    }   
 }

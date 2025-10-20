@@ -95,6 +95,7 @@ void UOrbManager::AddOrb(FGameplayTag OrbTag)
 			Orb = SetupOrb(Orb);
 
 			OrbLevelData.Orbs.Add(Orb);
+			OnChangeOrbCount.Broadcast(GetTotalOrbsCount());
 			Orb->SetOrbPosition(OrbLevelData.XOffset, OrbLevelData.ZOffset);
 			Orb->SetRotationSpeed(BaseSpeed);
 
@@ -297,8 +298,8 @@ void UOrbManager::PrepareOrbToUse(AOrb* HittedOrb, FVector NewFinishPoint)
 			return;
 		}
 		OrbLevelsData[0].Orbs.RemoveAt(IndexOfRemovedOrb);
-
 		FixOrbsPosition(false, IndexOfRemovedOrb, OrbToUse);
+		OnChangeOrbCount.Broadcast(GetTotalOrbsCount());
 		GetWorld()->GetTimerManager().SetTimer(PrepareOrbToUseTimerHandle, this, &UOrbManager::ChangeOrbPosition, 0.01f, true);
 	}else
 	{
@@ -388,6 +389,7 @@ void UOrbManager::UnprepareFirstLevel()
 	ChangeOrbState(EOrbSystemState::UNPREPARING_ADVANCED_USE);
 	GetWorld()->GetTimerManager().ClearTimer(PrepareOrbToUseTimerHandle);
 	TimeInReposition = 0.0f;
+	OnChangeOrbCount.Broadcast(GetTotalOrbsCount());
 	GetWorld()->GetTimerManager().SetTimer(PrepareOrbToUseTimerHandle, this, &UOrbManager::ChangeFirstLevelPosition, 0.01f, true);
 }
 
@@ -589,4 +591,14 @@ void UOrbManager::ChangeOrbState(EOrbSystemState NewState)
 	FString StateString = "Orb system state changed!   New:" + UEnum::GetValueAsString(NewState);
 	GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, *StateString);
 	OnOrbSystemStateChanged.Broadcast(NewState, OldState, OrbToUse, FollowOrb);
+}
+
+int32 UOrbManager::GetTotalOrbsCount() const 
+{
+	int32 TotalOrbs = 0;
+	for(const FOrbLevelData& OrbLevelData : OrbLevelsData)
+	{
+		TotalOrbs += OrbLevelData.Orbs.Num();
+	}
+	return TotalOrbs;
 }

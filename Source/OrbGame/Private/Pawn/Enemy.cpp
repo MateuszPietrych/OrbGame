@@ -10,9 +10,12 @@
 #include "AbilitySystemComponent.h"
 #include "OrbSystem/GAS/OrbGameAbilitySystemComponent.h"
 #include "OrbSystem/GAS/OrbGameAttributeSet.h"
+#include "AbilitySystemBlueprintLibrary.h"
+#include "OrbGameBlueprintLibrary.h"
 #include "OrbGameGameplayTags.h"
 #include "GameFramework/PawnMovementComponent.h"
 #include "Actor/ExpHolderObject.h"
+#include "GameplayEffect.h"
 
 // Sets default values
 AEnemy::AEnemy()
@@ -52,6 +55,8 @@ void AEnemy::BeginPlay()
     {
         AbilitySystemComponent->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
     }
+
+	CapsuleComponent->OnComponentBeginOverlap.AddDynamic(this, &AEnemy::CapsuleInteraction);
 }
 
 UAbilitySystemComponent* AEnemy::GetAbilitySystemComponent() const
@@ -112,7 +117,6 @@ void AEnemy::OnDamageTaken(float NewHealth)
 	}, DamageOverlayDuration, false);
 }
 
-
 void AEnemy::ActivateSavingMode_Implementation()
 {
 	BodyMesh->SetVisibility(false);
@@ -123,4 +127,22 @@ void AEnemy::DeactivateSavingMode_Implementation()
 {
 	BodyMesh->SetVisibility(true);
 	CapsuleComponent->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+}
+
+void AEnemy::CapsuleInteraction(UPrimitiveComponent *OverlappedComponent,
+	AActor *OtherActor,
+	UPrimitiveComponent *OtherComp,
+	int32 OtherBodyIndex,	
+	bool bFromSweep,
+	const FHitResult &SweepResult)
+{
+	if(OtherActor && OtherActor != this && OtherComp->IsA(UCapsuleComponent::StaticClass()))
+	{
+		FDamageEffectParams DamageParams;
+		DamageParams.DamageGameplayEffectClass = DamageGameplayEffectClass;
+		DamageParams.SourceAbilitySystemComponent = AbilitySystemComponent;
+		DamageParams.TargetAbilitySystemComponent = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(OtherActor);
+		DamageParams.Damage = DamageOnTouch;
+		UOrbGameBlueprintLibrary::DealDamage(DamageParams);
+	}
 }

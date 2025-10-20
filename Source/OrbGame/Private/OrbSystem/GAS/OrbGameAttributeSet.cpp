@@ -25,6 +25,9 @@ void UOrbGameAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCal
     if (Data.EvaluatedData.Attribute == GetIncomingDamageAttribute())
 	{
 		HandleIncomingDamage(Data);
+	}else if (Data.EvaluatedData.Attribute == GetIncomingHealAttribute())
+	{
+		HandleIncomingHeal(Data);
 	}
 }
 

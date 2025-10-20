@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "OrbGame/OrbGameCharacter.h"
 #include "GameFramework/Pawn.h"
+#include "ScalableFloat.h"
 #include "Interface/Damageable.h"
 #include "Interface/Optimizable.h"
 #include "Enemy.generated.h"
@@ -40,6 +41,14 @@ public:
 	virtual void ActivateSavingMode_Implementation() override;
 	virtual void DeactivateSavingMode_Implementation() override;
 
+	UFUNCTION()
+	void CapsuleInteraction(UPrimitiveComponent *OverlappedComponent,
+		AActor *OtherActor,
+		UPrimitiveComponent *OtherComp,
+		int32 OtherBodyIndex,
+		bool bFromSweep,
+		const FHitResult &SweepResult);
+
 private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Components, meta = (AllowPrivateAccess = "true"))
 	class UStaticMeshComponent* BodyMesh;	
@@ -55,6 +64,12 @@ private:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Components, meta = (AllowPrivateAccess = "true"))
 	class UOrbGameAttributeSet* AttributeSet;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Damage, meta = (AllowPrivateAccess = "true"))
+	class TSubclassOf<UGameplayEffect> DamageGameplayEffectClass;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Damage, meta = (AllowPrivateAccess = "true"))
+	FScalableFloat DamageOnTouch;
 
 	//Probably to move to some Object Pool
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Exp, meta = (AllowPrivateAccess = "true"))

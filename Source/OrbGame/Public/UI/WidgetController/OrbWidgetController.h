@@ -9,7 +9,8 @@
 
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnLevelUpControllerSignature, FLevelUpWidgetInfo, LevelUpWidgetInfo);
-
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnHealthChangedSignature, float, NewHealth, float, MaxHealth);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnExpChangedControllerSignature, float, NewExp, float, MaxExp);
 
 class UAttributeSet;
 class UAbilitySystemComponent;
@@ -64,17 +65,31 @@ public:
 	UFUNCTION(BlueprintCallable)
 	UOrbGameAttributeSet* GetOrbGameAttributeSet();
 
+	UFUNCTION(BlueprintCallable)
+	AOrbGameCharacter* GetOrbGamePlayerCharacter();
+
 	void BindCallbacksToDependencies();
 
 	UPROPERTY(BlueprintAssignable, Category = "OrbWidgetController")
 	FOnLevelUpControllerSignature OnLevelUp;
 
+	UPROPERTY(BlueprintAssignable, Category = "OrbWidgetController")
+	FOnHealthChangedSignature OnHealthChanged;
+
+	UPROPERTY(BlueprintAssignable, Category = "OrbWidgetController")
+	FOnExpChangedControllerSignature OnExpChanged;
+
 	UFUNCTION()
 	void HandleLevelUp(int Level);
+	
+	UFUNCTION()
+	void HandleAttributeChange(FGameplayTag AttributeTag, float NewValue);
 
 	UFUNCTION()
 	void HandleAbilityLevelUpChoosen(FGameplayTag AbilityTag, int AdditionalLevel);
 
+	UFUNCTION()
+	void HandleExpChanged(float NewExp);
 
 protected:
 	UPROPERTY()

@@ -125,7 +125,7 @@ void AOrbGameCharacter::BeginPlay()
     {
         OrbUserAbilitySystemComponent->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
     }
-
+	SetupAttributeUsage();
 
 	OnExpChanged.AddDynamic(this, &AOrbGameCharacter::OnCharacterExpChanged);
 
@@ -142,9 +142,6 @@ void AOrbGameCharacter::SetupAttributeUsage()
 		);
 	OnSpeedChanged.AddDynamic(this, &AOrbGameCharacter::OnCharacterSpeedChanged);
 	OnSpeedChanged.Broadcast(AttributeSet->GetSpeed());
-
-
-
 }
  
 void AOrbGameCharacter::Tick(float DeltaSeconds)
@@ -241,15 +238,10 @@ void AOrbGameCharacter::SetNiagaraRayRotation(AOrb* FollowOrb)
 // 	}
 // }
 
-
-
 void AOrbGameCharacter::OnCharacterSpeedChanged(float NewValue)
 {
 	GetCharacterMovement()->MaxWalkSpeed = NewValue;
 }
-
-
-
 
 FRotator AOrbGameCharacter::LookAtOrb(AOrb* Orb)
 {
@@ -263,7 +255,12 @@ FRotator AOrbGameCharacter::LookAtOrb(AOrb* Orb)
 
 void AOrbGameCharacter::OnCharacterExpChanged(float NewExpValue)
 {
-	OrbUserAbilitySystemComponent->GainExp(NewExpValue);
+	float OutExp;
+	bool bLeveledUp = OrbUserAbilitySystemComponent->GainExp(NewExpValue, OutExp);
+	if(bLeveledUp)
+	{
+		OnExpChanged.Broadcast(OutExp);
+	}
 }
 
 

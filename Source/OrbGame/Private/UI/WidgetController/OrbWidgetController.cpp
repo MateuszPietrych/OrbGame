@@ -12,6 +12,7 @@
 #include "OrbGame/OrbGameGameMode.h"
 #include "OrbGameBlueprintLibrary.h"
 #include "OrbGameStructs.h"
+#include "OrbGameGameplayTags.h"
 
 
 
@@ -51,11 +52,21 @@ UOrbGameAttributeSet* UOrbWidgetController::GetOrbGameAttributeSet()
 	return OrbGamePlayerAttributeSet;
 }
 
+AOrbGameCharacter* UOrbWidgetController::GetOrbGamePlayerCharacter()
+{
+	if (OrbGamePlayerCharacter == nullptr)
+	{
+		OrbGamePlayerCharacter = Cast<AOrbGameCharacter>(PlayerCharacter);
+	}
+	return OrbGamePlayerCharacter;
+}
+
 void UOrbWidgetController::BindCallbacksToDependencies()
 {
     UE_LOG(LogTemp, Warning, TEXT("UOrbWidgetController::BindCallbacksToDependencies"));
     GetOrbGameAbilitySystemComponent()->OnLevelUp.AddDynamic(this, &UOrbWidgetController::HandleLevelUp);
-	
+	GetOrbGameAbilitySystemComponent()->OnAttributeChanged.AddDynamic(this, &UOrbWidgetController::HandleAttributeChange);
+	GetOrbGameAbilitySystemComponent()->OnExpChanged.AddDynamic(this, &UOrbWidgetController::HandleExpChanged);
 }
 
 void UOrbWidgetController::HandleLevelUp(int Level)
@@ -83,4 +94,23 @@ void UOrbWidgetController::HandleLevelUp(int Level)
 void UOrbWidgetController::HandleAbilityLevelUpChoosen(FGameplayTag AbilityTag, int AdditionalLevel)
 {
 	GetOrbGameAbilitySystemComponent()->LevelUpAbility(AbilityTag, AdditionalLevel);
+}
+
+void UOrbWidgetController::HandleAttributeChange(FGameplayTag AttributeTag, float NewValue)
+{
+	if (AttributeTag == FOrbGameGameplayTags::Get().Attribute_Health)
+	{
+		float MaxHealth = GetOrbGameAttributeSet()->GetMaxHealth();
+		OnHealthChanged.Broadcast(NewValue, MaxHealth);
+	}else if (AttributeTag == FOrbGameGameplayTags::Get().Attribute_MaxHealth)
+	{
+		float CurrentHealth = GetOrbGameAttributeSet()->GetHealth();
+		OnHealthChanged.Broadcast(CurrentHealth, NewValue);
+	}
+}
+
+void UOrbWidgetController::HandleExpChanged(float NewExp)
+{
+	float MaxExp = GetOrbGameAbilitySystemComponent()->GetCurrentExpThreshold();
+	OnExpChanged.Broadcast(NewExp, MaxExp);
 }

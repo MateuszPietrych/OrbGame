@@ -64,6 +64,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = GAS)
 	TSubclassOf<class UGameplayEffect> GameplayEffectClassToApplyOnStart;
 
+	UPROPERTY(BlueprintAssignable)
+	FOnExpChangedSignature OnExpChanged;
+
 private:
 
 	UFUNCTION() 
@@ -130,9 +133,6 @@ private:
 
 	UPROPERTY(BlueprintAssignable)
 	FOnAttributeChangedSignature OnHealthRegenerationChanged;
-
-	UPROPERTY(BlueprintAssignable)
-	FOnExpChangedSignature OnExpChanged;
 
 	UPROPERTY()
 	FTimerHandle HealthRegenerationTimerHandle;
