@@ -86,8 +86,11 @@ private:
 
 	UOrbManager* OrbManager = nullptr;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = OrbLevelData, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Orb, meta = (AllowPrivateAccess = "true"))
 	float TimeBetweenSpawn = 4.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Orb, meta = (AllowPrivateAccess = "true"))
+	int32 StartOrbCount = 4;
 
 	FTimerHandle SpawnOrbTimerHandle;
 

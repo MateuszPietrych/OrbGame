@@ -52,8 +52,6 @@ void UOrbUserAbilitySystemComponent::BeginPlay()
         }
     }
 
-
-
     // OrbManager->OnOrbSystemStateChanged.AddDynamic(this, &UOrbUserAbilitySystemComponent::ChooseActionByOrbSystemChanged);
 
     GetWorld()->GetTimerManager().SetTimer(SpawnOrbTimerHandle, this, &UOrbUserAbilitySystemComponent::SpawnOrbIfPossible, TimeBetweenSpawn, true);
@@ -65,6 +63,11 @@ void UOrbUserAbilitySystemComponent::InitalizeOrbSystemElements(UOrbManager* New
     OrbManager->InitializeOrbPools(OrbsSet);
     OrbManager->OnOrbAbilityStart.AddDynamic(this, &UOrbUserAbilitySystemComponent::UseAbility);
     OrbManager->OnChangeOrbCount.AddDynamic(this, &UOrbUserAbilitySystemComponent::OnOrbCountChanged);
+
+    for(int32 i = 0; i < StartOrbCount; ++i)
+    {
+        SpawnOrbIfPossible();
+    }
 }
 
 void UOrbUserAbilitySystemComponent::SpawnOrbIfPossible()

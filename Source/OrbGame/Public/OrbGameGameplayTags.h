@@ -68,6 +68,11 @@ public:
 	FGameplayTag Ability_Stat_IncreaseSpeed;
 	FGameplayTag Ability_Stat_HealthRegeneration;
 
+	FGameplayTag Enemy_Square;
+
+	FGameplayTag Effect_Stun;
+	FGameplayTag Effect_Slow; 
+
 private:
 	static FOrbGameGameplayTags GameplayTags;
 

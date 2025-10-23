@@ -16,6 +16,8 @@
 #include "GameFramework/PawnMovementComponent.h"
 #include "Actor/ExpHolderObject.h"
 #include "GameplayEffect.h"
+#include "OrbSystem/GAS/EffectStateManager.h"
+
 
 // Sets default values
 AEnemy::AEnemy()
@@ -57,6 +59,8 @@ void AEnemy::BeginPlay()
     }
 
 	CapsuleComponent->OnComponentBeginOverlap.AddDynamic(this, &AEnemy::CapsuleInteraction);
+
+	SetupEffectBindings();
 }
 
 UAbilitySystemComponent* AEnemy::GetAbilitySystemComponent() const
@@ -109,11 +113,17 @@ void AEnemy::OnHealthChangedHandler(float NewHealth)
 
 void AEnemy::OnDamageTaken(float NewHealth)
 {
-	BodyMesh->SetOverlayMaterial(DamageOverlayMaterialInstance);
+	if(BodyMesh) 
+	{
+		BodyMesh->SetOverlayMaterial(DamageOverlayMaterialInstance);
+	}
 	GetWorld()->GetTimerManager().ClearTimer(DamageTakenTimerHandle);
 	GetWorld()->GetTimerManager().SetTimer(DamageTakenTimerHandle, [this]()
 	{
-		BodyMesh->SetOverlayMaterial(nullptr);
+		if(BodyMesh)
+		{
+			BodyMesh->SetOverlayMaterial(nullptr);
+		}
 	}, DamageOverlayDuration, false);
 }
 
@@ -144,5 +154,36 @@ void AEnemy::CapsuleInteraction(UPrimitiveComponent *OverlappedComponent,
 		DamageParams.TargetAbilitySystemComponent = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(OtherActor);
 		DamageParams.Damage = DamageOnTouch;
 		UOrbGameBlueprintLibrary::DealDamage(DamageParams);
+	}
+}
+
+void AEnemy::SetupEffectBindings()
+{
+	if(!AbilitySystemComponent) return;
+
+	AbilitySystemComponent->RegisterGameplayTagEvent(
+		FOrbGameGameplayTags::Get().Effect_Stun, 
+		EGameplayTagEventType::NewOrRemoved).AddUObject(
+			this, 
+			&AEnemy::HandleStunEffect
+	);
+
+}
+
+void AEnemy::HandleStunEffect(const FGameplayTag CallbackTag, int32 NewCount)
+{
+	UEffectStateManager* EffectStateManager = AbilitySystemComponent->GetEffectStateManager();
+
+	if(NewCount > 0)
+	{
+		if(EffectStateManager->ActivateEffect(CallbackTag, 10.f))
+		{
+			DisableMovement();
+		}
+	}
+	else
+	{
+		EnableMovement();
+		EffectStateManager->DeactivateEffect(CallbackTag);
 	}
 }

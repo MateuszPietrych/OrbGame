@@ -25,12 +25,4 @@ class ORBGAME_API AFireOrb : public AProjectileOrb
 	virtual void BeginPlay() override;
 
 
-	private:
-
-	UPROPERTY(EditAnywhere, Category = "OrbData")
-	TSubclassOf<class ULineOrbEffect> LineOrbEffect;
-
-	UPROPERTY()
-	ULineOrbEffect* LineEffectInstance;
-
 };

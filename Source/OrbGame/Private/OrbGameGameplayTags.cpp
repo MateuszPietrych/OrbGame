@@ -186,5 +186,15 @@ void FOrbGameGameplayTags::InitializeNativeGameplayTags()
         TEXT("Regenerates Health over time")
     );
     
+    /* Enemies */
+    GameplayTags.Enemy_Square = UGameplayTagsManager::Get().AddNativeGameplayTag(
+        FName("Enemy.Square"), 
+        TEXT("Square type enemy")
+    );
 
+    /* Effects */
+    GameplayTags.Effect_Stun = UGameplayTagsManager::Get().AddNativeGameplayTag(
+        FName("Effect.Stun"), 
+        TEXT("Stun effect that immobilizes the target")
+    );
 }

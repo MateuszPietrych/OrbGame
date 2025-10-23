@@ -283,6 +283,25 @@ public:
 
 };
 
+//////////////////////////////// Effect State //////////////////////////////////////
+
+
+USTRUCT(BlueprintType)
+struct FEffectState
+{
+	GENERATED_BODY()
+
+public:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Effect State")
+	bool bIsEffectActive = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Effect State")
+	float TimeOfLastEffect = 0.0f;
+
+};
+
+
+
 
 
 

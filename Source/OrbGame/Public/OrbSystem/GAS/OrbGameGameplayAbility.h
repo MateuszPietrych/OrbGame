@@ -25,7 +25,6 @@ public:
 
 	virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override;
 
-
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay Ability")
 	UAbilityDataAsset* AbilityDataAsset;
 
@@ -33,6 +32,6 @@ public:
 
 	UAbilityDataAsset* GetAbilityDataAsset() const;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	UPROPERTY(BlueprintReadOnly)
 	FOrbUseContext OrbUseContext;
 };

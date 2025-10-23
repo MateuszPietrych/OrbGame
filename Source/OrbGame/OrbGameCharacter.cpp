@@ -130,6 +130,7 @@ void AOrbGameCharacter::BeginPlay()
 	OnExpChanged.AddDynamic(this, &AOrbGameCharacter::OnCharacterExpChanged);
 
 	ExpSphere->OnComponentBeginOverlap.AddDynamic(this, &AOrbGameCharacter::ExpHolderInteraction);
+
 }
 
 void AOrbGameCharacter::SetupAttributeUsage()
@@ -282,6 +283,7 @@ void AOrbGameCharacter::ExpHolderInteraction(UPrimitiveComponent *OverlappedComp
 		}
 	}
 }
+
 
 // void AOrbGameCharacter::MoveToLocation(FVector StartLocation, FVector EndLocation, float Duration)
 // {

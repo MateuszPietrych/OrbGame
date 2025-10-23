@@ -155,30 +155,23 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Components, meta = (AllowPrivateAccess = "true"))
 	class UProjectileMovementComponent* ProjectileMovement;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Components, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(BlueprintReadOnly, Category = Components, meta = (AllowPrivateAccess = "true"))
 	FGameplayAbilitySpec OverlapAbilitySpec;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Components, meta =(AllowPrivateAccess = "true"))
+	UPROPERTY(BlueprintReadOnly, Category = Components, meta =(AllowPrivateAccess = "true"))
 	class UOrbGameGameplayAbility* CurrentOrbOverlapAbilityInstance;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Components, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(BlueprintReadOnly, Category = Components, meta = (AllowPrivateAccess = "true"))
 	FGameplayAbilitySpec SimpleUseAbilitySpec;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Components, meta =(AllowPrivateAccess = "true"))
+	UPROPERTY(BlueprintReadOnly, Category = Components, meta =(AllowPrivateAccess = "true"))
 	class UOrbGameGameplayAbility* CurrentOrbSimpleUseAbilityInstance;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Components, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(BlueprintReadOnly, Category = Components, meta = (AllowPrivateAccess = "true"))
 	FGameplayAbilitySpec AdvancedUseAbilitySpec;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Components, meta =(AllowPrivateAccess = "true"))
+	UPROPERTY(BlueprintReadOnly, Category = Components, meta =(AllowPrivateAccess = "true"))
 	class UOrbGameGameplayAbility* CurrentOrbAdvancedUseAbilityInstance; 
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = OrbData, meta = (AllowPrivateAccess = "true"))
-	float BaseProjectileSpeed = 1000.0f;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = OrbData, meta = (AllowPrivateAccess = "true"))
-	float BaseProjectileSphereRadius = 100.0f;
-
 
 	bool bWasSimpleActionUsed = false;
 	FTimerHandle LongUseTickTimerHandle;

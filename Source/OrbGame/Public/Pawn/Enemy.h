@@ -38,6 +38,12 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 	void OnSpeedChangedHandler(float NewSpeed);
 
+	UFUNCTION(BlueprintImplementableEvent)
+	void DisableMovement();
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void EnableMovement();
+
 	virtual void ActivateSavingMode_Implementation() override;
 	virtual void DeactivateSavingMode_Implementation() override;
 
@@ -50,6 +56,12 @@ public:
 		const FHitResult &SweepResult);
 
 private:
+
+	void SetupEffectBindings();
+
+	UFUNCTION()
+	void HandleStunEffect(const FGameplayTag CallbackTag, int32 NewCount);
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Components, meta = (AllowPrivateAccess = "true"))
 	class UStaticMeshComponent* BodyMesh;	
 

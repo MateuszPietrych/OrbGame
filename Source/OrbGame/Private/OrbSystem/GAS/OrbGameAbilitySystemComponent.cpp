@@ -3,9 +3,15 @@
 
 #include "OrbSystem/GAS/OrbGameAbilitySystemComponent.h"
 #include "OrbSystem/GAS/OrbGameAttributeSet.h"
+#include "OrbSystem/GAS/EffectStateManager.h"
 
 
 
+void UOrbGameAbilitySystemComponent::BeginPlay()
+{
+    Super::BeginPlay();
+    EffectStateManager = NewObject<UEffectStateManager>(this, UEffectStateManager::StaticClass());
+}
 
 void UOrbGameAbilitySystemComponent::InitializeAttributesDelegate(UOrbGameAttributeSet* AttributeSet)
 {

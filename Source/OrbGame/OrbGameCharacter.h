@@ -72,6 +72,8 @@ private:
 	UFUNCTION() 
 	void OnCharacterSpeedChanged(float NewValue);
 
+
+
 	// UFUNCTION()
 	// void OnHealthRegenerationChanged(float NewValue);
 

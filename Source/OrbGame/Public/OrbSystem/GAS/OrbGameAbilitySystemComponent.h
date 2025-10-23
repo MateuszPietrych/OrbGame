@@ -10,6 +10,7 @@
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnAttributeByTagChangedSignature, FGameplayTag, AttributeTag, float, NewValue);
 
+class UEffectStateManager;
 /**
  * 
  */
@@ -19,6 +20,9 @@ class ORBGAME_API UOrbGameAbilitySystemComponent : public UAbilitySystemComponen
 	GENERATED_BODY()
 
 public:
+
+	virtual void BeginPlay() override;
+
 	UFUNCTION(BlueprintCallable, Category = "Attributes")
 	void InitializeAttributesDelegate(UOrbGameAttributeSet* AttributeSet);
 
@@ -26,5 +30,10 @@ public:
 
 	UPROPERTY(BlueprintAssignable, Category = "Attributes")
 	FOnAttributeByTagChangedSignature OnAttributeChanged;
+
+	UEffectStateManager* GetEffectStateManager() const { return EffectStateManager; }
+
+private:
+	UEffectStateManager* EffectStateManager = nullptr;
 
 };
