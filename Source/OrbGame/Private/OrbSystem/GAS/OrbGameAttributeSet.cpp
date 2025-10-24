@@ -16,6 +16,7 @@ UOrbGameAttributeSet::UOrbGameAttributeSet()
 	TagsToAttributes.Add(GameplayTags.Attribute_Speed, GetSpeedAttribute);
 	TagsToAttributes.Add(GameplayTags.Attribute_Strength, GetStrengthAttribute);
 	TagsToAttributes.Add(GameplayTags.Attribute_HealthRegeneration, GetHealthRegenerationAttribute);
+	TagsToAttributes.Add(GameplayTags.Attribute_Tenacity, GetTenacityAttribute);
 }
 
 void UOrbGameAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallbackData& Data)

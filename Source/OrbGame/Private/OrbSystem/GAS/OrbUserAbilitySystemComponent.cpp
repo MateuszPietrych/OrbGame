@@ -52,9 +52,7 @@ void UOrbUserAbilitySystemComponent::BeginPlay()
         }
     }
 
-    // OrbManager->OnOrbSystemStateChanged.AddDynamic(this, &UOrbUserAbilitySystemComponent::ChooseActionByOrbSystemChanged);
-
-    GetWorld()->GetTimerManager().SetTimer(SpawnOrbTimerHandle, this, &UOrbUserAbilitySystemComponent::SpawnOrbIfPossible, TimeBetweenSpawn, true);
+    SetTimeBetweenSpawn(TimeBetweenSpawn);
 }
 
 void UOrbUserAbilitySystemComponent::InitalizeOrbSystemElements(UOrbManager* NewOrbManager)
@@ -63,6 +61,8 @@ void UOrbUserAbilitySystemComponent::InitalizeOrbSystemElements(UOrbManager* New
     OrbManager->InitializeOrbPools(OrbsSet);
     OrbManager->OnOrbAbilityStart.AddDynamic(this, &UOrbUserAbilitySystemComponent::UseAbility);
     OrbManager->OnChangeOrbCount.AddDynamic(this, &UOrbUserAbilitySystemComponent::OnOrbCountChanged);
+    OrbManager->OnOrbSystemStateChanged.AddDynamic(this, &UOrbUserAbilitySystemComponent::ChooseActionByOrbSystemChanged);
+
 
     for(int32 i = 0; i < StartOrbCount; ++i)
     {
@@ -106,7 +106,13 @@ void UOrbUserAbilitySystemComponent::UseAbility(AOrb* Orb, const FOrbUseContext&
 	TriggerEventData.Instigator = Cast<APawn>(GetOwner());
     TriggerEventData.OptionalObject = Wrapper;
 
-	LastAbilitySpecHandle = ASC->GiveAbilityAndActivateOnce(AbilitySpec, &TriggerEventData);
+    if(AbilityType == EOrbAbilityType::ADVANCED_USE)
+    {
+        LastAdvancedAbilitySpecHandle = ASC->GiveAbilityAndActivateOnce(AbilitySpec, &TriggerEventData);
+    }else
+    {
+        ASC->GiveAbilityAndActivateOnce(AbilitySpec, &TriggerEventData);
+    }
 }
 
 EOrbAbilityType UOrbUserAbilitySystemComponent::GetOrbAbilityTypeFromTag(FGameplayTag OrbTag) const
@@ -253,15 +259,20 @@ void UOrbUserAbilitySystemComponent::ChooseActionByOrbSystemChanged(EOrbSystemSt
 {
     if(NewState == EOrbSystemState::UNPREPARING_ADVANCED_USE)
     {
-        FGameplayAbilitySpec* Spec = FindAbilitySpecFromHandle(LastAbilitySpecHandle);
+        FGameplayAbilitySpec* Spec = FindAbilitySpecFromHandle(LastAdvancedAbilitySpecHandle);
         if(Spec)
         {
-            const FGameplayAbilitySpecHandle Handle = LastAbilitySpecHandle;
-            const FGameplayAbilityActorInfo* ActorInfo = AbilityActorInfo.Get();
-            const FGameplayAbilityActivationInfo ActivationInfo = Spec->Ability->GetCurrentActivationInfo();
-            bool bReplicateEndAbility = true;
-            bool bWasCancelled = false;
-            // Spec->Ability->EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
+            // const FGameplayAbilitySpecHandle Handle = LastAdvancedAbilitySpecHandle;
+            // const FGameplayAbilityActorInfo* ActorInfo = AbilityActorInfo.Get();
+            // const FGameplayAbilityActivationInfo ActivationInfo = Spec->Ability->GetCurrentActivationInfo();
+            // bool bReplicateEndAbility = true;
+            // bool bWasCancelled = false;
+            CancelAbilityHandle(LastAdvancedAbilitySpecHandle);
+            // UOrbGameGameplayAbility* OrbGameAbility = Cast<UOrbGameGameplayAbility>(Spec->Ability);
+            // if(OrbGameAbility)
+            // {
+            //     CancelAbilityHandle(Handle);
+            // }
         }
     }
 }
@@ -284,4 +295,11 @@ void UOrbUserAbilitySystemComponent::OnOrbCountChanged(int32 NewOrbCount)
             ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
         }
     }   
+}
+
+void UOrbUserAbilitySystemComponent::SetTimeBetweenSpawn(float NewTimeBetweenSpawn)
+{
+    TimeBetweenSpawn = NewTimeBetweenSpawn;
+    GetWorld()->GetTimerManager().ClearTimer(SpawnOrbTimerHandle);
+    GetWorld()->GetTimerManager().SetTimer(SpawnOrbTimerHandle, this, &UOrbUserAbilitySystemComponent::SpawnOrbIfPossible, TimeBetweenSpawn, true);
 }

@@ -19,14 +19,23 @@ class ORBGAME_API UEffectStateManager : public UObject
 	GENERATED_BODY()
 
 private:
+
+	UWorld* GetWorldChecked() const;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Effect States", meta = (AllowPrivateAccess = "true"))
 	TArray<FGameplayTag> DefaultEffectTags = TArray<FGameplayTag>();
 
 	UPROPERTY()
 	TMap<FGameplayTag, FEffectState> EffectStates = TMap<FGameplayTag, FEffectState>();
 
+	UPROPERTY()
+    UObject* WorldContextObject = nullptr;
+
+
 public:
 	UEffectStateManager();
+
+	void Initialize(UObject* InWorldContextObject);
 
 	UFUNCTION()
 	bool CanActivateEffect(FGameplayTag EffectTag, float EffectCooldown) const;
@@ -37,5 +46,6 @@ public:
 	UFUNCTION()
 	void DeactivateEffect(FGameplayTag EffectTag);
 
-
+private:
+    
 };

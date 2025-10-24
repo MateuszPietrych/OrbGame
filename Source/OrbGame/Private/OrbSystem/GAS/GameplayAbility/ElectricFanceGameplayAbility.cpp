@@ -95,11 +95,16 @@ TArray<AActor*> UElectricFanceGameplayAbility::GetAffectedActorsByOrbs(AOrb* Orb
 
     float SphereRadius = BeamThicknessRadius;
 
-    ECollisionChannel TraceChannel = ECC_Visibility;
+    ECollisionChannel TraceChannel = ECC_Pawn;
 
     FCollisionQueryParams QueryParams;
     QueryParams.AddIgnoredActor(OrbA);
     QueryParams.AddIgnoredActor(OrbB);
+    UObject* Owner = OrbUseContext.SourceAbilitySystemComponent ? OrbUseContext.SourceAbilitySystemComponent->GetOwner() : nullptr;
+    if(Owner)
+    {
+        QueryParams.AddIgnoredActor(Cast<AActor>(Owner));
+    }
     QueryParams.bTraceComplex = false;
 
     TArray<FHitResult> Hits;

@@ -11,6 +11,7 @@ void UOrbGameAbilitySystemComponent::BeginPlay()
 {
     Super::BeginPlay();
     EffectStateManager = NewObject<UEffectStateManager>(this, UEffectStateManager::StaticClass());
+    EffectStateManager->Initialize(this);
 }
 
 void UOrbGameAbilitySystemComponent::InitializeAttributesDelegate(UOrbGameAttributeSet* AttributeSet)

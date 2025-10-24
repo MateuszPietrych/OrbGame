@@ -39,6 +39,7 @@ public:
 
 	TMap<FGameplayTag, TStaticFuncPtr<FGameplayAttribute()>> TagsToAttributes;
 
+	/* Primary Attributes */
 	UPROPERTY(BlueprintReadOnly, Category = "Attributes")
 	FGameplayAttributeData Strength;
 	ATTRIBUTE_ACCESSORS(UOrbGameAttributeSet, Strength);
@@ -67,6 +68,12 @@ public:
 	FGameplayAttributeData ExpModifier;
 	ATTRIBUTE_ACCESSORS(UOrbGameAttributeSet, ExpModifier);
 
+	UPROPERTY(BlueprintReadOnly, Category = "Attributes")
+	FGameplayAttributeData Tenacity;
+	ATTRIBUTE_ACCESSORS(UOrbGameAttributeSet, Tenacity);
+
+
+	/* Incoming Attributes */
 	UPROPERTY(BlueprintReadOnly, Category = "Incoming Attributes")
 	FGameplayAttributeData IncomingDamage;
 	ATTRIBUTE_ACCESSORS(UOrbGameAttributeSet, IncomingDamage);

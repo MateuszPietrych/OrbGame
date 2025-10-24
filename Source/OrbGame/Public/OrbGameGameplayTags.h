@@ -23,6 +23,7 @@ public:
 	FGameplayTag Attribute_MaxHealth;
 	FGameplayTag Attribute_Health;
 	FGameplayTag Attribute_Speed;
+	FGameplayTag Attribute_Tenacity;
 
 	/* Effects */
 	FGameplayTag Effect_Damage;

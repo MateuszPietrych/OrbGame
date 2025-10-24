@@ -156,6 +156,12 @@ public:
 	UFUNCTION(BlueprintCallable)
 	int32 GetTotalOrbsCount() const;
 
+	UFUNCTION(BlueprintCallable)
+	float GetBaseSpeed() const { return BaseSpeed; }
+
+	UFUNCTION(BlueprintCallable)
+	void SetBaseSpeed(float NewBaseSpeed);
+
 	UPROPERTY(BlueprintAssignable, Category="Orb")
 	FChangeOrbCountSignature OnChangeOrbCount;
 

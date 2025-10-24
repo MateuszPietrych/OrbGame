@@ -588,8 +588,8 @@ void UOrbManager::ChangeOrbState(EOrbSystemState NewState)
 {
 	EOrbSystemState OldState = CurrentOrbSystemState;
 	CurrentOrbSystemState = NewState;
-	FString StateString = "Orb system state changed!   New:" + UEnum::GetValueAsString(NewState);
-	GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, *StateString);
+	// FString StateString = "Orb system state changed!   New:" + UEnum::GetValueAsString(NewState);
+	// GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, *StateString);
 	OnOrbSystemStateChanged.Broadcast(NewState, OldState, OrbToUse, FollowOrb);
 }
 
@@ -601,4 +601,16 @@ int32 UOrbManager::GetTotalOrbsCount() const
 		TotalOrbs += OrbLevelData.Orbs.Num();
 	}
 	return TotalOrbs;
+}
+
+void UOrbManager::SetBaseSpeed(float NewBaseSpeed)
+{
+	BaseSpeed = NewBaseSpeed;
+	for(FOrbLevelData& OrbLevelData : OrbLevelsData)
+	{
+		for(AOrb* Orb: OrbLevelData.Orbs)
+		{
+			Orb->SetRotationSpeed(BaseSpeed);
+		}
+	}
 }

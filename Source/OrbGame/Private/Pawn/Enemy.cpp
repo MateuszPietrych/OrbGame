@@ -176,7 +176,8 @@ void AEnemy::HandleStunEffect(const FGameplayTag CallbackTag, int32 NewCount)
 
 	if(NewCount > 0)
 	{
-		if(EffectStateManager->ActivateEffect(CallbackTag, 10.f))
+		float Tenacity = AttributeSet->GetTenacity();
+		if(EffectStateManager->ActivateEffect(CallbackTag, Tenacity))
 		{
 			DisableMovement();
 		}

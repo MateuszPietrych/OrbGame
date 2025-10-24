@@ -40,6 +40,11 @@ void FOrbGameGameplayTags::InitializeNativeGameplayTags()
         TEXT("Movement speed of the character")
     );
 
+    GameplayTags.Attribute_Tenacity = UGameplayTagsManager::Get().AddNativeGameplayTag(
+        FName("Attributes.Tenacity"), 
+        TEXT("Reduces duration of negative effects")
+    );
+
     /* Effects */
     GameplayTags.Effect_Damage = UGameplayTagsManager::Get().AddNativeGameplayTag(
         FName("Effect.Damage"), 

@@ -59,6 +59,14 @@ public:
 	UFUNCTION(BlueprintCallable)
 	UOrbManager* GetOrbManager() const { return OrbManager; }
 
+	UFUNCTION(BlueprintCallable)
+	float GetTimeBetweenSpawn() const { return TimeBetweenSpawn; }
+
+	UFUNCTION(BlueprintCallable)
+	void SetTimeBetweenSpawn(float NewTimeBetweenSpawn);
+
+
+
 	UFUNCTION()
 	void OnOrbCountChanged(int32 NewOrbCount);
 
@@ -95,7 +103,7 @@ private:
 	FTimerHandle SpawnOrbTimerHandle;
 
 	UPROPERTY()
-	FGameplayAbilitySpecHandle LastAbilitySpecHandle;
+	FGameplayAbilitySpecHandle LastAdvancedAbilitySpecHandle;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Exp, meta = (AllowPrivateAccess = "true"))
 	FScalableFloat ExpThreshold = 0.0f;

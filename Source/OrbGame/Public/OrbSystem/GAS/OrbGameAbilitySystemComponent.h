@@ -34,6 +34,7 @@ public:
 	UEffectStateManager* GetEffectStateManager() const { return EffectStateManager; }
 
 private:
+	UPROPERTY()
 	UEffectStateManager* EffectStateManager = nullptr;
 
 };
