@@ -207,6 +207,42 @@ struct FItemSet
 		return T();
 	}
 
+	void LoadItemQuantityData(const TMap<T, int32>& ItemsData)
+	{
+		if(ItemsData.Num() == 0) return;
+		
+		ItemSlots.Empty();
+		for (const auto& Pair : ItemsData)
+		{
+			FItemSetSlot<T> NewSlot;
+			NewSlot.Item = Pair.Key;
+			NewSlot.ItemQuantity = Pair.Value;
+			NewSlot.ItemCost = 1.f; // Default cost, can be modified later if needed
+			ItemSlots.Add(NewSlot);
+		}
+	}
+
+	void SetCostData(const TMap<T, float>& ItemsCostData)
+	{
+		for (FItemSetSlot<T>& Slot : ItemSlots)
+		{
+			if (const float* FoundCost = ItemsCostData.Find(Slot.Item))
+			{
+				Slot.ItemCost = *FoundCost;
+			}
+		}
+	}
+
+	TMap<T, int32> GetItemQuantityMap() const
+	{
+		TMap<T, int32> ItemsData;
+		for (const FItemSetSlot<T>& Slot : ItemSlots)
+		{
+			ItemsData.Add(Slot.Item, Slot.ItemQuantity);
+		}
+		return ItemsData;
+	}
+
 };
 
 
@@ -250,7 +286,7 @@ struct FAbilityDescriptionWithParams
 			FString Placeholder = bIsOld ? FString::Printf(TEXT("{Old%d}"), i) : FString::Printf(TEXT("{New%d}"), i);
 			UsedPlaceholders.Add({Placeholder, bIsOld});
 		}
-\
+
 		TArray<FString> ParamStrings;
 		int Index = 0;
 		for (const FScalableFloat& Param : Params)

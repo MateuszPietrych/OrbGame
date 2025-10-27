@@ -7,6 +7,8 @@
 #include "GameplayTagContainer.h"
 #include "OrbGameGameMode.generated.h"
 
+class UMetaOrbGameDataManager;
+
 UCLASS(minimalapi)
 class AOrbGameGameMode : public AGameModeBase
 {
@@ -14,6 +16,8 @@ class AOrbGameGameMode : public AGameModeBase
 
 public:
 	AOrbGameGameMode();
+
+	virtual void StartPlay() override;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Mapping")
 	TMap<FGameplayTag, TSubclassOf<class UGameplayAbility>> AbilityByTag;
@@ -23,6 +27,11 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Mapping")
 	TMap<FGameplayTag, TSubclassOf<class AEnemy>> EnemyTypeByTag;
+
+private:
+	UPROPERTY()
+	UMetaOrbGameDataManager* MetaOrbGameDataManager = nullptr;
+
 };
 
 

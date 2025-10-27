@@ -4,6 +4,7 @@
 #include "OrbGamePlayerController.h"
 #include "OrbGameCharacter.h"
 #include "UObject/ConstructorHelpers.h"
+#include "Game/OrbGameGameInstance.h"
 
 AOrbGameGameMode::AOrbGameGameMode()
 {
@@ -22,5 +23,17 @@ AOrbGameGameMode::AOrbGameGameMode()
 	if(PlayerControllerBPClass.Class != NULL)
 	{
 		PlayerControllerClass = PlayerControllerBPClass.Class;
+	}
+}
+
+void AOrbGameGameMode::StartPlay()
+{
+	Super::StartPlay();
+
+	UOrbGameGameInstance* GameInstance = Cast<UOrbGameGameInstance>(GetGameInstance());
+	if (GameInstance)
+	{
+		MetaOrbGameDataManager = GameInstance->MetaOrbGameDataManager;
+		GameInstance->LoadGame();
 	}
 }
