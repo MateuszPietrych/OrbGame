@@ -31,7 +31,7 @@ public:
 	void SaveGame();
 
 	UFUNCTION(BlueprintCallable, Category = "GamePersistency")
-	void LoadGame();
+	bool LoadGame();
 
 private:
 	UPROPERTY()

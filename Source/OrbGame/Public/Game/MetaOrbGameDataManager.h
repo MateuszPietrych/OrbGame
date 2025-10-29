@@ -7,6 +7,7 @@
 #include "OrbGameStructs.h"
 #include "MetaOrbGameDataManager.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnOrbSetChangedSignature, FGameplayTag, OrbTag, int, MaxQuantity, int, CurrentQuantity);
 
 class UOrbGameSaveGame;
 /**
@@ -21,9 +22,24 @@ public:
 
 	void LoadGameData(UOrbGameSaveGame* SaveGameData); 
 
-	FItemSet<FGameplayTag> BaseOrbSet;
+	UFUNCTION(BlueprintCallable)
+	void LoadOrbSet(TMap<FGameplayTag, int32> BaseOrbSetQuantityData, TMap<FGameplayTag, int32> ActiveOrbSetData); 
 
-	FItemSet<FGameplayTag> ActivateOrbSet;
+	bool BuyOrb(FGameplayTag OrbTag);
+
+	bool ChangeSetOrbQuantity(FGameplayTag OrbTag, int32 QuantityChange);
+
+	UFUNCTION(BlueprintCallable)
+	void BroadcastOrbSetState();
+
+	UPROPERTY()
+	FOrbItemSet BaseOrbSet;
+
+	UPROPERTY()
+	FOrbItemSet ActiveOrbSet;
+
+	UPROPERTY(BlueprintAssignable, Category = "MetaOrbGameDataManager")
+	FOnOrbSetChangedSignature OnOrbSetChanged;
 
 	UPROPERTY()
 	float CurrentMoney = 0.f;

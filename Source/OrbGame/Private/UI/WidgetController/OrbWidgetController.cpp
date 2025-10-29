@@ -13,6 +13,7 @@
 #include "OrbGameBlueprintLibrary.h"
 #include "OrbGameStructs.h"
 #include "OrbGameGameplayTags.h"
+#include "Game/MetaOrbGameDataManager.h"
 
 
 
@@ -22,6 +23,7 @@ void UOrbWidgetController::SetWidgetControllerParams(const FWidgetControllerPara
     PlayerCharacter = WCParams.PlayerCharacter;
 	PlayerAbilitySystemComponent = WCParams.AbilitySystemComponent;
 	PlayerAttributeSet = WCParams.AttributeSet;
+	MetaOrbGameDataManager = WCParams.MetaGameDataManager;
 }
 
 AOrbGamePlayerController* UOrbWidgetController::GetOrbGamePlayerController()
@@ -61,12 +63,22 @@ AOrbGameCharacter* UOrbWidgetController::GetOrbGamePlayerCharacter()
 	return OrbGamePlayerCharacter;
 }
 
+UMetaOrbGameDataManager* UOrbWidgetController::GetMetaOrbGameDataManager()
+{
+	return MetaOrbGameDataManager;
+}
+
 void UOrbWidgetController::BindCallbacksToDependencies()
 {
     UE_LOG(LogTemp, Warning, TEXT("UOrbWidgetController::BindCallbacksToDependencies"));
     GetOrbGameAbilitySystemComponent()->OnLevelUp.AddDynamic(this, &UOrbWidgetController::HandleLevelUp);
 	GetOrbGameAbilitySystemComponent()->OnAttributeChanged.AddDynamic(this, &UOrbWidgetController::HandleAttributeChange);
 	GetOrbGameAbilitySystemComponent()->OnExpChanged.AddDynamic(this, &UOrbWidgetController::HandleExpChanged);
+
+	if(MetaOrbGameDataManager)
+	{
+		MetaOrbGameDataManager->OnOrbSetChanged.AddDynamic(this, &UOrbWidgetController::HandleOrbSetChanged);
+	}
 }
 
 void UOrbWidgetController::HandleLevelUp(int Level)
@@ -91,10 +103,16 @@ void UOrbWidgetController::HandleLevelUp(int Level)
 	OnLevelUp.Broadcast(LevelUpWidgetInfo);
 }
 
-void UOrbWidgetController::HandleAbilityLevelUpChoosen(FGameplayTag AbilityTag, int AdditionalLevel)
+void UOrbWidgetController::ChooseAbilityOnLevelUp(FGameplayTag AbilityTag, int AdditionalLevel)
 {
 	GetOrbGameAbilitySystemComponent()->LevelUpAbility(AbilityTag, AdditionalLevel);
 }
+
+void UOrbWidgetController::HandleOrbSetChanged(FGameplayTag OrbTag, int MaxQuantity, int CurrentQuantity)
+{
+	OnOrbSetChanged.Broadcast(OrbTag, MaxQuantity, CurrentQuantity);
+}
+
 
 void UOrbWidgetController::HandleAttributeChange(FGameplayTag AttributeTag, float NewValue)
 {
@@ -113,4 +131,19 @@ void UOrbWidgetController::HandleExpChanged(float NewExp)
 {
 	float MaxExp = GetOrbGameAbilitySystemComponent()->GetCurrentExpThreshold();
 	OnExpChanged.Broadcast(NewExp, MaxExp);
+}
+
+void UOrbWidgetController::ChangeMoney(float NewMoney)
+{
+	MetaOrbGameDataManager->CurrentMoney += NewMoney;
+}
+
+bool UOrbWidgetController::ChangeOrbSetQuantity(FGameplayTag OrbTag, int ChangeAmount)
+{
+	return MetaOrbGameDataManager->ChangeSetOrbQuantity(OrbTag, ChangeAmount);
+}
+
+bool UOrbWidgetController::BuyOrb(FGameplayTag OrbTag)
+{
+	return MetaOrbGameDataManager->BuyOrb(OrbTag);
 }

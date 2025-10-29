@@ -5,6 +5,7 @@
 #include "OrbGameCharacter.h"
 #include "UObject/ConstructorHelpers.h"
 #include "Game/OrbGameGameInstance.h"
+#include "Game/MetaOrbGameDataManager.h"
 
 AOrbGameGameMode::AOrbGameGameMode()
 {
@@ -26,14 +27,18 @@ AOrbGameGameMode::AOrbGameGameMode()
 	}
 }
 
-void AOrbGameGameMode::StartPlay()
+void AOrbGameGameMode::BeginPlay()
 {
-	Super::StartPlay();
+	Super::BeginPlay();
 
 	UOrbGameGameInstance* GameInstance = Cast<UOrbGameGameInstance>(GetGameInstance());
 	if (GameInstance)
 	{
 		MetaOrbGameDataManager = GameInstance->MetaOrbGameDataManager;
-		GameInstance->LoadGame();
+		bool bLoaded = GameInstance->LoadGame();
+		if(!bLoaded)
+		{
+			MetaOrbGameDataManager->LoadOrbSet(StartingOrbSetData.BaseOrbSet, StartingOrbSetData.ActiveOrbSet);
+		}
 	}
 }

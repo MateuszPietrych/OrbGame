@@ -9,8 +9,11 @@
 
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnLevelUpControllerSignature, FLevelUpWidgetInfo, LevelUpWidgetInfo);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnHealthChangedSignature, float, NewHealth, float, MaxHealth);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnHealthChangedControllerSignature, float, NewHealth, float, MaxHealth);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnExpChangedControllerSignature, float, NewExp, float, MaxExp);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnOrbSetChangedControllerSignature, FGameplayTag, OrbTag, int32, MaxQuantity, int32, CurrentQuantity);
+
+
 
 class UAttributeSet;
 class UAbilitySystemComponent;
@@ -20,6 +23,7 @@ class AOrbGamePlayerController;
 class UOrbUserAbilitySystemComponent;
 class UOrbGameAttributeSet;
 class AOrbGameCharacter;
+class UMetaOrbGameDataManager;
 
 USTRUCT(BlueprintType)
 struct FWidgetControllerParams
@@ -27,8 +31,8 @@ struct FWidgetControllerParams
 	GENERATED_BODY()
 
 	FWidgetControllerParams() {}
-	FWidgetControllerParams(APlayerController* PC, ACharacter* Ch,  UAbilitySystemComponent* ASC, UAttributeSet* AS)
-	: PlayerController(PC), PlayerCharacter(Ch), AbilitySystemComponent(ASC), AttributeSet(AS) {}
+	FWidgetControllerParams(APlayerController* PC, ACharacter* Ch,  UAbilitySystemComponent* ASC, UAttributeSet* AS, UMetaOrbGameDataManager* MGDM)
+	: PlayerController(PC), PlayerCharacter(Ch), AbilitySystemComponent(ASC), AttributeSet(AS), MetaGameDataManager(MGDM) {}
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TObjectPtr<APlayerController> PlayerController = nullptr;
@@ -41,6 +45,9 @@ struct FWidgetControllerParams
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TObjectPtr<UAttributeSet> AttributeSet = nullptr;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TObjectPtr<UMetaOrbGameDataManager> MetaGameDataManager = nullptr;
 };
 
 /**
@@ -68,16 +75,22 @@ public:
 	UFUNCTION(BlueprintCallable)
 	AOrbGameCharacter* GetOrbGamePlayerCharacter();
 
+	UFUNCTION(BlueprintCallable)
+	UMetaOrbGameDataManager* GetMetaOrbGameDataManager();
+
 	void BindCallbacksToDependencies();
 
 	UPROPERTY(BlueprintAssignable, Category = "OrbWidgetController")
 	FOnLevelUpControllerSignature OnLevelUp;
 
 	UPROPERTY(BlueprintAssignable, Category = "OrbWidgetController")
-	FOnHealthChangedSignature OnHealthChanged;
+	FOnHealthChangedControllerSignature OnHealthChanged;
 
 	UPROPERTY(BlueprintAssignable, Category = "OrbWidgetController")
 	FOnExpChangedControllerSignature OnExpChanged;
+
+	UPROPERTY(BlueprintAssignable, Category = "OrbWidgetController")
+	FOnOrbSetChangedControllerSignature OnOrbSetChanged;
 
 	UFUNCTION()
 	void HandleLevelUp(int Level);
@@ -86,10 +99,24 @@ public:
 	void HandleAttributeChange(FGameplayTag AttributeTag, float NewValue);
 
 	UFUNCTION()
-	void HandleAbilityLevelUpChoosen(FGameplayTag AbilityTag, int AdditionalLevel);
+	void HandleExpChanged(float NewExp);
 
 	UFUNCTION()
-	void HandleExpChanged(float NewExp);
+	void HandleOrbSetChanged(FGameplayTag OrbTag, int MaxQuantity, int32 CurrentQuantity);
+
+	
+	UFUNCTION()
+	void ChooseAbilityOnLevelUp(FGameplayTag AbilityTag, int AdditionalLevel);
+
+//MAIN MENU FUNCTIONS
+	UFUNCTION(BlueprintCallable)
+	void ChangeMoney(float NewMoney);
+
+	UFUNCTION(BlueprintCallable)
+	bool ChangeOrbSetQuantity(FGameplayTag OrbTag, int ChangeAmount);
+
+	UFUNCTION(BlueprintCallable)
+	bool BuyOrb(FGameplayTag OrbTag);
 
 protected:
 	UPROPERTY()
@@ -115,4 +142,7 @@ protected:
 
 	UPROPERTY()
 	UOrbGameAttributeSet* OrbGamePlayerAttributeSet;
+
+	UPROPERTY()
+	UMetaOrbGameDataManager* MetaOrbGameDataManager;
 };

@@ -32,8 +32,8 @@ void UOrbGameGameInstance::SaveGame()
         UOrbGameSaveGame* SaveGameData = Cast<UOrbGameSaveGame>(UGameplayStatics::CreateSaveGameObject(UOrbGameSaveGame::StaticClass()));
         if (SaveGameData)
         {
-            SaveGameData->BaseOrbSet = MetaOrbGameDataManager->BaseOrbSet.GetItemQuantityMap();
-            SaveGameData->ActiveOrbSet = MetaOrbGameDataManager->ActivateOrbSet.GetItemQuantityMap();
+            SaveGameData->BaseOrbSet = MetaOrbGameDataManager->BaseOrbSet.GetItemSet()->GetItemQuantityMap();
+            SaveGameData->ActiveOrbSet = MetaOrbGameDataManager->ActiveOrbSet.GetItemSet()->GetItemQuantityMap();
             SaveGameData->CurrentMoney = MetaOrbGameDataManager->CurrentMoney;
             // Implement saving logic here
             UGameplayStatics::SaveGameToSlot(SaveGameData, SaveSlotName, SaveSlotIndex);
@@ -47,15 +47,17 @@ void UOrbGameGameInstance::SaveGame()
     }
 }
 
-void UOrbGameGameInstance::LoadGame()
+bool UOrbGameGameInstance::LoadGame()
 {
     if (!MetaOrbGameDataManager) InitializeMetaDataManager();
     UOrbGameSaveGame* LoadedGame = Cast<UOrbGameSaveGame>(UGameplayStatics::LoadGameFromSlot(SaveSlotName, SaveSlotIndex));
     if (LoadedGame)
     {
         MetaOrbGameDataManager->LoadGameData(LoadedGame);
+        return true;
     }else
     {
         UE_LOG(LogTemp, Warning, TEXT("LoadGame: No saved game found in slot %s"), *SaveSlotName);
+        return false;
     }
 }

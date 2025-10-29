@@ -257,7 +257,11 @@ void AOrbGamePlayerController::Tick(float DeltaTime)
 	}
 
 	if(!FollowOrb)
-	{
+	{ 
+		if(GetPawn()==nullptr)
+		{
+			return;
+		} 
 		FRotator NewRotation = UKismetMathLibrary::FindLookAtRotation(GetPawn()->GetActorLocation(),CachedDestination);
 		OrbGameCharacter->SetArrowDirection(NewRotation);
 		CachedRotation = NewRotation;

@@ -123,6 +123,18 @@ struct FItemSet
 		return Total;
 	}
 
+	float GetItemCost(T ItemToFind) const
+	{
+		for (const FItemSetSlot<T>& Slot : ItemSlots)
+		{
+			if (Slot.Item == ItemToFind)
+			{
+				return Slot.ItemCost;
+			}
+		}
+		return 0.f;
+	}
+
 	float GetChanceToGetItem(T ItemToFind) const
 	{
 		int32 TotalItems = GetTotalItems();
@@ -161,10 +173,10 @@ struct FItemSet
 			if (ItemSlots[i].Item == ItemToRemove)
 			{
 				ItemSlots[i].ItemQuantity -= Quantity;
-				if (ItemSlots[i].ItemQuantity <= 0)
-				{
-					ItemSlots.RemoveAt(i);
-				}
+				// if (ItemSlots[i].ItemQuantity <= 0)
+				// {
+				// 	ItemSlots.RemoveAt(i);
+				// }
 				return *this;
 			}
 		}
@@ -207,7 +219,7 @@ struct FItemSet
 		return T();
 	}
 
-	void LoadItemQuantityData(const TMap<T, int32>& ItemsData)
+	void SetItemQuantityData(const TMap<T, int32>& ItemsData)
 	{
 		if(ItemsData.Num() == 0) return;
 		
@@ -243,6 +255,67 @@ struct FItemSet
 		return ItemsData;
 	}
 
+	TMap<T, float> GetItemCostMap() const
+	{
+		TMap<T, float> ItemsCostData;
+		for (const FItemSetSlot<T>& Slot : ItemSlots)
+		{
+			ItemsCostData.Add(Slot.Item, Slot.ItemCost);
+		}
+		return ItemsCostData;
+	}
+
+	bool IsValid() const
+	{
+		return ItemSlots.Num() > 0;
+	}
+
+};
+
+USTRUCT(BlueprintType)
+struct FOrbItemSet
+{
+    GENERATED_BODY()
+
+    FItemSet<FGameplayTag>* Data;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TMap<FGameplayTag, int32> SerializedQuantityData;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TMap<FGameplayTag, float> SerializedCostData;
+
+	FItemSet<FGameplayTag>* GetItemSet()
+	{
+		if(!Data || !Data->IsValid())
+		{
+			Data = new FItemSet<FGameplayTag>();
+			Data->SetCostData(SerializedCostData);
+			Data->SetItemQuantityData(SerializedQuantityData);
+		}
+		SerializedQuantityData = Data->GetItemQuantityMap();
+		SerializedCostData = Data->GetItemCostMap();
+		return Data;
+	}
+
+	void LoadItemQuantityData(const TMap<FGameplayTag, int32>& ItemsData)
+	{
+		GetItemSet()->SetItemQuantityData(ItemsData);
+		SerializedQuantityData = GetItemSet()->GetItemQuantityMap();
+	}
+
+};
+
+USTRUCT(BlueprintType)
+struct FOrbSetSerializableData
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TMap<FGameplayTag, int32> BaseOrbSet;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TMap<FGameplayTag, int32> ActiveOrbSet;
 };
 
 

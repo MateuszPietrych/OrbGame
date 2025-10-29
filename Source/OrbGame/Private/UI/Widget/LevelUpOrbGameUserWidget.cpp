@@ -10,6 +10,6 @@ void ULevelUpOrbGameUserWidget::ChooseAbility(FGameplayTag AbilityTag, int Addit
     UOrbWidgetController* OrbWidgetController = Cast<UOrbWidgetController>(this->WidgetController);
     if (OrbWidgetController)
     {
-        OrbWidgetController->HandleAbilityLevelUpChoosen(AbilityTag, AdditionalLevel);
+        OrbWidgetController->ChooseAbilityOnLevelUp(AbilityTag, AdditionalLevel);
     }
 }
