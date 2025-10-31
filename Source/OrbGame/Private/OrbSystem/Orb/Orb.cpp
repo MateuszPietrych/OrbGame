@@ -125,56 +125,9 @@ float AOrb::GetCurrentOrbRotationDeviation0to360()
 	return Rotation;
 }
 
-void AOrb::SimpleOrbUse(FOrbUseContext OrbUseContext)
-{
-	// CurrentOrbSimpleUseAbilityInstance->ActivateAbility(SimpleUseAbilitySpec);
-	// Grant (must be on the server!)
-	UAbilitySystemComponent* ASC = OrbUseContext.SourceAbilitySystemComponent;
-	ensure(ASC); // will log if null
-	if(!ASC) return;
-
-	// CurrentOrbSimpleUseAbilityInstance->OrbUseContext = OrbUseContext;
-	// SimpleUseAbilitySpec = FGameplayAbilitySpec(CurrentOrbSimpleUseAbilityInstance, SimpleUseAbilitySpec.Level, static_cast<int32>(INDEX_NONE), this);
-	TArray<UGameplayAbility*> SimpleUseAbilityInstances = SimpleUseAbilitySpec.GetAbilityInstances();
-	for(UGameplayAbility* Ability : SimpleUseAbilityInstances)
-	{
-		UOrbGameGameplayAbility* OrbGameAbility = Cast<UOrbGameGameplayAbility>(Ability);
-		if(OrbGameAbility)
-		{
-			OrbGameAbility->OrbUseContext = OrbUseContext;
-		}
-	}
-	FGameplayEventData TriggerEventData = FGameplayEventData();
-	TriggerEventData.Instigator = Cast<APawn>(GetOwner());
-	// const FGameplayAbilitySpecHandle SimpleUseHandle = ASC->GiveAbility(SimpleUseAbilitySpec, TriggerEventData);
-
-	// // Activate using the returned handle
-	// UE_LOG(LogTemp, Warning, TEXT("AOrb::SimpleOrbUse: Activating SimpleUseAbility"));
-	// const bool bActivated = ASC->TryActivateAbility(SimpleUseHandle);
-	// UE_LOG(LogTemp, Warning, TEXT("AOrb::SimpleOrbUse: Activated SimpleUseAbility"));
-	ASC->GiveAbilityAndActivateOnce(SimpleUseAbilitySpec, &TriggerEventData);
-
-    // UE_LOG(LogTemp, Warning, TEXT("Trying to activate SimpleUseAbility: %s"),bActivated ? TEXT("Succeeded") : TEXT("Failed"));
-
-	
-	// FGameplayAbilitySpecHandle SimpleUseAbilitySpecthHandle = SimpleUseAbilitySpec.Handle;
-	// const FGameplayAbilityActorInfo* ActorInfo = CurrentOrbSimpleUseAbilityInstance->GetCurrentActorInfo();
-	// const FGameplayAbilityActivationInfo ActivationInfo = CurrentOrbSimpleUseAbilityInstance->GetCurrentActivationInfo();
-	// const FGameplayEventData TriggerEventData = FGameplayEventData();
-	// CurrentOrbSimpleUseAbilityInstance->ActivateAbility(SimpleUseAbilitySpecthHandle, ActorInfo, ActivationInfo, TriggerEventData);
-	
-
-	// ActivateSimpleUseAbility(OrbUseContext);
-	// CurrentOrbSimpleUseAbilityInstance->CommitAbility();
-	// DetachFromActor(FDetachmentTranasformRules::KeepWorldTransform);
-	// RotatingSphere->IgnoreActorWhenMoving(UGameplayStatics::GetPlayerPawn(GetWorld(),0), true);
-	// RotatingSphere->IgnoreActorWhenMoving(this, true);
-}
 
 void AOrb::BeginSphereProjectileOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	// UE_LOG(LogTemp, Warning, TEXT("Orb Overlapped with %s"), *OtherActor->GetName());
-
 	if(OtherActor->ActorHasTag("Player") || OtherActor->GetOwner() == this->GetOwner() || OtherActor==this->GetOwner())
 		return;
 
@@ -187,9 +140,6 @@ void AOrb::BeginSphereProjectileOverlap(UPrimitiveComponent* OverlappedComp, AAc
 	if(!OrbData->bUseSimpleActionImmediately && !bWasSimpleActionUsed)
 	{
 		// Immediately apply the simple use effect
-		// SetBaseParamsForOrbEffect(CurrentOrbSimpleUseAbilityInstance->OrbEffectInstance);
-		// CurrentOrbSimpleUseAbilityInstance->OrbEffectInstance->ApplyEffectToAffectedActors();
-		// CurrentOrbOverlapAbilityInstance->CommitAbility();
 		ActivateOverlapAbility();
 		UE_LOG(LogTemp, Warning, TEXT("Applying Simple Use Effect Not Immediately"));
 		bWasSimpleActionUsed = true;
@@ -227,11 +177,6 @@ void AOrb::DeactivateLongUsageEffect()
 	FTimerManager& TimerManager = GetWorld()->GetTimerManager();
 	TimerManager.ClearTimer(LongUseTickTimerHandle);
 
-	// if(TimerManager.IsTimerActive(LongUseTickTimerHandle))
-	// {
-		
-	// 	UE_LOG(LogTemp, Warning, TEXT("Deactivating LongUseTickTimerHandle"));
-	// }
 	UE_LOG(LogTemp, Warning, TEXT("AOrb:: Deactivating Orb Long Usage Effect"));
 }
 
@@ -252,8 +197,6 @@ void AOrb::PrepareToDestroy(float TimeToDestroy)
 {
 	DeactivateLongUsageEffect();
 	OrbEndedUse();
-	// HideOrb();
-	// SetLifeSpan(TimeToDestroy);	
 }
 
 TArray<AActor*> AOrb::GetAllHittedInLongLastingEffect()
@@ -267,9 +210,6 @@ void AOrb::SetBaseParamsForOrbEffect(UOrbEffectBase* EffectInstance)
 	FVector Direction = GetActorForwardVector();
 	Direction.Normalize();
 	FVector StartLocation = GetOrbWorldLocation();
-
-	// EffectInstance->SetStartLocation(StartLocation);
-	// EffectInstance->SetDirection(Direction);
 }
 
 void AOrb::BasicOverlapAction(UPrimitiveComponent *OverlappedComponent,

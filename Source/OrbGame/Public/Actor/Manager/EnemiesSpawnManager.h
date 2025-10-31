@@ -36,8 +36,14 @@ public:
 
 protected:
 
+	UFUNCTION()
+	void HandleEnemyDeath(AEnemy* DeadEnemy, FVector DeathLocation);
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Enemy Spawn Manager", meta = (AllowPrivateAccess = "true"))
 	class AEnemiesManager* EnemiesManager;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Enemy Spawn Manager", meta = (AllowPrivateAccess = "true"))
+	class AExpManager* ExpManager;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Enemy Spawn Manager", meta = (AllowPrivateAccess = "true"))
 	TArray<FEnemyWave> EnemyWaves;

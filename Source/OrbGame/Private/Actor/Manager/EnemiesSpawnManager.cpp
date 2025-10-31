@@ -7,6 +7,8 @@
 #include "OrbGameBlueprintLibrary.h"
 #include "Actor/Manager/EnemiesManager.h"
 #include "Structures.h"
+#include "Utility/EnemyMultiPool.h"
+#include "Actor/Manager/ExpManager.h"
 
 // Sets default values
 AEnemiesSpawnManager::AEnemiesSpawnManager()
@@ -21,6 +23,27 @@ void AEnemiesSpawnManager::BeginPlay()
 {
 	Super::BeginPlay();
 	float TimeToFirstWave = EnemyWaves[CurrentWaveIndex].TimeToThisWave;
+
+	TArray<FGameplayTag> EnemyTags;
+	for(const FEnemyWave& Wave : EnemyWaves)
+	{
+		const FEnemyWaveGroup& Group = Wave.Group;
+		for(const TPair<FGameplayTag, int>& Pair : Group.EnemiesToSpawn)
+		{
+			if(!EnemyTags.Contains(Pair.Key))
+			{
+				EnemyTags.Add(Pair.Key);
+			}
+		}
+	}
+
+	EnemyPool = NewObject<UEnemyMultiPool>(this, UEnemyMultiPool::StaticClass());
+	EnemyPool->Initialize(EnemyTags);
+
+	EnemiesManager = Cast<AEnemiesManager>(UGameplayStatics::GetActorOfClass(this, AEnemiesManager::StaticClass()));
+	ExpManager = Cast<AExpManager>(UGameplayStatics::GetActorOfClass(this, AExpManager::StaticClass()));
+	ExpManager->InitializeExpManager(EnemyTags);
+	
 	GetWorld()->GetTimerManager().SetTimer(WaveTimerHandle, this, &AEnemiesSpawnManager::SpawnWave, TimeToFirstWave, false);
 }
 
@@ -55,6 +78,12 @@ void AEnemiesSpawnManager::SpawnWave()
 			if(!PartedGroups.IsValidIndex(SpawnerIndex)) continue;
 
 			FEnemyGroup SpawnedGroup = Spawner->SpawnEnemies(PartedGroups[SpawnerIndex], EnemyPool);
+
+			for(AEnemy* Enemy : SpawnedGroup.Enemies)
+			{
+				Enemy->OnEnemyDeath.AddDynamic(this, &AEnemiesSpawnManager::HandleEnemyDeath);
+			}
+			ExpManager->BindEnemyGroupToExpSpawn(SpawnedGroup.Enemies);
 			EnemiesManager->AddEnemies(SpawnedGroup.Enemies);
 		}
 
@@ -64,7 +93,6 @@ void AEnemiesSpawnManager::SpawnWave()
 		GetWorld()->GetTimerManager().SetTimer(WaveTimerHandle, this, &AEnemiesSpawnManager::SpawnWave, EnemyWaves[CurrentWaveIndex].TimeToThisWave, false);
 	}
 }
-
 
 TArray<AEnemySpawner*> AEnemiesSpawnManager::GetValidSpawners()
 {
@@ -80,4 +108,12 @@ TArray<AEnemySpawner*> AEnemiesSpawnManager::GetValidSpawners()
 		}
 	}
 	return ValidSpawners;
+}
+
+void AEnemiesSpawnManager::HandleEnemyDeath(AEnemy* DeadEnemy, FVector DeathLocation)
+{
+	if(DeadEnemy)
+	{
+		EnemyPool->ReturnEnemyToPool(DeadEnemy);
+	}
 }

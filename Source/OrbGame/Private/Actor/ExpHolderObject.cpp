@@ -34,3 +34,19 @@ float AExpHolderObject::GetExpAmount_Implementation()
 {
 	return ExpAmount;
 }
+
+void AExpHolderObject::OnAllocatedFromPool_Implementation()
+{
+	ActivateExpHolder();
+}
+
+void AExpHolderObject::OnReturnedToPool_Implementation()
+{
+	DeactivateExpHolder();
+}
+
+FGameplayTag AExpHolderObject::GetObjectTag_Implementation()
+{
+	// Return the appropriate gameplay tag for this exp holder
+	return FGameplayTag::EmptyTag;
+}

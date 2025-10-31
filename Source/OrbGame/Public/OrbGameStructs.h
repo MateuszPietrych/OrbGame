@@ -89,7 +89,7 @@ struct FItemSet
 	TArray<FItemSetSlot<T>> ItemSlots;
 
 	int ValidQuantity = 10;
-	int MaxQuantityPerItem = 5;
+	int MaxQuantityPerItem = 7;
 
 	TArray<T> GetAllItems() const
 	{
@@ -153,6 +153,10 @@ struct FItemSet
 		{
 			if (Slot.Item == ItemToAdd)
 			{
+				if(Slot.ItemQuantity + Quantity > MaxQuantityPerItem || Slot.ItemQuantity + Quantity < 0)
+				{
+					return *this;
+				}
 				Slot.ItemQuantity += Quantity;
 				return *this;
 			}
@@ -168,12 +172,16 @@ struct FItemSet
 
 	FItemSet RemoveItem(T ItemToRemove, int32 Quantity = 1)
 	{
-		for (int32 i = 0; i < ItemSlots.Num(); ++i)
+		for (FItemSetSlot<T>& Slot : ItemSlots)
 		{
-			if (ItemSlots[i].Item == ItemToRemove)
+			if (Slot.Item == ItemToRemove)
 			{
-				ItemSlots[i].ItemQuantity -= Quantity;
-				// if (ItemSlots[i].ItemQuantity <= 0)
+				if(Slot.ItemQuantity - Quantity > MaxQuantityPerItem || Slot.ItemQuantity - Quantity < 0)
+				{
+					return *this;
+				}
+				Slot.ItemQuantity -= Quantity;
+				// if (Slot.ItemQuantity <= 0)
 				// {
 				// 	ItemSlots.RemoveAt(i);
 				// }
@@ -183,7 +191,7 @@ struct FItemSet
 		return *this;
 	}
 
-	bool IsSetValid()
+	bool IsSetValid() const
 	{
 		for( const FItemSetSlot<T>& Slot : ItemSlots )
 		{
@@ -285,6 +293,11 @@ struct FOrbItemSet
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TMap<FGameplayTag, float> SerializedCostData;
 
+	bool IsSetValid()
+	{
+		return Data == nullptr;
+	}
+
 	FItemSet<FGameplayTag>* GetItemSet()
 	{
 		if(!Data || !Data->IsValid())
@@ -305,6 +318,46 @@ struct FOrbItemSet
 	}
 
 };
+
+UCLASS()
+class UOrbItemSetWrapper : public UObject
+{
+	GENERATED_BODY()
+
+public:
+    FItemSet<FGameplayTag>* Data;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TMap<FGameplayTag, int32> SerializedQuantityData;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TMap<FGameplayTag, float> SerializedCostData;
+
+	bool IsSetValid() const
+	{
+		return Data != nullptr;
+	}
+
+	FItemSet<FGameplayTag>* GetItemSet()
+	{
+		if(!IsSetValid())
+		{
+			Data = new FItemSet<FGameplayTag>();
+			Data->SetCostData(SerializedCostData);
+			Data->SetItemQuantityData(SerializedQuantityData);
+		}
+		SerializedQuantityData = Data->GetItemQuantityMap();
+		SerializedCostData = Data->GetItemCostMap();
+		return Data;
+	}
+
+	void LoadItemQuantityData(const TMap<FGameplayTag, int32>& ItemsData)
+	{
+		GetItemSet()->SetItemQuantityData(ItemsData);
+		SerializedQuantityData = GetItemSet()->GetItemQuantityMap();
+	}
+};
+
 
 USTRUCT(BlueprintType)
 struct FOrbSetSerializableData

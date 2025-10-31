@@ -32,8 +32,8 @@ void UOrbGameGameInstance::SaveGame()
         UOrbGameSaveGame* SaveGameData = Cast<UOrbGameSaveGame>(UGameplayStatics::CreateSaveGameObject(UOrbGameSaveGame::StaticClass()));
         if (SaveGameData)
         {
-            SaveGameData->BaseOrbSet = MetaOrbGameDataManager->BaseOrbSet.GetItemSet()->GetItemQuantityMap();
-            SaveGameData->ActiveOrbSet = MetaOrbGameDataManager->ActiveOrbSet.GetItemSet()->GetItemQuantityMap();
+            SaveGameData->BaseOrbSet = MetaOrbGameDataManager->BaseOrbSet->GetItemSet()->GetItemQuantityMap();
+            SaveGameData->ActiveOrbSet = MetaOrbGameDataManager->ActiveOrbSet->GetItemSet()->GetItemQuantityMap();
             SaveGameData->CurrentMoney = MetaOrbGameDataManager->CurrentMoney;
             // Implement saving logic here
             UGameplayStatics::SaveGameToSlot(SaveGameData, SaveSlotName, SaveSlotIndex);
@@ -49,6 +49,8 @@ void UOrbGameGameInstance::SaveGame()
 
 bool UOrbGameGameInstance::LoadGame()
 {
+    if(MetaOrbGameDataManager && MetaOrbGameDataManager->IsMetaDataManagerValid()) return true;
+
     if (!MetaOrbGameDataManager) InitializeMetaDataManager();
     UOrbGameSaveGame* LoadedGame = Cast<UOrbGameSaveGame>(UGameplayStatics::LoadGameFromSlot(SaveSlotName, SaveSlotIndex));
     if (LoadedGame)

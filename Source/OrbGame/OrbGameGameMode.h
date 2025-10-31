@@ -29,6 +29,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Mapping")
 	TMap<FGameplayTag, TSubclassOf<class AEnemy>> EnemyTypeByTag;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Mapping")
+	TMap<FGameplayTag, TSubclassOf<class AExpHolderObject>> ExpHolderTypeByEnemyTag;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "OrbSet")
 	FOrbSetSerializableData StartingOrbSetData;
 

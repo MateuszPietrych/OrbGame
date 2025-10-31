@@ -90,6 +90,7 @@ void UOrbWidgetController::HandleLevelUp(int Level)
 
 	for (const FGameplayTag& AbilityTag : AbilitiesTags)
 	{
+		if(AbilityTag.IsValid() == false) continue;
 		UOrbGameGameplayAbility* Ability = GameMode->AbilityByTag[AbilityTag]->GetDefaultObject<UOrbGameGameplayAbility>();
 		if (Ability)
 		{

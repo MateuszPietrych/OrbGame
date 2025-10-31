@@ -192,9 +192,13 @@ void FOrbGameGameplayTags::InitializeNativeGameplayTags()
     );
     
     /* Enemies */
-    GameplayTags.Enemy_Square = UGameplayTagsManager::Get().AddNativeGameplayTag(
-        FName("Enemy.Square"), 
-        TEXT("Square type enemy")
+    GameplayTags.Enemy_Base = UGameplayTagsManager::Get().AddNativeGameplayTag(
+        FName("Enemy.Base"), 
+        TEXT("Base type enemy")
+    );
+    GameplayTags.Enemy_Advanced = UGameplayTagsManager::Get().AddNativeGameplayTag(
+        FName("Enemy.Advanced"), 
+        TEXT("Advanced type enemy")
     );
 
     /* Effects */

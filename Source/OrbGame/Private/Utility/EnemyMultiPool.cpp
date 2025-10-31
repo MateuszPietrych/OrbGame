@@ -9,9 +9,9 @@
 #include "Utility/OrbGameObjectPool.h"
 
 
-void UEnemyMultiPool::Initialize(FItemSet<FGameplayTag> EnemyTags)
+void UEnemyMultiPool::Initialize(TArray<FGameplayTag> EnemyTags)
 {
-    for (const FGameplayTag& Tag : EnemyTags.GetAllItems())
+    for (const FGameplayTag& Tag : EnemyTags)
     {
         TSubclassOf<AEnemy> ObjectClass = GetEnemyClassByTag(Tag);
         Pool.InitializePool(Tag, ObjectClass, this);

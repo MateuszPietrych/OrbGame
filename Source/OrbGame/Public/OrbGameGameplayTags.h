@@ -27,6 +27,8 @@ public:
 
 	/* Effects */
 	FGameplayTag Effect_Damage;
+	FGameplayTag Effect_Stun;
+	FGameplayTag Effect_Slow; 
 
 	/* Orb */
 	FGameplayTag Orb_Fire_Overlap;
@@ -69,10 +71,11 @@ public:
 	FGameplayTag Ability_Stat_IncreaseSpeed;
 	FGameplayTag Ability_Stat_HealthRegeneration;
 
-	FGameplayTag Enemy_Square;
+	/* Enemies */
+	FGameplayTag Enemy_Base;
+	FGameplayTag Enemy_Advanced;
 
-	FGameplayTag Effect_Stun;
-	FGameplayTag Effect_Slow; 
+
 
 private:
 	static FOrbGameGameplayTags GameplayTags;

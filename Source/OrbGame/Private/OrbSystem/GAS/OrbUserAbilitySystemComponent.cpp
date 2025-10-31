@@ -16,6 +16,8 @@
 #include "OrbSystem/GAS/OrbGameAttributeSet.h"
 #include "OrbSystem/GAS/AbilityDataAsset.h"
 #include "GameplayAbilitySpec.h"
+#include "OrbGame/OrbGameGameMode.h"
+#include "Game/MetaOrbGameDataManager.h"
 
 UOrbUserAbilitySystemComponent::UOrbUserAbilitySystemComponent()
 {
@@ -25,15 +27,31 @@ UOrbUserAbilitySystemComponent::UOrbUserAbilitySystemComponent()
 void UOrbUserAbilitySystemComponent::BeginPlay()
 {
     Super::BeginPlay();
-    for(const FOrbSetSlotStartInfo& Info : OrbSetSlotStartInfos)
+    AOrbGameGameMode* GameMode = UOrbGameBlueprintLibrary::GetOrbGameGameMode(GetWorld());
+    if(GameMode && GameMode->GetMetaOrbGameDataManager())
     {
-        OrbsSet.AddItem(Info.OrbType, Info.Quantity, Info.Cost);
-        FGameplayTagContainer OrbTypeAbilitiesTags = UGameplayTagsManager::Get().RequestGameplayTagChildren(Info.OrbType);
+        OrbsSet = *(GameMode->GetMetaOrbGameDataManager()->ActiveOrbSet->GetItemSet());
+    }
+
+    for(const TPair<FGameplayTag, int32>& Slot : OrbsSet.GetItemQuantityMap())
+    {
+        FGameplayTagContainer OrbTypeAbilitiesTags = UGameplayTagsManager::Get().RequestGameplayTagChildren(Slot.Key);
         for(const FGameplayTag& AbilityTag : OrbTypeAbilitiesTags)
         {
             AbilitiesLevel.Add(AbilityTag, 1);
         }
     }
+
+
+    // for(const FOrbSetSlotStartInfo& Info : OrbSetSlotStartInfos)
+    // {
+    //     OrbsSet.AddItem(Info.OrbType, Info.Quantity, Info.Cost);
+    //     FGameplayTagContainer OrbTypeAbilitiesTags = UGameplayTagsManager::Get().RequestGameplayTagChildren(Info.OrbType);
+    //     for(const FGameplayTag& AbilityTag : OrbTypeAbilitiesTags)
+    //     {
+    //         AbilitiesLevel.Add(AbilityTag, 1);
+    //     }
+    // }
 
     for(TSubclassOf<UOrbGameGameplayAbility> AbilityClass : StartingStatAbilities)
     {

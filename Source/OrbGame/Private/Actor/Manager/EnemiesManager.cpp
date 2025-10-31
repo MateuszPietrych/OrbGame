@@ -2,6 +2,7 @@
 
 
 #include "Actor/Manager/EnemiesManager.h"
+#include "Pawn/Enemy.h"
 
 // Sets default values
 AEnemiesManager::AEnemiesManager()
@@ -28,5 +29,15 @@ void AEnemiesManager::Tick(float DeltaTime)
 void AEnemiesManager::AddEnemies(const TArray<class AEnemy*>& EnemiesToAdd)
 {
 	ActiveEnemies.Append(EnemiesToAdd);
+
+	for(AEnemy* Enemy : EnemiesToAdd)
+	{
+		Enemy->OnEnemyDeath.AddDynamic(this, &AEnemiesManager::HandleEnemyDeath);
+	}
+}
+
+void AEnemiesManager::HandleEnemyDeath(AEnemy* DeadEnemy, FVector DeathLocation)
+{
+
 }
 

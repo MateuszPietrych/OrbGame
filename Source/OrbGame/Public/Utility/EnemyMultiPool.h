@@ -19,7 +19,7 @@ class ORBGAME_API UEnemyMultiPool : public UObjectMultiPool
 public:
 	TObjectMultiPool<AEnemy> Pool;
 
-	void Initialize(FItemSet<FGameplayTag> EnemyTags);
+	void Initialize(TArray<FGameplayTag> EnemyTags);
 	AEnemy* GetEnemyFromPool(FGameplayTag Tag);
 	void ReturnEnemyToPool(AEnemy* Enemy);
 	TSubclassOf<AEnemy> GetEnemyClassByTag(FGameplayTag Tag);

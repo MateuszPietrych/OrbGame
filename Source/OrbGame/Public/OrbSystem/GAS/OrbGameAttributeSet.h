@@ -37,6 +37,8 @@ public:
 
 	void HandleIncomingHeal(const FGameplayEffectModCallbackData& Data);
 
+	void InitHealthToMaxHealth();
+
 	TMap<FGameplayTag, TStaticFuncPtr<FGameplayAttribute()>> TagsToAttributes;
 
 	/* Primary Attributes */

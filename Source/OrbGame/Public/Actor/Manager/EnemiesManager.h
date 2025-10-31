@@ -25,6 +25,9 @@ public:
 
 	void AddEnemies(const TArray<class AEnemy*>& EnemiesToAdd);
 
+	UFUNCTION()
+	void HandleEnemyDeath(AEnemy* DeadEnemy, FVector DeathLocation);
+
 private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Enemies Manager", meta = (AllowPrivateAccess = "true"))
 	TArray<AEnemy*> ActiveEnemies;

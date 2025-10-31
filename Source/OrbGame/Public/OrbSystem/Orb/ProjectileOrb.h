@@ -14,6 +14,5 @@ class ORBGAME_API AProjectileOrb : public AOrb
 {
 	GENERATED_BODY()
 
-	virtual void SimpleOrbUse(FOrbUseContext OrbUseContext) override;
 
 };

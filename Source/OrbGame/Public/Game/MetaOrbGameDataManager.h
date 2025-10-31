@@ -20,6 +20,8 @@ class ORBGAME_API UMetaOrbGameDataManager : public UObject
 
 public:
 
+	bool IsMetaDataManagerValid() const;
+
 	void LoadGameData(UOrbGameSaveGame* SaveGameData); 
 
 	UFUNCTION(BlueprintCallable)
@@ -33,14 +35,14 @@ public:
 	void BroadcastOrbSetState();
 
 	UPROPERTY()
-	FOrbItemSet BaseOrbSet;
+	UOrbItemSetWrapper* BaseOrbSet;
 
 	UPROPERTY()
-	FOrbItemSet ActiveOrbSet;
+	UOrbItemSetWrapper* ActiveOrbSet;
 
 	UPROPERTY(BlueprintAssignable, Category = "MetaOrbGameDataManager")
 	FOnOrbSetChangedSignature OnOrbSetChanged;
 
-	UPROPERTY()
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "MetaOrbGameDataManager")
 	float CurrentMoney = 0.f;
 };

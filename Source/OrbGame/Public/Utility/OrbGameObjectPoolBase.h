@@ -74,7 +74,9 @@ public:
     UObject* Object = nullptr;
     if(ObjectClass->IsChildOf(AActor::StaticClass()))
     {
-        Object = World->SpawnActor<AActor>(ObjectClass);
+        FActorSpawnParameters SpawnParams;
+        SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+        Object = World->SpawnActor<AActor>(ObjectClass, SpawnParams);
     }
     else if(ObjectClass->IsChildOf(UObject::StaticClass()))
     {

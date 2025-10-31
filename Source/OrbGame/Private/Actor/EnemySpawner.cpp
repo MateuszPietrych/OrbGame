@@ -70,6 +70,7 @@ FEnemyGroup AEnemySpawner::SpawnEnemies(const FEnemyWaveGroup& EnemyGroup, UEnem
 			if(EnemyPool)
 			{
 				AEnemy* PooledEnemy = EnemyPool->GetEnemyFromPool(CurrentEnemyTag);
+				PooledEnemy->SetActorLocation(SpawnLocation);
 				if (PooledEnemy) SpawnedEnemies.Add(PooledEnemy);
 			}
 			else

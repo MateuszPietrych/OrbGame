@@ -2,7 +2,6 @@
 
 
 #include "Pawn/Enemy.h"
-#include "HealthComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/WidgetComponent.h"
@@ -30,8 +29,6 @@ AEnemy::AEnemy()
 
 	BodyMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("BodyMesh"));
 	BodyMesh->SetupAttachment(CapsuleComponent);
-
-	HealthComponent = CreateDefaultSubobject<UHealthComponent>(TEXT("HealthComponent"));
 
 	// HpWidgetComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("HpWidgetComponent"));
 	// HpWidgetComponent->SetupAttachment(RootComponent);
@@ -100,15 +97,11 @@ void AEnemy::OnHealthChangedHandler(float NewHealth)
 {
 	if(NewHealth <= 0.f)
 	{
-		if(ExpHolderObjectClass)
-		{
-			FActorSpawnParameters SpawnParams;
-			SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-			GetWorld()->SpawnActor<AExpHolderObject>(ExpHolderObjectClass, GetActorLocation(), FRotator::ZeroRotator, SpawnParams);
-		}
-		Destroy();
+		OnEnemyDeath.Broadcast(this, GetActorLocation());
+	}else
+	{
+		OnDamageTaken(NewHealth);
 	}
-	OnDamageTaken(NewHealth);
 }
 
 void AEnemy::OnDamageTaken(float NewHealth)
@@ -137,6 +130,27 @@ void AEnemy::DeactivateSavingMode_Implementation()
 {
 	BodyMesh->SetVisibility(true);
 	CapsuleComponent->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+}
+
+void AEnemy::OnAllocatedFromPool_Implementation()
+{
+	SetActorHiddenInGame(false);
+	CapsuleComponent->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	BodyMesh->SetVisibility(true);
+	AttributeSet->InitHealthToMaxHealth();
+}
+
+void AEnemy::OnReturnedToPool_Implementation()
+{
+	SetActorHiddenInGame(true);
+	CapsuleComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	BodyMesh->SetVisibility(false);
+	AttributeSet->InitHealthToMaxHealth();
+}
+
+FGameplayTag AEnemy::GetObjectTag_Implementation()
+{
+	return EnemyGameplayTag;
 }
 
 void AEnemy::CapsuleInteraction(UPrimitiveComponent *OverlappedComponent,

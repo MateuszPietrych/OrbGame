@@ -52,9 +52,6 @@ public:
 	float GetCurrentOrbRotationDeviation0to360();
 
 	UFUNCTION(BlueprintCallable)
-	virtual void SimpleOrbUse(FOrbUseContext OrbUseContext);
-
-	UFUNCTION(BlueprintCallable)
 	virtual void ActivateEffect();
 
 	UFUNCTION(BlueprintCallable)

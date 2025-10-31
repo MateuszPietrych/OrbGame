@@ -8,11 +8,13 @@
 #include "ScalableFloat.h"
 #include "Interface/Damageable.h"
 #include "Interface/Optimizable.h"
+#include "Interface/PoolObject.h"
 #include "Enemy.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnEnemyDeathSignature, AEnemy*, DeadEnemy, FVector, DeathLocation);
 
 UCLASS()
-class ORBGAME_API AEnemy : public APawn, public IDamageable, public IAbilitySystemInterface, public IOptimizable
+class ORBGAME_API AEnemy : public APawn, public IDamageable, public IAbilitySystemInterface, public IOptimizable, public IPoolObject
 {
 	GENERATED_BODY()
 
@@ -47,6 +49,11 @@ public:
 	virtual void ActivateSavingMode_Implementation() override;
 	virtual void DeactivateSavingMode_Implementation() override;
 
+	virtual void OnAllocatedFromPool_Implementation() override;
+	virtual void OnReturnedToPool_Implementation() override;
+	virtual FGameplayTag GetObjectTag_Implementation() override;
+
+
 	UFUNCTION()
 	void CapsuleInteraction(UPrimitiveComponent *OverlappedComponent,
 		AActor *OtherActor,
@@ -54,6 +61,9 @@ public:
 		int32 OtherBodyIndex,
 		bool bFromSweep,
 		const FHitResult &SweepResult);
+
+	UPROPERTY(BlueprintAssignable, Category="Enemy")
+	FOnEnemyDeathSignature OnEnemyDeath;
 
 private:
 
@@ -94,6 +104,9 @@ private:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = TakeDamage, meta = (AllowPrivateAccess = "true"))
 	float DamageOverlayDuration = 1.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Tags, meta = (AllowPrivateAccess = "true"))
+	FGameplayTag EnemyGameplayTag;
 
 	UFUNCTION()
 	void HandleAttributeChanged(const FGameplayTag AttributeTag, float NewValue);

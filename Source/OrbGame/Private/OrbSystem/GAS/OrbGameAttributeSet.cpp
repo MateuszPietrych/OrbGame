@@ -55,3 +55,8 @@ void UOrbGameAttributeSet::HandleIncomingHeal(const FGameplayEffectModCallbackDa
         UE_LOG(LogTemp, Warning, TEXT("Target: %s,  Heal received: %f,  Health changed to: %f"), *GetOwningActor()->GetName(), LocalIncomingHeal, GetHealth());
     }
 }
+
+void UOrbGameAttributeSet::InitHealthToMaxHealth()
+{
+	SetHealth(GetMaxHealth());
+}
