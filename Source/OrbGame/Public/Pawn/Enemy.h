@@ -13,6 +13,9 @@
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnEnemyDeathSignature, AEnemy*, DeadEnemy, FVector, DeathLocation);
 
+
+class UEnemyDataAsset;
+
 UCLASS()
 class ORBGAME_API AEnemy : public APawn, public IDamageable, public IAbilitySystemInterface, public IOptimizable, public IPoolObject
 {
@@ -53,6 +56,9 @@ public:
 	virtual void OnReturnedToPool_Implementation() override;
 	virtual FGameplayTag GetObjectTag_Implementation() override;
 
+	UCapsuleComponent* GetCapsuleComponent() const { return CapsuleComponent; }
+
+	UEnemyDataAsset* GetEnemyDataAsset() const { return EnemyData; }
 
 	UFUNCTION()
 	void CapsuleInteraction(UPrimitiveComponent *OverlappedComponent,
@@ -72,6 +78,19 @@ private:
 	UFUNCTION()
 	void HandleStunEffect(const FGameplayTag CallbackTag, int32 NewCount);
 
+	UFUNCTION()
+	void HandleAttributeChanged(const FGameplayTag AttributeTag, float NewValue);
+
+	UFUNCTION()
+	void OnHealthChangedHandler(float NewHealth);
+
+	UFUNCTION()
+	void OnDamageTaken(float NewHealth);
+
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = OrbData, meta = (AllowPrivateAccess = "true"))
+	class UEnemyDataAsset* EnemyData;
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Components, meta = (AllowPrivateAccess = "true"))
 	class UStaticMeshComponent* BodyMesh;	
 
@@ -87,34 +106,27 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Components, meta = (AllowPrivateAccess = "true"))
 	class UOrbGameAttributeSet* AttributeSet;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Damage, meta = (AllowPrivateAccess = "true"))
-	class TSubclassOf<UGameplayEffect> DamageGameplayEffectClass;
+	// UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Damage, meta = (AllowPrivateAccess = "true"))
+	// class TSubclassOf<UGameplayEffect> DamageGameplayEffectClass;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Damage, meta = (AllowPrivateAccess = "true"))
-	FScalableFloat DamageOnTouch;
+	// UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Damage, meta = (AllowPrivateAccess = "true"))
+	// FScalableFloat DamageOnTouch;
 
-	//Probably to move to some Object Pool
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Exp, meta = (AllowPrivateAccess = "true"))
-	TSubclassOf<class AExpHolderObject> ExpHolderObjectClass;
+	// //Probably to move to some Object Pool
+	// UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Exp, meta = (AllowPrivateAccess = "true"))
+	// TSubclassOf<class AExpHolderObject> ExpHolderObjectClass;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = TakeDamage, meta = (AllowPrivateAccess = "true"))
-	UMaterialInstance* DamageOverlayMaterialInstance;
+	// UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = TakeDamage, meta = (AllowPrivateAccess = "true"))
+	// UMaterialInstance* DamageOverlayMaterialInstance;
 
 	FTimerHandle DamageTakenTimerHandle;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = TakeDamage, meta = (AllowPrivateAccess = "true"))
-	float DamageOverlayDuration = 1.f;
+	// UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = TakeDamage, meta = (AllowPrivateAccess = "true"))
+	// float DamageOverlayDuration = 1.f;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Tags, meta = (AllowPrivateAccess = "true"))
-	FGameplayTag EnemyGameplayTag;
+	// UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Tags, meta = (AllowPrivateAccess = "true"))
+	// FGameplayTag EnemyGameplayTag;
 
-	UFUNCTION()
-	void HandleAttributeChanged(const FGameplayTag AttributeTag, float NewValue);
 
-	UFUNCTION()
-	void OnHealthChangedHandler(float NewHealth);
-
-	UFUNCTION()
-	void OnDamageTaken(float NewHealth);
 
 };

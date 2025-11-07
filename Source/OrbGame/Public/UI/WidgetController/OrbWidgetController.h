@@ -12,7 +12,8 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnLevelUpControllerSignature, FLeve
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnHealthChangedControllerSignature, float, NewHealth, float, MaxHealth);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnExpChangedControllerSignature, float, NewExp, float, MaxExp);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnOrbSetChangedControllerSignature, FGameplayTag, OrbTag, int32, MaxQuantity, int32, CurrentQuantity);
-
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_FourParams(FOnCharacterDeathControllerSignature, AOrbGameCharacter*, DeadCharacter, FVector, DeathLocation, float, EarnMoney, float, FinalExp);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnEarnedMoneyChangedControllerSignature, float, NewMoney);
 
 
 class UAttributeSet;
@@ -24,6 +25,7 @@ class UOrbUserAbilitySystemComponent;
 class UOrbGameAttributeSet;
 class AOrbGameCharacter;
 class UMetaOrbGameDataManager;
+class AOrbGameGameState;
 
 USTRUCT(BlueprintType)
 struct FWidgetControllerParams
@@ -31,8 +33,8 @@ struct FWidgetControllerParams
 	GENERATED_BODY()
 
 	FWidgetControllerParams() {}
-	FWidgetControllerParams(APlayerController* PC, ACharacter* Ch,  UAbilitySystemComponent* ASC, UAttributeSet* AS, UMetaOrbGameDataManager* MGDM)
-	: PlayerController(PC), PlayerCharacter(Ch), AbilitySystemComponent(ASC), AttributeSet(AS), MetaGameDataManager(MGDM) {}
+	FWidgetControllerParams(APlayerController* PC, ACharacter* Ch,  UAbilitySystemComponent* ASC, UAttributeSet* AS, UMetaOrbGameDataManager* MGDM, AOrbGameGameState* GS)
+	: PlayerController(PC), PlayerCharacter(Ch), AbilitySystemComponent(ASC), AttributeSet(AS), MetaGameDataManager(MGDM), GameState(GS) {}
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TObjectPtr<APlayerController> PlayerController = nullptr;
@@ -48,6 +50,9 @@ struct FWidgetControllerParams
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TObjectPtr<UMetaOrbGameDataManager> MetaGameDataManager = nullptr;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TObjectPtr<AOrbGameGameState> GameState = nullptr;
 };
 
 /**
@@ -78,6 +83,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 	UMetaOrbGameDataManager* GetMetaOrbGameDataManager();
 
+	UFUNCTION(BlueprintCallable)
+	AOrbGameGameState* GetOrbGameGameState();
+
 	void BindCallbacksToDependencies();
 
 	UPROPERTY(BlueprintAssignable, Category = "OrbWidgetController")
@@ -92,6 +100,12 @@ public:
 	UPROPERTY(BlueprintAssignable, Category = "OrbWidgetController")
 	FOnOrbSetChangedControllerSignature OnOrbSetChanged;
 
+	UPROPERTY(BlueprintAssignable, Category = "OrbWidgetController")
+	FOnCharacterDeathControllerSignature OnCharacterDeath;
+
+	UPROPERTY(BlueprintAssignable, Category = "OrbWidgetController")
+	FOnEarnedMoneyChangedControllerSignature OnEarnedMoneyChanged;
+
 	UFUNCTION()
 	void HandleLevelUp(int Level);
 	
@@ -103,6 +117,12 @@ public:
 
 	UFUNCTION()
 	void HandleOrbSetChanged(FGameplayTag OrbTag, int MaxQuantity, int32 CurrentQuantity);
+
+	UFUNCTION()
+	void HandleCharacterDeath(AOrbGameCharacter* DeadCharacter, FVector DeathLocation);
+
+	UFUNCTION()
+	void HandleMoneyChange(float NewMoney);
 
 	
 	UFUNCTION()
@@ -145,4 +165,7 @@ protected:
 
 	UPROPERTY()
 	UMetaOrbGameDataManager* MetaOrbGameDataManager;
+
+	UPROPERTY()
+	AOrbGameGameState* GameState;
 };

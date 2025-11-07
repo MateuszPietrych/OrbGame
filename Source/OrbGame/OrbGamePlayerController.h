@@ -85,22 +85,44 @@ protected:
 	UFUNCTION()
 	void ChooseActionByOrbSystemChanged(EOrbSystemState NewState, EOrbSystemState OldState, AOrb* PreparedOrb, AOrb* AdvancedUseOrb);
 	
+public:
+	void AddOrb();
+
+	UFUNCTION()
+	void OnLevelUp(int NewLevel);
 
 private:
+	UPROPERTY()
 	FVector CachedDestination;
+
+	UPROPERTY()
 	FRotator CachedRotation;
 
+	UPROPERTY()
 	bool bIsTouch; // Is it a touch device
+
+	UPROPERTY()
 	float FollowTime; // For how long it has been pressed
+
+	UPROPERTY()
 	class AOrb* FollowOrb;
+
+	UPROPERTY()
 	bool bCanUseLongEffect = true;
+
+	UPROPERTY()
 	bool bLongEffectInUse = false;
 
 	/** The character that we are controlling */
+	UPROPERTY()
 	class AOrbGameCharacter* OrbGameCharacter;
 
-public:
-	void AddOrb();
+	UPROPERTY(BlueprintReadWrite, Category = Others, meta = (AllowPrivateAccess = "true"))
+	float LevelUpBackoffTime = 0.2f;
+
+	UPROPERTY()
+	FTimerHandle LevelUpBackoffTimeHandle;
+
 };
 
 

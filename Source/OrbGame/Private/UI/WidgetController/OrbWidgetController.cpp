@@ -14,6 +14,8 @@
 #include "OrbGameStructs.h"
 #include "OrbGameGameplayTags.h"
 #include "Game/MetaOrbGameDataManager.h"
+#include "Actor/Manager/EnemyManager.h"
+#include "Game/OrbGameGameState.h"
 
 
 
@@ -24,6 +26,7 @@ void UOrbWidgetController::SetWidgetControllerParams(const FWidgetControllerPara
 	PlayerAbilitySystemComponent = WCParams.AbilitySystemComponent;
 	PlayerAttributeSet = WCParams.AttributeSet;
 	MetaOrbGameDataManager = WCParams.MetaGameDataManager;
+	GameState = WCParams.GameState;
 }
 
 AOrbGamePlayerController* UOrbWidgetController::GetOrbGamePlayerController()
@@ -68,6 +71,11 @@ UMetaOrbGameDataManager* UOrbWidgetController::GetMetaOrbGameDataManager()
 	return MetaOrbGameDataManager;
 }
 
+AOrbGameGameState* UOrbWidgetController::GetOrbGameGameState()
+{
+	return GameState;
+}
+
 void UOrbWidgetController::BindCallbacksToDependencies()
 {
     UE_LOG(LogTemp, Warning, TEXT("UOrbWidgetController::BindCallbacksToDependencies"));
@@ -79,6 +87,9 @@ void UOrbWidgetController::BindCallbacksToDependencies()
 	{
 		MetaOrbGameDataManager->OnOrbSetChanged.AddDynamic(this, &UOrbWidgetController::HandleOrbSetChanged);
 	}
+
+	GetOrbGamePlayerCharacter()->OnCharacterDeath.AddDynamic(this, &UOrbWidgetController::HandleCharacterDeath);
+	GetOrbGameGameState()->OnEarnedMoneyChanged.AddDynamic(this, &UOrbWidgetController::HandleMoneyChange);
 }
 
 void UOrbWidgetController::HandleLevelUp(int Level)
@@ -132,6 +143,18 @@ void UOrbWidgetController::HandleExpChanged(float NewExp)
 {
 	float MaxExp = GetOrbGameAbilitySystemComponent()->GetCurrentExpThreshold();
 	OnExpChanged.Broadcast(NewExp, MaxExp);
+}
+
+void UOrbWidgetController::HandleCharacterDeath(AOrbGameCharacter* DeadCharacter, FVector DeathLocation)
+{
+	// float EarnMoney = GetOrbGamePlayerCharacter()->GetEarnedMoneyOnDeath();
+	// float FinalExp = GetOrbGamePlayerCharacter()->GetFinalExpOnDeath();
+	// OnCharacterDeath.Broadcast(DeadCharacter, DeathLocation, EarnMoney, FinalExp);
+}
+
+void UOrbWidgetController::HandleMoneyChange(float NewMoney)
+{
+	OnEarnedMoneyChanged.Broadcast(NewMoney);
 }
 
 void UOrbWidgetController::ChangeMoney(float NewMoney)

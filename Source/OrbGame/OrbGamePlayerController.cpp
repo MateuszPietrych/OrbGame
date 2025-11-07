@@ -19,6 +19,7 @@
 #include "NiagaraComponent.h"
 #include "NiagaraSystem.h"
 #include "GameFramework/PawnMovementComponent.h"
+#include "OrbSystem/GAS/OrbUserAbilitySystemComponent.h"
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 
@@ -42,6 +43,10 @@ void AOrbGamePlayerController::BeginPlay()
 		PlayerOrbManager->OnFinishOrbPreparationEvent.AddUObject(this, &AOrbGamePlayerController::OnFinishOrbPreparationEvent);
 		PlayerOrbManager->OnOrbSystemStateChanged.AddDynamic(this, &AOrbGamePlayerController::ChooseActionByOrbSystemChanged);
 	} 
+
+	UOrbUserAbilitySystemComponent* ASC = Cast<UOrbUserAbilitySystemComponent>(OrbGameCharacter->GetAbilitySystemComponent());
+	ASC->OnLevelUp.AddDynamic(this, &AOrbGamePlayerController::OnLevelUp);
+
 }
 
 void AOrbGamePlayerController::SetupInputComponent()
@@ -184,6 +189,13 @@ void AOrbGamePlayerController::OnSetDestinationTriggered()
 
 	if(FollowOrb)
 	{
+		bool OnLevelUpBackoffActive = GetWorld()->GetTimerManager().IsTimerActive(LevelUpBackoffTimeHandle);
+		if(OnLevelUpBackoffActive)
+		{
+			GetWorld()->GetTimerManager().ClearTimer(LevelUpBackoffTimeHandle);
+			return;
+		}
+
 		UOrbManager* PlayerOrbManager = OrbGameCharacter->GetOrbManager();
 		//TODO : no need to update it every frame, problem is that something from movement I think is occuring after code with setup and it 
 		// causes that the ray is weird direction or it is something else I don't know
@@ -203,7 +215,10 @@ void AOrbGamePlayerController::OnSetDestinationReleased()
 {
 	UOrbManager* PlayerOrbManager = OrbGameCharacter->GetOrbManager();
 	EOrbSystemState CurrentState = PlayerOrbManager->GetCurrentOrbSystemState();
-	if(FollowOrb && (CurrentState == EOrbSystemState::ADVANCED_USE_IN_PROGRESS || CurrentState == EOrbSystemState::PREPARING_ADVANCED_USE))
+	bool OnLevelUpBackoffActive = GetWorld()->GetTimerManager().IsTimerActive(LevelUpBackoffTimeHandle);
+	if(FollowOrb && 
+		(CurrentState == EOrbSystemState::ADVANCED_USE_IN_PROGRESS || CurrentState == EOrbSystemState::PREPARING_ADVANCED_USE) && 
+		!OnLevelUpBackoffActive)
 	{
 		StopLongUseEffect();
 	}
@@ -245,11 +260,11 @@ void AOrbGamePlayerController::Tick(float DeltaTime)
 			FVector Direction = Hit.TraceEnd - Hit.TraceStart;
 			Direction.Normalize();
 
-			float angle = acosf(FVector::DotProduct(FVector(Direction.X,Direction.Y,0.0f), Direction));
-			float sin = FMath::Sin(angle);
-			float height = Hit.Location.Z - OrbGameCharacter->GetFeetZLocation();
-			
-			FVector NewHitLocation = Hit.Location + Direction * height / sin;
+			float Angle = acosf(FVector::DotProduct(FVector(Direction.X,Direction.Y,0.0f), Direction));
+			float Sin = FMath::Sin(Angle);
+			float Height = Hit.Location.Z - OrbGameCharacter->GetFeetZLocation();
+
+			FVector NewHitLocation = Hit.Location + Direction * Height / Sin;
 
 			DrawDebugLine(GetWorld(), Hit.Location, NewHitLocation, FColor::Green, true, 10.0f, 2.0f);
 			CachedDestination = NewHitLocation;
@@ -314,4 +329,10 @@ void AOrbGamePlayerController::ChooseActionByOrbSystemChanged(EOrbSystemState Ne
 			StopLongUseEffect();
 		}
 	}
+}
+
+void AOrbGamePlayerController::OnLevelUp(int NewLevel)
+{
+	GetWorld()->GetTimerManager().ClearTimer(LevelUpBackoffTimeHandle);
+	GetWorld()->GetTimerManager().SetTimer(LevelUpBackoffTimeHandle, this, &AOrbGamePlayerController::StopLongUseEffect, LevelUpBackoffTime, false);
 }

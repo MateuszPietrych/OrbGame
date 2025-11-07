@@ -7,6 +7,7 @@
 #include "Utility/EnemyMultiPool.h"
 #include "OrbGameBlueprintLibrary.h"
 #include "OrbGame/OrbGameGameMode.h"
+#include "Components/CapsuleComponent.h"
 
 // Sets default values
 AEnemySpawner::AEnemySpawner()
@@ -70,6 +71,7 @@ FEnemyGroup AEnemySpawner::SpawnEnemies(const FEnemyWaveGroup& EnemyGroup, UEnem
 			if(EnemyPool)
 			{
 				AEnemy* PooledEnemy = EnemyPool->GetEnemyFromPool(CurrentEnemyTag);
+				SpawnLocation.Z += PooledEnemy->GetCapsuleComponent()->GetScaledCapsuleHalfHeight();
 				PooledEnemy->SetActorLocation(SpawnLocation);
 				if (PooledEnemy) SpawnedEnemies.Add(PooledEnemy);
 			}

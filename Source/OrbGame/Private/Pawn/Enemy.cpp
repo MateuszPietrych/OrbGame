@@ -16,6 +16,7 @@
 #include "Actor/ExpHolderObject.h"
 #include "GameplayEffect.h"
 #include "OrbSystem/GAS/EffectStateManager.h"
+#include "Pawn/EnemyDataAsset.h"
 
 
 // Sets default values
@@ -108,7 +109,7 @@ void AEnemy::OnDamageTaken(float NewHealth)
 {
 	if(BodyMesh) 
 	{
-		BodyMesh->SetOverlayMaterial(DamageOverlayMaterialInstance);
+		BodyMesh->SetOverlayMaterial(EnemyData->DamageOverlayMaterialInstance);
 	}
 	GetWorld()->GetTimerManager().ClearTimer(DamageTakenTimerHandle);
 	GetWorld()->GetTimerManager().SetTimer(DamageTakenTimerHandle, [this]()
@@ -117,7 +118,7 @@ void AEnemy::OnDamageTaken(float NewHealth)
 		{
 			BodyMesh->SetOverlayMaterial(nullptr);
 		}
-	}, DamageOverlayDuration, false);
+	}, EnemyData->DamageOverlayDuration, false);
 }
 
 void AEnemy::ActivateSavingMode_Implementation()
@@ -150,7 +151,7 @@ void AEnemy::OnReturnedToPool_Implementation()
 
 FGameplayTag AEnemy::GetObjectTag_Implementation()
 {
-	return EnemyGameplayTag;
+	return EnemyData->EnemyGameplayTag;
 }
 
 void AEnemy::CapsuleInteraction(UPrimitiveComponent *OverlappedComponent,
@@ -163,10 +164,10 @@ void AEnemy::CapsuleInteraction(UPrimitiveComponent *OverlappedComponent,
 	if(OtherActor && OtherActor != this && OtherComp->IsA(UCapsuleComponent::StaticClass()))
 	{
 		FDamageEffectParams DamageParams;
-		DamageParams.DamageGameplayEffectClass = DamageGameplayEffectClass;
+		DamageParams.DamageGameplayEffectClass = EnemyData->DamageGameplayEffectClass;
 		DamageParams.SourceAbilitySystemComponent = AbilitySystemComponent;
 		DamageParams.TargetAbilitySystemComponent = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(OtherActor);
-		DamageParams.Damage = DamageOnTouch;
+		DamageParams.Damage = EnemyData->DamageOnTouch;
 		UOrbGameBlueprintLibrary::DealDamage(DamageParams);
 	}
 }

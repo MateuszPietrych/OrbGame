@@ -7,20 +7,20 @@
 #include "Structures.h"
 #include "TimerManager.h"
 #include "Pawn/Enemy.h"
-#include "EnemiesSpawnManager.generated.h"
+#include "EnemySpawnManager.generated.h"
 
 class AEnemySpawner;
 
 
 
 UCLASS()
-class ORBGAME_API AEnemiesSpawnManager : public AActor
+class ORBGAME_API AEnemySpawnManager : public AActor
 {
 	GENERATED_BODY()
 	
 public:	
 	// Sets default values for this actor's properties
-	AEnemiesSpawnManager();
+	AEnemySpawnManager();
 
 protected:
 	// Called when the game starts or when spawned
@@ -37,10 +37,16 @@ public:
 protected:
 
 	UFUNCTION()
+	void SpawnEnemiesAtValidSpawners(const TArray<AEnemySpawner*>& ValidSpawners, FEnemyWave WaveToSpawn);
+
+	UFUNCTION()
 	void HandleEnemyDeath(AEnemy* DeadEnemy, FVector DeathLocation);
 
+	UFUNCTION()
+	void BindDeathEventToEnemies(const TArray<AEnemy*>& Enemies);
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Enemy Spawn Manager", meta = (AllowPrivateAccess = "true"))
-	class AEnemiesManager* EnemiesManager;
+	class AEnemyManager* EnemiesManager;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Enemy Spawn Manager", meta = (AllowPrivateAccess = "true"))
 	class AExpManager* ExpManager;

@@ -10,6 +10,7 @@
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnAttributeChangedSignature, float, NewValue);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnExpChangedSignature, float, NewExpValue);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnCharacterDeathSignature, AOrbGameCharacter*, DeadCharacter, FVector, DeathLocation);
 
 UCLASS(Blueprintable)
 class AOrbGameCharacter : public ACharacter, public IAbilitySystemInterface
@@ -67,10 +68,16 @@ public:
 	UPROPERTY(BlueprintAssignable)
 	FOnExpChangedSignature OnExpChanged;
 
+	UPROPERTY(BlueprintAssignable)
+	FOnCharacterDeathSignature OnCharacterDeath;
+
 private:
 
 	UFUNCTION() 
 	void OnCharacterSpeedChanged(float NewValue);
+
+	UFUNCTION()
+	void Death();
 
 
 
@@ -138,6 +145,8 @@ private:
 
 	UPROPERTY()
 	FTimerHandle HealthRegenerationTimerHandle;
+
+
 
 };
 

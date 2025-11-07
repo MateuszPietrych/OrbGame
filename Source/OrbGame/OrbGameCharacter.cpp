@@ -143,6 +143,18 @@ void AOrbGameCharacter::SetupAttributeUsage()
 		);
 	OnSpeedChanged.AddDynamic(this, &AOrbGameCharacter::OnCharacterSpeedChanged);
 	OnSpeedChanged.Broadcast(AttributeSet->GetSpeed());
+
+	OrbUserAbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(AttributeSet->GetHealthAttribute()).AddLambda(
+				[this](const FOnAttributeChangeData& Data)
+				{
+					if(Data.NewValue <= 0.0f)
+					{
+						Death();
+					}
+				}
+			);
+	// OnHealthChanged.AddDynamic(this, &AOrbGameCharacter::OnHealthRegenerationChanged);
+	// OnHealthChanged.Broadcast(AttributeSet->GetHealth());
 }
  
 void AOrbGameCharacter::Tick(float DeltaSeconds)
@@ -282,6 +294,13 @@ void AOrbGameCharacter::ExpHolderInteraction(UPrimitiveComponent *OverlappedComp
 			ExpHolderObject->Destroy();	
 		}
 	}
+}
+
+void AOrbGameCharacter::Death()
+{
+	// Handle character death logic here
+	// For example, play death animation, disable input, etc.
+	OnCharacterDeath.Broadcast(this, GetActorLocation());
 }
 
 
